@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
+import { motion } from "framer-motion";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,13 +17,13 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { User, Settings, Mail, Key, LogOut, Trash2 } from "lucide-react";
 
 const Profile = () => {
   const { user, signOut } = useAuth();
   const { toast } = useToast();
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     fetchProfile();
@@ -71,63 +72,128 @@ const Profile = () => {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      <div className="flex items-center space-x-4">
-        <div className="h-20 w-20 rounded-full bg-primary flex items-center justify-center">
-          <span className="text-2xl font-bold text-white">
-            {profile.username.charAt(0).toUpperCase()}
-          </span>
-        </div>
-        <div>
-          <h2 className="text-2xl font-bold">{profile.username}</h2>
-          <p className="text-gray-500">{user?.email}</p>
-        </div>
-      </div>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="max-w-4xl mx-auto px-4 py-8"
+    >
+      <div className="bg-white/10 backdrop-blur-lg rounded-3xl shadow-xl overflow-hidden">
+        <div className="bg-gradient-to-r from-primary/10 to-accent/10 p-8">
+          <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
+            <motion.div
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 0.5 }}
+              className="relative"
+            >
+              <div className="w-32 h-32 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-4xl font-bold text-white shadow-lg">
+                {profile.username.charAt(0).toUpperCase()}
+              </div>
+            </motion.div>
 
-      <div className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" value={user?.email} disabled />
-        </div>
+            <div className="flex-1 space-y-6">
+              <div className="space-y-2 text-center md:text-left">
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                  {profile.username}
+                </h1>
+                <p className="text-gray-500">{user?.email}</p>
+              </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="username">Username</Label>
-          <Input id="username" value={profile.username} disabled />
-        </div>
-
-        <div className="pt-4 space-y-4">
-          <Button onClick={() => signOut()}>Sign Out</Button>
-
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="destructive">Delete Account</Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete your
-                  account and all your links.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={handleDeleteAccount}
-                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  className="space-y-2 bg-white/5 backdrop-blur-sm p-4 rounded-xl"
                 >
-                  Delete Account
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+                  <Label htmlFor="email" className="flex items-center gap-2 text-gray-400">
+                    <Mail className="h-4 w-4" />
+                    Email Address
+                  </Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={user?.email}
+                    disabled
+                    className="bg-white/10 border-0"
+                  />
+                </motion.div>
+
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  className="space-y-2 bg-white/5 backdrop-blur-sm p-4 rounded-xl"
+                >
+                  <Label htmlFor="username" className="flex items-center gap-2 text-gray-400">
+                    <User className="h-4 w-4" />
+                    Username
+                  </Label>
+                  <Input
+                    id="username"
+                    value={profile.username}
+                    disabled
+                    className="bg-white/10 border-0"
+                  />
+                </motion.div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="p-8 space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <motion.div whileHover={{ scale: 1.02 }}>
+              <Button
+                onClick={() => signOut()}
+                variant="outline"
+                className="w-full bg-white/5 border-0 hover:bg-white/10 transition-all duration-300"
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                Sign Out
+              </Button>
+            </motion.div>
+
+            <motion.div whileHover={{ scale: 1.02 }}>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="destructive"
+                    className="w-full bg-red-500/10 hover:bg-red-500/20 text-red-500 border-0"
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete Account
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent className="bg-white/90 backdrop-blur-lg border-0">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. This will permanently delete your account
+                      and remove your data from our servers.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel className="bg-white/50 hover:bg-white/80">Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={handleDeleteAccount}
+                      className="bg-red-500 hover:bg-red-600 text-white"
+                    >
+                      Delete Account
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </motion.div>
+          </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
