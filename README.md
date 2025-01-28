@@ -1,69 +1,63 @@
-# Welcome to your Lovable project
+# LinkManager - Professional Link Management Platform
 
-## Project info
+A modern web application for creating, managing, and sharing links with advanced features like password protection and analytics.
 
-**URL**: https://lovable.dev/projects/98d663d1-cb02-4460-8af8-4b081c0c91d9
+## Features
 
-## How can I edit this code?
+- User authentication with unique usernames and emails
+- Create and manage links with custom names and descriptions
+- Password protection for links
+- Link analytics and statistics
+- Responsive design for all screen sizes
+- Profile management
 
-There are several ways of editing your application.
+## Tech Stack
 
-**Use Lovable**
+- React with TypeScript
+- Tailwind CSS for styling
+- Shadcn UI components
+- React Query for data management
+- React Router for navigation
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/98d663d1-cb02-4460-8af8-4b081c0c91d9) and start prompting.
+## Local Development
 
-Changes made via Lovable will be committed automatically to this repo.
+1. Clone the repository
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Start the development server:
+   ```bash
+   npm run dev
+   ```
 
-**Use your preferred IDE**
+## Deployment
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Netlify Deployment
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+1. Create a new site on Netlify
+2. Connect your GitHub repository
+3. Set build command to: `npm run build`
+4. Set publish directory to: `dist`
+5. Deploy!
 
-Follow these steps:
+### Heroku Deployment
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+1. Create a new Heroku app
+2. Connect your GitHub repository
+3. Add the following buildpacks:
+   - heroku/nodejs
+4. Set the following config vars:
+   - NODE_ENV: production
+5. Deploy from the Heroku dashboard
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+## Contributing
 
-# Step 3: Install the necessary dependencies.
-npm i
+1. Fork the repository
+2. Create a new branch
+3. Make your changes
+4. Submit a pull request
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+## License
 
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with .
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/98d663d1-cb02-4460-8af8-4b081c0c91d9) and click on Share -> Publish.
-
-## I want to use a custom domain - is that possible?
-
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+MIT License
