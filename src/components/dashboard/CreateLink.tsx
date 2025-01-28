@@ -25,12 +25,10 @@ const CreateLink = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const { data, error } = await supabase.from("links").insert([
-        {
-          ...formData,
-          user_id: user?.id,
-        },
-      ]).select().single();
+      const { data, error } = await supabase.from("links").insert({
+        ...formData,
+        user_id: user?.id,
+      }).select().single();
 
       if (error) throw error;
 

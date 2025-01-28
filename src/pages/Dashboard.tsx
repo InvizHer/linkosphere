@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import { Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import CreateLink from "@/components/dashboard/CreateLink";
@@ -10,6 +10,7 @@ import Profile from "@/components/dashboard/Profile";
 const Dashboard = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     if (!loading && !user) {
@@ -25,8 +26,13 @@ const Dashboard = () => {
     return null;
   }
 
+  const getActiveTab = () => {
+    const path = location.pathname.split("/")[2] || "create";
+    return path;
+  };
+
   return (
-    <DashboardLayout>
+    <DashboardLayout activeTab={getActiveTab()}>
       <Routes>
         <Route path="create" element={<CreateLink />} />
         <Route path="manage" element={<ManageLinks />} />
