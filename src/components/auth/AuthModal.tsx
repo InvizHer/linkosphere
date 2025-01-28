@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { AuthModalProps } from "@/types";
 import { useToast } from "@/components/ui/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 export const AuthModal = ({ isOpen, onClose, type }: AuthModalProps) => {
   const [formData, setFormData] = useState({
@@ -13,15 +14,32 @@ export const AuthModal = ({ isOpen, onClose, type }: AuthModalProps) => {
     password: "",
   });
   const { toast } = useToast();
+  const { signIn, signUp } = useAuth();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement authentication logic
-    toast({
-      title: type === "login" ? "Login Successful" : "Account Created",
-      description: type === "login" ? "Welcome back!" : "Please login to continue",
-    });
-    onClose();
+    try {
+      if (type === "login") {
+        await signIn(formData.email, formData.password);
+        toast({
+          title: "Login Successful",
+          description: "Welcome back!",
+        });
+      } else {
+        await signUp(formData.email, formData.password, formData.username);
+        toast({
+          title: "Account Created",
+          description: "Please check your email to verify your account",
+        });
+      }
+      onClose();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
   };
 
   return (

@@ -25,3 +25,9 @@ export interface AuthModalProps {
   onClose: () => void;
   type: "login" | "signup";
 }
+
+export interface Profile {
+  id: string;
+  username: string;
+  updatedAt: string;
+}
