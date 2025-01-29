@@ -39,7 +39,9 @@ export const DashboardLayout = ({ children, activeTab }: DashboardLayoutProps) =
                     key={tab.id}
                     variant={isActive ? "default" : "ghost"}
                     onClick={() => navigate(`/dashboard/${tab.id}`)}
-                    className="flex items-center space-x-2"
+                    className={`flex items-center space-x-2 ${
+                      isActive ? "bg-primary text-white" : ""
+                    }`}
                   >
                     <Icon className="h-4 w-4" />
                     <span>{tab.label}</span>

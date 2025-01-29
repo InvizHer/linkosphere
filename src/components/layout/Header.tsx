@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { User, LogOut } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { motion } from "framer-motion";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export const Header = () => {
   const { user, signOut } = useAuth();
@@ -18,25 +19,25 @@ export const Header = () => {
     >
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
-          <div className="flex items-center space-x-4">
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => navigate("/dashboard/create")}
-              className="cursor-pointer"
-            >
-              <span className="text-xl font-semibold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                LinkManager
-              </span>
-            </motion.div>
-          </div>
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => navigate("/dashboard/create")}
+            className="cursor-pointer flex items-center space-x-2"
+          >
+            <span className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              LinkManager
+            </span>
+          </motion.div>
 
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-4">
+            <ThemeToggle />
             {isMobile ? (
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => navigate("/dashboard/profile")}
+                className="relative"
               >
                 <User className="h-5 w-5" />
               </Button>
