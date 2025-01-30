@@ -30,7 +30,7 @@ const CreateLink = () => {
 
     setIsLoading(true);
     try {
-      const { data, error } = await supabase.from("links").insert({
+      const { error } = await supabase.from("links").insert({
         user_id: user.id,
         name: formData.name,
         description: formData.description,
