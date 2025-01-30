@@ -1,6 +1,9 @@
-import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
+import { useNavigate, useLocation } from "react-router-dom";
+import { User, LogOut, Menu } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { motion } from "framer-motion";
 import { ThemeToggle } from "@/components/theme-toggle";
 import {
   DropdownMenu,
@@ -8,80 +11,142 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { UserRound, LogOut } from "lucide-react";
+import { useState } from "react";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
-const Header = () => {
+export const Header = () => {
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const isMobile = useIsMobile();
+  const [isOpen, setIsOpen] = useState(false);
+
+  const isLandingPage = location.pathname === "/";
+  const isViewPage = location.pathname.startsWith("/view");
+
+  const menuItems = [
+    { label: "Create Link", path: "/dashboard/create" },
+    { label: "Manage Links", path: "/dashboard/manage" },
+    { label: "Statistics", path: "/dashboard/stats" },
+    { label: "Profile", path: "/dashboard/profile" },
+  ];
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-14 max-w-screen-2xl items-center">
-        <div className="mr-4 hidden md:flex">
-          <Link to="/" className="mr-6 flex items-center space-x-2">
-            <span className="hidden font-bold sm:inline-block">
-              Link Manager
+    <motion.header
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700"
+    >
+      <div className="container mx-auto px-4">
+        <div className="flex justify-between items-center h-16">
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => navigate(user ? "/dashboard/create" : "/")}
+            className="cursor-pointer flex items-center space-x-2"
+          >
+            <span className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              LinkManager
             </span>
-          </Link>
-        </div>
-        <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
-          <div className="w-full flex-1 md:w-auto md:flex-none">
-            <nav className="flex items-center space-x-4">
-              {user && (
-                <>
-                  <Link
-                    to="/dashboard"
-                    className="text-sm font-medium transition-colors hover:text-primary"
-                  >
-                    Dashboard
-                  </Link>
-                  <Link
-                    to="/dashboard/create"
-                    className="text-sm font-medium transition-colors hover:text-primary"
-                  >
-                    Create Link
-                  </Link>
-                  <Link
-                    to="/dashboard/manage"
-                    className="text-sm font-medium transition-colors hover:text-primary"
-                  >
-                    Manage Links
-                  </Link>
-                </>
-              )}
-            </nav>
-          </div>
-          <nav className="flex items-center space-x-2">
+          </motion.div>
+
+          <div className="flex items-center space-x-4">
+            {!isLandingPage && !isViewPage && (
+              <>
+                {isMobile ? (
+                  <Sheet open={isOpen} onOpenChange={setIsOpen}>
+                    <SheetTrigger asChild>
+                      <Button variant="ghost" size="icon">
+                        <Menu className="h-5 w-5" />
+                      </Button>
+                    </SheetTrigger>
+                    <SheetContent>
+                      <SheetHeader>
+                        <SheetTitle>Menu</SheetTitle>
+                      </SheetHeader>
+                      <div className="mt-4 space-y-2">
+                        {menuItems.map((item) => (
+                          <Button
+                            key={item.path}
+                            variant="ghost"
+                            className="w-full justify-start"
+                            onClick={() => {
+                              navigate(item.path);
+                              setIsOpen(false);
+                            }}
+                          >
+                            {item.label}
+                          </Button>
+                        ))}
+                        <Button
+                          variant="ghost"
+                          className="w-full justify-start text-red-500"
+                          onClick={() => {
+                            signOut();
+                            setIsOpen(false);
+                          }}
+                        >
+                          Sign Out
+                        </Button>
+                      </div>
+                    </SheetContent>
+                  </Sheet>
+                ) : (
+                  <nav className="flex items-center space-x-2">
+                    {menuItems.map((item) => (
+                      <Button
+                        key={item.path}
+                        variant="ghost"
+                        onClick={() => navigate(item.path)}
+                        className={`${
+                          location.pathname === item.path
+                            ? "bg-primary/10 text-primary"
+                            : ""
+                        }`}
+                      >
+                        {item.label}
+                      </Button>
+                    ))}
+                  </nav>
+                )}
+              </>
+            )}
+
             <ThemeToggle />
-            {user ? (
+
+            {user && !isMobile && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="ghost"
-                    className="relative h-8 w-8 rounded-full"
+                    size="icon"
+                    className="relative"
                   >
-                    <UserRound className="h-5 w-5" />
+                    <User className="h-5 w-5" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem asChild>
-                    <Link to="/dashboard/profile">Profile</Link>
+                  <DropdownMenuItem onClick={() => navigate("/dashboard/profile")}>
+                    Profile
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => signOut()}>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Logout
+                  <DropdownMenuItem
+                    className="text-red-500"
+                    onClick={() => signOut()}
+                  >
+                    Sign Out
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-            ) : (
-              <Button asChild>
-                <Link to="/login">Login</Link>
-              </Button>
             )}
-          </nav>
+          </div>
         </div>
       </div>
-    </header>
+    </motion.header>
   );
 };
-
-export default Header;

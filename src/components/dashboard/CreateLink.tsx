@@ -23,7 +23,6 @@ const CreateLink = () => {
     password: "",
     showPassword: false,
     thumbnailUrl: "",
-    isPasswordVisible: false, // New field for password visibility
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -37,7 +36,7 @@ const CreateLink = () => {
         description: formData.description,
         original_url: formData.originalUrl,
         password: formData.showPassword ? formData.password : null,
-        show_password: formData.isPasswordVisible, // Use the visibility flag
+        show_password: formData.showPassword,
         thumbnail_url: formData.thumbnailUrl,
         user_id: user.id,
       });
@@ -56,7 +55,6 @@ const CreateLink = () => {
         password: "",
         showPassword: false,
         thumbnailUrl: "",
-        isPasswordVisible: false,
       });
     } catch (error: any) {
       toast({
@@ -161,47 +159,32 @@ const CreateLink = () => {
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
                   exit={{ opacity: 0, height: 0 }}
-                  className="space-y-4"
+                  className="relative"
                 >
-                  <div className="relative">
-                    <Input
-                      type={showPasswordField ? "text" : "password"}
-                      value={formData.password}
-                      onChange={(e) =>
-                        setFormData({ ...formData, password: e.target.value })
-                      }
-                      required
-                      className="pl-10 pr-10"
-                      placeholder="Enter password"
-                    />
-                    <Lock className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="absolute right-2 top-2 p-0 h-5 w-5"
-                      onClick={() => setShowPasswordField(!showPasswordField)}
-                    >
-                      {showPasswordField ? (
-                        <EyeOff className="h-4 w-4" />
-                      ) : (
-                        <Eye className="h-4 w-4" />
-                      )}
-                    </Button>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2">
-                    <Switch
-                      id="isPasswordVisible"
-                      checked={formData.isPasswordVisible}
-                      onCheckedChange={(checked) =>
-                        setFormData({ ...formData, isPasswordVisible: checked })
-                      }
-                    />
-                    <Label htmlFor="isPasswordVisible">
-                      Show password as hint on view page
-                    </Label>
-                  </div>
+                  <Input
+                    type={showPasswordField ? "text" : "password"}
+                    value={formData.password}
+                    onChange={(e) =>
+                      setFormData({ ...formData, password: e.target.value })
+                    }
+                    required
+                    className="pl-10 pr-10"
+                    placeholder="Enter password"
+                  />
+                  <Lock className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-2 top-2 p-0 h-5 w-5"
+                    onClick={() => setShowPasswordField(!showPasswordField)}
+                  >
+                    {showPasswordField ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </Button>
                 </motion.div>
               )}
             </div>
