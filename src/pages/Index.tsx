@@ -1,74 +1,143 @@
-import { useState } from "react";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
+import { motion } from "framer-motion";
+import { Link, Share2, Shield, Zap, ArrowRight, Globe, Users } from "lucide-react";
 import { AuthModal } from "@/components/auth/AuthModal";
+import { useState } from "react";
 
 const Index = () => {
-  const [authModal, setAuthModal] = useState<{ isOpen: boolean; type: "login" | "signup" }>({
-    isOpen: false,
-    type: "login",
-  });
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authType, setAuthType] = useState<"login" | "signup">("signup");
+
+  useEffect(() => {
+    if (user) {
+      navigate("/dashboard/create");
+    }
+  }, [user, navigate]);
+
+  const features = [
+    {
+      icon: Link,
+      title: "Smart Link Management",
+      description: "Create and manage custom links with advanced tracking capabilities",
+    },
+    {
+      icon: Shield,
+      title: "Secure Sharing",
+      description: "Password protection and privacy controls for sensitive content",
+    },
+    {
+      icon: Globe,
+      title: "Global Access",
+      description: "Share your links worldwide with real-time analytics",
+    },
+    {
+      icon: Users,
+      title: "Team Collaboration",
+      description: "Work together seamlessly with shared link management",
+    },
+  ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/10 to-accent/10">
-      <nav className="container mx-auto p-4 flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-primary">LinkManager</h1>
-        <div className="space-x-4">
-          <Button
-            variant="outline"
-            onClick={() => setAuthModal({ isOpen: true, type: "login" })}
-          >
-            Login
-          </Button>
-          <Button
-            onClick={() => setAuthModal({ isOpen: true, type: "signup" })}
-          >
-            Sign Up
-          </Button>
-        </div>
-      </nav>
-
-      <main className="container mx-auto px-4 py-20 text-center">
-        <h2 className="text-5xl font-bold mb-6 animate-fadeIn">
-          Manage Your Links <span className="text-primary">Professionally</span>
-        </h2>
-        <p className="text-xl text-gray-600 mb-12 max-w-2xl mx-auto animate-fadeIn">
-          Create, manage, and share your links with advanced features like password protection,
-          analytics, and more.
-        </p>
-        <Button
-          size="lg"
-          onClick={() => setAuthModal({ isOpen: true, type: "signup" })}
-          className="animate-fadeIn"
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+      {/* Hero Section */}
+      <div className="container mx-auto px-4 pt-20 pb-32">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center max-w-4xl mx-auto"
         >
-          Get Started
-        </Button>
+          <motion.h1 
+            className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent"
+            initial={{ scale: 0.95 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 0.5 }}
+          >
+            Link Management
+            <br />
+            Reimagined
+          </motion.h1>
+          <motion.p 
+            className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-12"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2 }}
+          >
+            Create, share, and track your links with powerful analytics
+            <br />
+            and advanced security features
+          </motion.p>
+          <motion.div 
+            className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+          >
+            <Button
+              size="lg"
+              className="bg-primary hover:bg-primary/90 text-white px-8 py-6 text-lg rounded-full flex items-center gap-2 group"
+              onClick={() => {
+                setAuthType("signup");
+                setShowAuthModal(true);
+              }}
+            >
+              Get Started
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </Button>
+            <Button
+              size="lg"
+              variant="outline"
+              className="px-8 py-6 text-lg rounded-full"
+              onClick={() => {
+                setAuthType("login");
+                setShowAuthModal(true);
+              }}
+            >
+              Sign In
+            </Button>
+          </motion.div>
+        </motion.div>
 
-        <div className="mt-20 grid md:grid-cols-3 gap-8">
-          <div className="p-6 bg-white rounded-lg shadow-lg">
-            <h3 className="text-xl font-semibold mb-4">Secure Sharing</h3>
-            <p className="text-gray-600">
-              Protect your links with passwords and control visibility
-            </p>
-          </div>
-          <div className="p-6 bg-white rounded-lg shadow-lg">
-            <h3 className="text-xl font-semibold mb-4">Detailed Analytics</h3>
-            <p className="text-gray-600">
-              Track views and analyze link performance
-            </p>
-          </div>
-          <div className="p-6 bg-white rounded-lg shadow-lg">
-            <h3 className="text-xl font-semibold mb-4">Easy Management</h3>
-            <p className="text-gray-600">
-              Organize and manage all your links in one place
-            </p>
-          </div>
-        </div>
-      </main>
+        {/* Features Grid */}
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mt-32"
+        >
+          {features.map((feature, index) => {
+            const Icon = feature.icon;
+            return (
+              <motion.div
+                key={index}
+                whileHover={{ scale: 1.05 }}
+                className="glass p-8 rounded-2xl border border-gray-200 dark:border-gray-700 flex flex-col items-center text-center group cursor-pointer"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 * index }}
+              >
+                <div className="w-16 h-16 bg-primary/10 dark:bg-primary/20 rounded-xl flex items-center justify-center mb-6 group-hover:bg-primary/20 transition-colors">
+                  <Icon className="h-8 w-8 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold mb-4">{feature.title}</h3>
+                <p className="text-gray-600 dark:text-gray-400">
+                  {feature.description}
+                </p>
+              </motion.div>
+            );
+          })}
+        </motion.div>
+      </div>
 
+      {/* Auth Modal */}
       <AuthModal
-        isOpen={authModal.isOpen}
-        onClose={() => setAuthModal({ ...authModal, isOpen: false })}
-        type={authModal.type}
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        type={authType}
       />
     </div>
   );

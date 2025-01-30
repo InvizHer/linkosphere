@@ -11,8 +11,28 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Edit, Eye, Trash2, ExternalLink } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import {
+  Edit,
+  Eye,
+  Trash2,
+  ExternalLink,
+  Info,
+  Link,
+  Lock,
+  Image,
+} from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { motion, AnimatePresence } from "framer-motion";
 
 const ManageLinks = () => {
   const { user } = useAuth();
@@ -21,6 +41,15 @@ const ManageLinks = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState<"views" | "created_at">("created_at");
   const [loading, setLoading] = useState(true);
+  const [selectedLink, setSelectedLink] = useState<any>(null);
+  const [editFormData, setEditFormData] = useState({
+    name: "",
+    description: "",
+    original_url: "",
+    thumbnail_url: "",
+    password: "",
+    show_password: false,
+  });
 
   useEffect(() => {
     fetchLinks();
@@ -50,10 +79,7 @@ const ManageLinks = () => {
   const handleDelete = async (id: string) => {
     if (window.confirm("Are you sure you want to delete this link?")) {
       try {
-        const { error } = await supabase
-          .from("links")
-          .delete()
-          .eq("id", id);
+        const { error } = await supabase.from("links").delete().eq("id", id);
 
         if (error) throw error;
 
@@ -72,12 +98,50 @@ const ManageLinks = () => {
     }
   };
 
+  const handleEdit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedLink) return;
+
+    try {
+      const { error } = await supabase
+        .from("links")
+        .update({
+          name: editFormData.name,
+          description: editFormData.description,
+          original_url: editFormData.original_url,
+          thumbnail_url: editFormData.thumbnail_url,
+          password: editFormData.password,
+          show_password: editFormData.show_password,
+        })
+        .eq("id", selectedLink.id);
+
+      if (error) throw error;
+
+      await fetchLinks();
+      setSelectedLink(null);
+      toast({
+        title: "Link Updated",
+        description: "Your link has been updated successfully",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
   const filteredLinks = links.filter((link) =>
     link.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
   }
 
   return (
@@ -87,10 +151,10 @@ const ManageLinks = () => {
           placeholder="Search links..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="sm:max-w-xs"
+          className="sm:max-w-xs bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm"
         />
         <select
-          className="border rounded-md p-2"
+          className="border rounded-md p-2 bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm"
           value={sortBy}
           onChange={(e) => setSortBy(e.target.value as "views" | "created_at")}
         >
@@ -99,7 +163,7 @@ const ManageLinks = () => {
         </select>
       </div>
 
-      <div className="rounded-md border">
+      <div className="rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
         <Table>
           <TableHeader>
             <TableRow>
@@ -119,6 +183,166 @@ const ManageLinks = () => {
                 </TableCell>
                 <TableCell>
                   <div className="flex space-x-2">
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => {
+                            setSelectedLink(link);
+                            setEditFormData({
+                              name: link.name,
+                              description: link.description || "",
+                              original_url: link.original_url,
+                              thumbnail_url: link.thumbnail_url || "",
+                              password: link.password || "",
+                              show_password: link.show_password,
+                            });
+                          }}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-[425px]">
+                        <DialogHeader>
+                          <DialogTitle>Edit Link</DialogTitle>
+                        </DialogHeader>
+                        <form onSubmit={handleEdit} className="space-y-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="edit-name">Name</Label>
+                            <Input
+                              id="edit-name"
+                              value={editFormData.name}
+                              onChange={(e) =>
+                                setEditFormData({
+                                  ...editFormData,
+                                  name: e.target.value,
+                                })
+                              }
+                              required
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="edit-description">Description</Label>
+                            <Textarea
+                              id="edit-description"
+                              value={editFormData.description}
+                              onChange={(e) =>
+                                setEditFormData({
+                                  ...editFormData,
+                                  description: e.target.value,
+                                })
+                              }
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="edit-original-url">Original URL</Label>
+                            <Input
+                              id="edit-original-url"
+                              type="url"
+                              value={editFormData.original_url}
+                              onChange={(e) =>
+                                setEditFormData({
+                                  ...editFormData,
+                                  original_url: e.target.value,
+                                })
+                              }
+                              required
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="edit-thumbnail-url">
+                              Thumbnail URL
+                            </Label>
+                            <Input
+                              id="edit-thumbnail-url"
+                              type="url"
+                              value={editFormData.thumbnail_url}
+                              onChange={(e) =>
+                                setEditFormData({
+                                  ...editFormData,
+                                  thumbnail_url: e.target.value,
+                                })
+                              }
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="edit-password">Password</Label>
+                            <Input
+                              id="edit-password"
+                              type="password"
+                              value={editFormData.password}
+                              onChange={(e) =>
+                                setEditFormData({
+                                  ...editFormData,
+                                  password: e.target.value,
+                                })
+                              }
+                            />
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Switch
+                              id="edit-show-password"
+                              checked={editFormData.show_password}
+                              onCheckedChange={(checked) =>
+                                setEditFormData({
+                                  ...editFormData,
+                                  show_password: checked,
+                                })
+                              }
+                            />
+                            <Label htmlFor="edit-show-password">
+                              Show password to visitors
+                            </Label>
+                          </div>
+                          <Button type="submit" className="w-full">
+                            Save Changes
+                          </Button>
+                        </form>
+                      </DialogContent>
+                    </Dialog>
+
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setSelectedLink(link)}
+                        >
+                          <Info className="h-4 w-4" />
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Link Information</DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-4">
+                          <div>
+                            <Label>Name</Label>
+                            <p className="mt-1">{link.name}</p>
+                          </div>
+                          <div>
+                            <Label>Description</Label>
+                            <p className="mt-1">{link.description || "N/A"}</p>
+                          </div>
+                          <div>
+                            <Label>Original URL</Label>
+                            <p className="mt-1 break-all">{link.original_url}</p>
+                          </div>
+                          <div>
+                            <Label>Views</Label>
+                            <p className="mt-1">{link.views}</p>
+                          </div>
+                          <div>
+                            <Label>Created At</Label>
+                            <p className="mt-1">
+                              {new Date(link.created_at).toLocaleString()}
+                            </p>
+                          </div>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+
                     <Button
                       variant="ghost"
                       size="icon"
@@ -129,6 +353,7 @@ const ManageLinks = () => {
                     >
                       <ExternalLink className="h-4 w-4" />
                     </Button>
+
                     <Button
                       variant="ghost"
                       size="icon"

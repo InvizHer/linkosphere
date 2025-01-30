@@ -1,14 +1,10 @@
-import { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
-import {
-  Link,
-  PlusCircle,
-  List,
-  BarChart2,
-  User,
-  Menu,
-} from "lucide-react";
+import { PlusCircle, List, BarChart2, User } from "lucide-react";
+import { motion } from "framer-motion";
+import { Header } from "@/components/layout/Header";
+import { MobileFooter } from "@/components/layout/MobileFooter";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -16,89 +12,58 @@ interface DashboardLayoutProps {
 }
 
 export const DashboardLayout = ({ children, activeTab }: DashboardLayoutProps) => {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
 
   const tabs = [
     { id: "create", label: "Create Link", icon: PlusCircle },
     { id: "manage", label: "Manage Links", icon: List },
     { id: "stats", label: "Statistics", icon: BarChart2 },
+    { id: "profile", label: "Profile", icon: User },
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow-sm">
-        <div className="container mx-auto px-4">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <Link className="text-primary h-6 w-6" />
-              <span className="ml-2 text-xl font-semibold">LinkManager</span>
-            </div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+      <Header />
+      
+      {!isMobile && (
+        <div className="fixed top-16 left-0 right-0 z-40 bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700">
+          <div className="container mx-auto px-4">
+            <div className="flex space-x-2 py-4">
+              {tabs.map((tab) => {
+                const Icon = tab.icon;
+                const isActive = activeTab === tab.id;
 
-            <div className="hidden md:flex items-center space-x-4">
-              {tabs.map((tab) => (
-                <Button
-                  key={tab.id}
-                  variant={activeTab === tab.id ? "default" : "ghost"}
-                  onClick={() => navigate(`/dashboard/${tab.id}`)}
-                  className="flex items-center"
-                >
-                  <tab.icon className="h-4 w-4 mr-2" />
-                  {tab.label}
-                </Button>
-              ))}
-              <Button
-                variant="ghost"
-                onClick={() => navigate("/dashboard/profile")}
-                className="flex items-center"
-              >
-                <User className="h-4 w-4 mr-2" />
-                Profile
-              </Button>
+                return (
+                  <Button
+                    key={tab.id}
+                    variant={isActive ? "default" : "ghost"}
+                    onClick={() => navigate(`/dashboard/${tab.id}`)}
+                    className={`flex items-center space-x-2 ${
+                      isActive ? "bg-primary text-white" : ""
+                    }`}
+                  >
+                    <Icon className="h-4 w-4" />
+                    <span>{tab.label}</span>
+                  </Button>
+                );
+              })}
             </div>
-
-            <Button
-              variant="ghost"
-              className="md:hidden"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            >
-              <Menu className="h-6 w-6" />
-            </Button>
           </div>
-
-          {isMobileMenuOpen && (
-            <div className="md:hidden py-4 space-y-2">
-              {tabs.map((tab) => (
-                <Button
-                  key={tab.id}
-                  variant={activeTab === tab.id ? "default" : "ghost"}
-                  onClick={() => {
-                    navigate(`/dashboard/${tab.id}`);
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className="w-full flex items-center justify-start"
-                >
-                  <tab.icon className="h-4 w-4 mr-2" />
-                  {tab.label}
-                </Button>
-              ))}
-              <Button
-                variant="ghost"
-                onClick={() => {
-                  navigate("/dashboard/profile");
-                  setIsMobileMenuOpen(false);
-                }}
-                className="w-full flex items-center justify-start"
-              >
-                <User className="h-4 w-4 mr-2" />
-                Profile
-              </Button>
-            </div>
-          )}
         </div>
-      </nav>
+      )}
 
-      <main className="container mx-auto px-4 py-8">{children}</main>
+      <main className="container mx-auto px-4 pt-32 pb-24 md:pb-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          {children}
+        </motion.div>
+      </main>
+
+      <MobileFooter />
     </div>
   );
 };

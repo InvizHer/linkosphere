@@ -17,6 +17,8 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { motion } from "framer-motion";
+import { Link, Eye, TrendingUp, Award } from "lucide-react";
 
 const Statistics = () => {
   const { user } = useAuth();
@@ -55,7 +57,6 @@ const Statistics = () => {
         mostViewedLink,
       });
 
-      // Prepare data for the chart
       const chartData = links
         .sort((a, b) => (b.views || 0) - (a.views || 0))
         .slice(0, 5)
@@ -73,76 +74,159 @@ const Statistics = () => {
   return (
     <div className="space-y-6">
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>Total Links</CardTitle>
-            <CardDescription>Number of links created</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold">{stats.totalLinks}</p>
-          </CardContent>
-        </Card>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+        >
+          <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-gray-200 dark:border-gray-700">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Links</CardTitle>
+              <Link className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.totalLinks}</div>
+              <p className="text-xs text-muted-foreground">
+                Links created so far
+              </p>
+            </CardContent>
+          </Card>
+        </motion.div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Total Views</CardTitle>
-            <CardDescription>Combined views across all links</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold">{stats.totalViews}</p>
-          </CardContent>
-        </Card>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-gray-200 dark:border-gray-700">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Views</CardTitle>
+              <Eye className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.totalViews}</div>
+              <p className="text-xs text-muted-foreground">
+                Combined views across all links
+              </p>
+            </CardContent>
+          </Card>
+        </motion.div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Average Views</CardTitle>
-            <CardDescription>Views per link</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold">
-              {stats.averageViews.toFixed(1)}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Most Viewed</CardTitle>
-            <CardDescription>Your most popular link</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {stats.mostViewedLink ? (
-              <div>
-                <p className="font-medium">{stats.mostViewedLink.name}</p>
-                <p className="text-sm text-gray-500">
-                  {stats.mostViewedLink.views} views
-                </p>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-gray-200 dark:border-gray-700">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Average Views</CardTitle>
+              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {stats.averageViews.toFixed(1)}
               </div>
-            ) : (
-              <p className="text-sm text-gray-500">No links yet</p>
-            )}
-          </CardContent>
-        </Card>
+              <p className="text-xs text-muted-foreground">Views per link</p>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+        >
+          <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-gray-200 dark:border-gray-700">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Most Viewed</CardTitle>
+              <Award className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              {stats.mostViewedLink ? (
+                <div>
+                  <div className="text-2xl font-bold truncate">
+                    {stats.mostViewedLink.name}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {stats.mostViewedLink.views} views
+                  </p>
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">No links yet</p>
+              )}
+            </CardContent>
+          </Card>
+        </motion.div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Top 5 Most Viewed Links</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={viewsData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="views" fill="#3b82f6" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </CardContent>
-      </Card>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
+      >
+        <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-gray-200 dark:border-gray-700">
+          <CardHeader>
+            <CardTitle>Top 5 Most Viewed Links</CardTitle>
+            <CardDescription>
+              A visual representation of your most popular links
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={viewsData}>
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    className="stroke-gray-200 dark:stroke-gray-700"
+                  />
+                  <XAxis
+                    dataKey="name"
+                    className="text-xs"
+                    tick={{ fill: "currentColor" }}
+                  />
+                  <YAxis
+                    className="text-xs"
+                    tick={{ fill: "currentColor" }}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "rgba(255, 255, 255, 0.8)",
+                      borderRadius: "8px",
+                      border: "none",
+                      boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                    }}
+                  />
+                  <Bar
+                    dataKey="views"
+                    fill="url(#colorGradient)"
+                    radius={[4, 4, 0, 0]}
+                  />
+                  <defs>
+                    <linearGradient
+                      id="colorGradient"
+                      x1="0"
+                      y1="0"
+                      x2="0"
+                      y2="1"
+                    >
+                      <stop
+                        offset="0%"
+                        stopColor="var(--primary)"
+                        stopOpacity={0.8}
+                      />
+                      <stop
+                        offset="100%"
+                        stopColor="var(--accent)"
+                        stopOpacity={0.8}
+                      />
+                    </linearGradient>
+                  </defs>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
     </div>
   );
 };
