@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { UserRound, LogOut } from "lucide-react";
 
-export const Header = () => {
+const Header = () => {
   const { user, signOut } = useAuth();
 
   return (
