@@ -23,7 +23,7 @@ const CreateLink = () => {
     password: "",
     showPassword: false,
     thumbnailUrl: "",
-    isPasswordVisible: false, // New field for password visibility
+    isPasswordVisible: false,
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -37,7 +37,7 @@ const CreateLink = () => {
         description: formData.description,
         original_url: formData.originalUrl,
         password: formData.showPassword ? formData.password : null,
-        show_password: formData.isPasswordVisible, // Use the visibility flag
+        show_password: formData.isPasswordVisible,
         thumbnail_url: formData.thumbnailUrl,
         user_id: user.id,
       });

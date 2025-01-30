@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { Header } from "@/components/layout/Header";
+import Header from "@/components/layout/Header";
 import { MobileFooter } from "@/components/layout/MobileFooter";
 import { motion } from "framer-motion";
 
