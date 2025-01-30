@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import DashboardLayout from "@/components/dashboard/DashboardLayout";
+import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import CreateLink from "@/components/dashboard/CreateLink";
 import ManageLinks from "@/components/dashboard/ManageLinks";
 import Statistics from "@/components/dashboard/Statistics";

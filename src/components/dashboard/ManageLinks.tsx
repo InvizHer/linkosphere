@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -9,71 +11,49 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
+  DialogTrigger,
 } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { useToast } from "@/components/ui/use-toast";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  Search,
-  Link2,
-  MoreVertical,
-  Copy,
+  Edit,
+  Eye,
   Trash2,
   ExternalLink,
-  SortAsc,
-  SortDesc,
-  Eye,
-  Edit,
   Info,
+  Link,
+  Lock,
+  Image,
 } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { useToast } from "@/components/ui/use-toast";
+import { motion, AnimatePresence } from "framer-motion";
 
 const ManageLinks = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [links, setLinks] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [sortConfig, setSortConfig] = useState({
-    key: "created_at",
-    direction: "desc",
-  });
-  const [isLoading, setIsLoading] = useState(true);
+  const [sortBy, setSortBy] = useState<"views" | "created_at">("created_at");
+  const [loading, setLoading] = useState(true);
   const [selectedLink, setSelectedLink] = useState<any>(null);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [isInfoDialogOpen, setIsInfoDialogOpen] = useState(false);
   const [editFormData, setEditFormData] = useState({
     name: "",
     description: "",
     original_url: "",
     thumbnail_url: "",
+    password: "",
+    show_password: false,
   });
 
   useEffect(() => {
-    if (user) {
-      fetchLinks();
-    }
-  }, [user]);
+    fetchLinks();
+  }, [sortBy]);
 
   const fetchLinks = async () => {
     try {
@@ -81,83 +61,47 @@ const ManageLinks = () => {
         .from("links")
         .select("*")
         .eq("user_id", user?.id)
-        .order(sortConfig.key, { ascending: sortConfig.direction === "asc" });
+        .order(sortBy, { ascending: false });
 
       if (error) throw error;
+
       setLinks(data || []);
+      setLoading(false);
     } catch (error: any) {
       toast({
         title: "Error",
         description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleSort = (key: string) => {
-    setSortConfig({
-      key,
-      direction:
-        sortConfig.key === key && sortConfig.direction === "asc" ? "desc" : "asc",
-    });
-  };
-
-  const handleCopy = async (token: string) => {
-    try {
-      await navigator.clipboard.writeText(
-        `${window.location.origin}/view?token=${token}`
-      );
-      toast({
-        title: "Success",
-        description: "Link copied to clipboard!",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to copy link",
         variant: "destructive",
       });
     }
   };
 
   const handleDelete = async (id: string) => {
-    try {
-      const { error } = await supabase.from("links").delete().eq("id", id);
-      if (error) throw error;
+    if (window.confirm("Are you sure you want to delete this link?")) {
+      try {
+        const { error } = await supabase.from("links").delete().eq("id", id);
 
-      setLinks(links.filter((link) => link.id !== id));
-      toast({
-        title: "Success",
-        description: "Link deleted successfully",
-      });
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
+        if (error) throw error;
+
+        setLinks(links.filter((link) => link.id !== id));
+        toast({
+          title: "Link Deleted",
+          description: "Your link has been deleted successfully",
+        });
+      } catch (error: any) {
+        toast({
+          title: "Error",
+          description: error.message,
+          variant: "destructive",
+        });
+      }
     }
   };
 
-  const handleEdit = (link: any) => {
-    setSelectedLink(link);
-    setEditFormData({
-      name: link.name,
-      description: link.description || "",
-      original_url: link.original_url,
-      thumbnail_url: link.thumbnail_url || "",
-    });
-    setIsEditDialogOpen(true);
-  };
+  const handleEdit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedLink) return;
 
-  const handleInfo = (link: any) => {
-    setSelectedLink(link);
-    setIsInfoDialogOpen(true);
-  };
-
-  const handleUpdateLink = async () => {
     try {
       const { error } = await supabase
         .from("links")
@@ -166,24 +110,19 @@ const ManageLinks = () => {
           description: editFormData.description,
           original_url: editFormData.original_url,
           thumbnail_url: editFormData.thumbnail_url,
+          password: editFormData.password,
+          show_password: editFormData.show_password,
         })
         .eq("id", selectedLink.id);
 
       if (error) throw error;
 
-      setLinks(
-        links.map((link) =>
-          link.id === selectedLink.id
-            ? { ...link, ...editFormData }
-            : link
-        )
-      );
-
+      await fetchLinks();
+      setSelectedLink(null);
       toast({
-        title: "Success",
-        description: "Link updated successfully",
+        title: "Link Updated",
+        description: "Your link has been updated successfully",
       });
-      setIsEditDialogOpen(false);
     } catch (error: any) {
       toast({
         title: "Error",
@@ -193,265 +132,243 @@ const ManageLinks = () => {
     }
   };
 
-  const filteredLinks = links.filter(
-    (link) =>
-      link.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      link.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      link.original_url.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredLinks = links.filter((link) =>
+    link.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="container mx-auto px-4 py-8"
-    >
-      <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-gray-200 dark:border-gray-700">
-        <CardHeader>
-          <CardTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            Manage Links
-          </CardTitle>
-          <CardDescription>
-            View and manage all your created links
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="mb-6">
-            <div className="relative">
-              <Input
-                placeholder="Search links..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-              <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-            </div>
-          </div>
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row gap-4">
+        <Input
+          placeholder="Search links..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="sm:max-w-xs bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm"
+        />
+        <select
+          className="border rounded-md p-2 bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm"
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value as "views" | "created_at")}
+        >
+          <option value="created_at">Sort by Date</option>
+          <option value="views">Sort by Views</option>
+        </select>
+      </div>
 
-          <div className="rounded-lg border border-gray-200 dark:border-gray-700">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[250px]">
-                    <Button
-                      variant="ghost"
-                      onClick={() => handleSort("name")}
-                      className="flex items-center space-x-2"
-                    >
-                      Name
-                      {sortConfig.key === "name" &&
-                        (sortConfig.direction === "asc" ? (
-                          <SortAsc className="h-4 w-4" />
-                        ) : (
-                          <SortDesc className="h-4 w-4" />
-                        ))}
-                    </Button>
-                  </TableHead>
-                  <TableHead className="hidden md:table-cell">URL</TableHead>
-                  <TableHead className="hidden lg:table-cell">
-                    <Button
-                      variant="ghost"
-                      onClick={() => handleSort("views")}
-                      className="flex items-center space-x-2"
-                    >
-                      Views
-                      {sortConfig.key === "views" &&
-                        (sortConfig.direction === "asc" ? (
-                          <SortAsc className="h-4 w-4" />
-                        ) : (
-                          <SortDesc className="h-4 w-4" />
-                        ))}
-                    </Button>
-                  </TableHead>
-                  <TableHead className="w-[100px]">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                <AnimatePresence>
-                  {filteredLinks.map((link) => (
-                    <motion.tr
-                      key={link.id}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="group hover:bg-gray-50 dark:hover:bg-gray-800/50"
-                    >
-                      <TableCell className="font-medium">
-                        <div className="flex items-center space-x-2">
-                          {link.thumbnail_url ? (
-                            <img
-                              src={link.thumbnail_url}
-                              alt={link.name}
-                              className="w-8 h-8 rounded object-cover"
+      <div className="rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Name</TableHead>
+              <TableHead>Views</TableHead>
+              <TableHead>Created At</TableHead>
+              <TableHead>Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filteredLinks.map((link) => (
+              <TableRow key={link.id}>
+                <TableCell>{link.name}</TableCell>
+                <TableCell>{link.views}</TableCell>
+                <TableCell>
+                  {new Date(link.created_at).toLocaleDateString()}
+                </TableCell>
+                <TableCell>
+                  <div className="flex space-x-2">
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => {
+                            setSelectedLink(link);
+                            setEditFormData({
+                              name: link.name,
+                              description: link.description || "",
+                              original_url: link.original_url,
+                              thumbnail_url: link.thumbnail_url || "",
+                              password: link.password || "",
+                              show_password: link.show_password,
+                            });
+                          }}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-[425px]">
+                        <DialogHeader>
+                          <DialogTitle>Edit Link</DialogTitle>
+                        </DialogHeader>
+                        <form onSubmit={handleEdit} className="space-y-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="edit-name">Name</Label>
+                            <Input
+                              id="edit-name"
+                              value={editFormData.name}
+                              onChange={(e) =>
+                                setEditFormData({
+                                  ...editFormData,
+                                  name: e.target.value,
+                                })
+                              }
+                              required
                             />
-                          ) : (
-                            <Link2 className="w-5 h-5 text-gray-400" />
-                          )}
-                          <span>{link.name}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="hidden md:table-cell truncate max-w-xs">
-                        {link.original_url}
-                      </TableCell>
-                      <TableCell className="hidden lg:table-cell">
-                        <div className="flex items-center space-x-1">
-                          <Eye className="w-4 h-4 text-gray-400" />
-                          <span>{link.views || 0}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              className="h-8 w-8 p-0"
-                            >
-                              <MoreVertical className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => handleEdit(link)}>
-                              <Edit className="mr-2 h-4 w-4" />
-                              Edit
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleInfo(link)}>
-                              <Info className="mr-2 h-4 w-4" />
-                              Info
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleCopy(link.token)}>
-                              <Copy className="mr-2 h-4 w-4" />
-                              Copy Link
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => window.open(`/view?token=${link.token}`, "_blank")}>
-                              <ExternalLink className="mr-2 h-4 w-4" />
-                              Open Link
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleDelete(link.id)} className="text-red-500 focus:text-red-500">
-                              <Trash2 className="mr-2 h-4 w-4" />
-                              Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </motion.tr>
-                  ))}
-                </AnimatePresence>
-                {filteredLinks.length === 0 && !isLoading && (
-                  <TableRow>
-                    <TableCell colSpan={4} className="h-24 text-center text-gray-500">
-                      No links found
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="edit-description">Description</Label>
+                            <Textarea
+                              id="edit-description"
+                              value={editFormData.description}
+                              onChange={(e) =>
+                                setEditFormData({
+                                  ...editFormData,
+                                  description: e.target.value,
+                                })
+                              }
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="edit-original-url">Original URL</Label>
+                            <Input
+                              id="edit-original-url"
+                              type="url"
+                              value={editFormData.original_url}
+                              onChange={(e) =>
+                                setEditFormData({
+                                  ...editFormData,
+                                  original_url: e.target.value,
+                                })
+                              }
+                              required
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="edit-thumbnail-url">
+                              Thumbnail URL
+                            </Label>
+                            <Input
+                              id="edit-thumbnail-url"
+                              type="url"
+                              value={editFormData.thumbnail_url}
+                              onChange={(e) =>
+                                setEditFormData({
+                                  ...editFormData,
+                                  thumbnail_url: e.target.value,
+                                })
+                              }
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="edit-password">Password</Label>
+                            <Input
+                              id="edit-password"
+                              type="password"
+                              value={editFormData.password}
+                              onChange={(e) =>
+                                setEditFormData({
+                                  ...editFormData,
+                                  password: e.target.value,
+                                })
+                              }
+                            />
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Switch
+                              id="edit-show-password"
+                              checked={editFormData.show_password}
+                              onCheckedChange={(checked) =>
+                                setEditFormData({
+                                  ...editFormData,
+                                  show_password: checked,
+                                })
+                              }
+                            />
+                            <Label htmlFor="edit-show-password">
+                              Show password to visitors
+                            </Label>
+                          </div>
+                          <Button type="submit" className="w-full">
+                            Save Changes
+                          </Button>
+                        </form>
+                      </DialogContent>
+                    </Dialog>
 
-      {/* Edit Dialog */}
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Edit Link</DialogTitle>
-            <DialogDescription>
-              Make changes to your link here. Click save when you're done.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="edit-name">Name</Label>
-              <Input
-                id="edit-name"
-                value={editFormData.name}
-                onChange={(e) =>
-                  setEditFormData({ ...editFormData, name: e.target.value })
-                }
-              />
-            </div>
-            <div>
-              <Label htmlFor="edit-description">Description</Label>
-              <Input
-                id="edit-description"
-                value={editFormData.description}
-                onChange={(e) =>
-                  setEditFormData({ ...editFormData, description: e.target.value })
-                }
-              />
-            </div>
-            <div>
-              <Label htmlFor="edit-url">URL</Label>
-              <Input
-                id="edit-url"
-                value={editFormData.original_url}
-                onChange={(e) =>
-                  setEditFormData({ ...editFormData, original_url: e.target.value })
-                }
-              />
-            </div>
-            <div>
-              <Label htmlFor="edit-thumbnail">Thumbnail URL</Label>
-              <Input
-                id="edit-thumbnail"
-                value={editFormData.thumbnail_url}
-                onChange={(e) =>
-                  setEditFormData({ ...editFormData, thumbnail_url: e.target.value })
-                }
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleUpdateLink}>Save changes</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setSelectedLink(link)}
+                        >
+                          <Info className="h-4 w-4" />
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Link Information</DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-4">
+                          <div>
+                            <Label>Name</Label>
+                            <p className="mt-1">{link.name}</p>
+                          </div>
+                          <div>
+                            <Label>Description</Label>
+                            <p className="mt-1">{link.description || "N/A"}</p>
+                          </div>
+                          <div>
+                            <Label>Original URL</Label>
+                            <p className="mt-1 break-all">{link.original_url}</p>
+                          </div>
+                          <div>
+                            <Label>Views</Label>
+                            <p className="mt-1">{link.views}</p>
+                          </div>
+                          <div>
+                            <Label>Created At</Label>
+                            <p className="mt-1">
+                              {new Date(link.created_at).toLocaleString()}
+                            </p>
+                          </div>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
 
-      {/* Info Dialog */}
-      <Dialog open={isInfoDialogOpen} onOpenChange={setIsInfoDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Link Information</DialogTitle>
-          </DialogHeader>
-          {selectedLink && (
-            <div className="space-y-4">
-              <div>
-                <Label>Name</Label>
-                <p className="text-sm text-gray-500">{selectedLink.name}</p>
-              </div>
-              {selectedLink.description && (
-                <div>
-                  <Label>Description</Label>
-                  <p className="text-sm text-gray-500">{selectedLink.description}</p>
-                </div>
-              )}
-              <div>
-                <Label>Original URL</Label>
-                <p className="text-sm text-gray-500">{selectedLink.original_url}</p>
-              </div>
-              <div>
-                <Label>Views</Label>
-                <p className="text-sm text-gray-500">{selectedLink.views || 0}</p>
-              </div>
-              <div>
-                <Label>Created At</Label>
-                <p className="text-sm text-gray-500">
-                  {new Date(selectedLink.created_at).toLocaleString()}
-                </p>
-              </div>
-              {selectedLink.password && (
-                <div>
-                  <Label>Password Protected</Label>
-                  <p className="text-sm text-gray-500">Yes</p>
-                </div>
-              )}
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
-    </motion.div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => {
+                        const url = `${window.location.origin}/view?token=${link.token}`;
+                        window.open(url, "_blank");
+                      }}
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                    </Button>
+
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleDelete(link.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
   );
 };
 
