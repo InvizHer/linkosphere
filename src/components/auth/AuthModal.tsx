@@ -6,7 +6,6 @@ import { useState } from "react";
 import { AuthModalProps } from "@/types";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
-import { motion } from "framer-motion";
 
 export const AuthModal = ({ isOpen, onClose, type }: AuthModalProps) => {
   const [formData, setFormData] = useState({
@@ -45,18 +44,11 @@ export const AuthModal = ({ isOpen, onClose, type }: AuthModalProps) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px] bg-white/80 backdrop-blur-sm">
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            {type === "login" ? "Welcome Back" : "Create Account"}
-          </DialogTitle>
+          <DialogTitle>{type === "login" ? "Login" : "Create Account"}</DialogTitle>
         </DialogHeader>
-        <motion.form
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          onSubmit={handleSubmit}
-          className="space-y-6"
-        >
+        <form onSubmit={handleSubmit} className="space-y-4">
           {type === "signup" && (
             <div className="space-y-2">
               <Label htmlFor="username">Username</Label>
@@ -65,7 +57,6 @@ export const AuthModal = ({ isOpen, onClose, type }: AuthModalProps) => {
                 value={formData.username}
                 onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                 required
-                className="bg-white/50 backdrop-blur-sm border-gray-200 focus:border-primary"
               />
             </div>
           )}
@@ -77,7 +68,6 @@ export const AuthModal = ({ isOpen, onClose, type }: AuthModalProps) => {
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               required
-              className="bg-white/50 backdrop-blur-sm border-gray-200 focus:border-primary"
             />
           </div>
           <div className="space-y-2">
@@ -88,16 +78,12 @@ export const AuthModal = ({ isOpen, onClose, type }: AuthModalProps) => {
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               required
-              className="bg-white/50 backdrop-blur-sm border-gray-200 focus:border-primary"
             />
           </div>
-          <Button
-            type="submit"
-            className="w-full bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity"
-          >
+          <Button type="submit" className="w-full">
             {type === "login" ? "Login" : "Create Account"}
           </Button>
-        </motion.form>
+        </form>
       </DialogContent>
     </Dialog>
   );
