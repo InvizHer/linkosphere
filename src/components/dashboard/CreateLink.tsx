@@ -38,7 +38,7 @@ const CreateLink = () => {
         password: formData.showPassword ? formData.password : null,
         show_password: formData.showPassword,
         thumbnail_url: formData.thumbnailUrl,
-        user_id: user.id
+        user_id: user.id,
       });
 
       if (error) throw error;

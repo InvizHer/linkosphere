@@ -16,10 +16,17 @@ import {
 } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
+interface Profile {
+  id: string;
+  username: string;
+  updated_at: string;
+  avatar_url: string | null;
+}
+
 const Profile = () => {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [profile, setProfile] = useState<any>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
