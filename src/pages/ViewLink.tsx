@@ -1,53 +1,67 @@
 import { useEffect, useState } from "react";
-import { useSearchParams, Link } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { motion } from "framer-motion";
-import { Share2, Copy, ExternalLink, Lock } from "lucide-react";
+import { Lock, ExternalLink, ArrowLeft } from "lucide-react";
+import { Header } from "@/components/layout/Header";
 
 const ViewLink = () => {
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
-  const [link, setLink] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
   const { toast } = useToast();
+  const [link, setLink] = useState<any>(null);
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [isPasswordProtected, setIsPasswordProtected] = useState(false);
+  const [isPasswordVerified, setIsPasswordVerified] = useState(false);
 
   useEffect(() => {
-    const fetchLink = async () => {
-      if (!token) {
-        setError("Invalid link");
-        setLoading(false);
-        return;
-      }
+    if (token) {
+      fetchLink();
+    }
+  }, [token]);
 
+  const fetchLink = async () => {
+    try {
       const { data, error } = await supabase
         .from("links")
         .select("*")
         .eq("token", token)
         .single();
 
-      if (error) {
-        setError("Link not found");
-        setLoading(false);
-        return;
-      }
+      if (error) throw error;
 
       setLink(data);
-      setLoading(false);
+      setIsPasswordProtected(data.show_password);
+      if (!data.show_password) {
+        incrementViews(data.id);
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: "Link not found",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-      // Increment views
-      await supabase.rpc("increment_link_views", { link_id: data.id });
-    };
+  const incrementViews = async (linkId: string) => {
+    try {
+      await supabase.rpc("increment_link_views", { link_id: linkId });
+    } catch (error) {
+      console.error("Error incrementing views:", error);
+    }
+  };
 
-    fetchLink();
-  }, [token]);
-
-  const handlePasswordSubmit = () => {
-    if (password === link.password) {
+  const verifyPassword = async () => {
+    if (link && password === link.password) {
+      setIsPasswordVerified(true);
+      incrementViews(link.id);
       window.location.href = link.original_url;
     } else {
       toast({
@@ -58,150 +72,112 @@ const ViewLink = () => {
     }
   };
 
-  const handleShare = async () => {
-    try {
-      await navigator.share({
-        title: link.name,
-        text: link.description,
-        url: window.location.href,
-      });
-    } catch (error) {
-      // Fallback to copying to clipboard
-      handleCopyLink();
-    }
-  };
-
-  const handleCopyLink = () => {
-    navigator.clipboard.writeText(window.location.href);
-    toast({
-      title: "Link copied",
-      description: "The link has been copied to your clipboard",
-    });
-  };
-
-  if (loading) {
+  if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     );
   }
 
-  if (error) {
+  if (!link) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-red-500 mb-4">{error}</h1>
-          <Link to="/" className="text-primary hover:underline">
-            Go back home
-          </Link>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+        <Header />
+        <div className="container mx-auto px-4 pt-32 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="max-w-md mx-auto"
+          >
+            <h1 className="text-4xl font-bold mb-4">Link Not Found</h1>
+            <p className="text-gray-600 dark:text-gray-400 mb-8">
+              The link you're looking for doesn't exist or has been removed.
+            </p>
+            <Button
+              onClick={() => window.location.href = "/"}
+              className="flex items-center space-x-2"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Go Home</span>
+            </Button>
+          </motion.div>
+        </div>
+      </div>
+    );
+  }
+
+  if (isPasswordProtected && !isPasswordVerified) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+        <Header />
+        <div className="container mx-auto px-4 pt-32">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="max-w-md mx-auto bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-8 border border-gray-200 dark:border-gray-700"
+          >
+            <div className="text-center mb-8">
+              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Lock className="w-8 h-8 text-primary" />
+              </div>
+              <h2 className="text-2xl font-bold mb-2">Password Protected</h2>
+              <p className="text-gray-600 dark:text-gray-400">
+                This link is protected. Please enter the password to continue.
+              </p>
+            </div>
+            <div className="space-y-4">
+              <Input
+                type="password"
+                placeholder="Enter password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onKeyPress={(e) => e.key === "Enter" && verifyPassword()}
+              />
+              <Button
+                onClick={verifyPassword}
+                className="w-full bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity"
+              >
+                Continue
+              </Button>
+            </div>
+          </motion.div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 py-12 px-4 sm:px-6 lg:px-8">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="max-w-md mx-auto"
-      >
-        <div className="bg-white/10 dark:bg-gray-800/10 backdrop-blur-lg rounded-3xl shadow-xl overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+      <Header />
+      <div className="container mx-auto px-4 pt-32">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="max-w-2xl mx-auto bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-8 border border-gray-200 dark:border-gray-700"
+        >
           {link.thumbnail_url && (
             <img
               src={link.thumbnail_url}
               alt={link.name}
-              className="w-full h-48 object-cover"
+              className="w-full h-48 object-cover rounded-xl mb-6"
             />
           )}
-          <div className="p-6">
-            <h1 className="text-2xl font-bold mb-2 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              {link.name}
-            </h1>
-            {link.description && (
-              <p className="text-gray-600 dark:text-gray-400 mb-4">
-                {link.description}
-              </p>
-            )}
-            <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-6">
-              <span>Views: {link.views}</span>
-              <span className="mx-2">•</span>
-              <span>Created: {new Date(link.created_at).toLocaleDateString()}</span>
-            </div>
-
-            <div className="space-y-4">
-              {link.password ? (
-                <div className="space-y-4">
-                  <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
-                    <Lock className="h-4 w-4" />
-                    <span>This link is password protected</span>
-                  </div>
-                  {link.show_password && (
-                    <div className="text-sm text-gray-500 dark:text-gray-400">
-                      Password: {link.password}
-                    </div>
-                  )}
-                  <Input
-                    type="password"
-                    placeholder="Enter password to access link"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="bg-white/5 border-0"
-                  />
-                  <Button
-                    className="w-full"
-                    onClick={handlePasswordSubmit}
-                  >
-                    Access Link
-                  </Button>
-                </div>
-              ) : (
-                <Button
-                  className="w-full"
-                  onClick={() => window.location.href = link.original_url}
-                >
-                  <ExternalLink className="h-4 w-4 mr-2" />
-                  Visit Link
-                </Button>
-              )}
-
-              <div className="flex space-x-2">
-                <Button
-                  variant="outline"
-                  className="flex-1 bg-white/5 border-0"
-                  onClick={handleShare}
-                >
-                  <Share2 className="h-4 w-4 mr-2" />
-                  Share
-                </Button>
-                <Button
-                  variant="outline"
-                  className="flex-1 bg-white/5 border-0"
-                  onClick={handleCopyLink}
-                >
-                  <Copy className="h-4 w-4 mr-2" />
-                  Copy
-                </Button>
-              </div>
-            </div>
-
-            <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
-              <div className="text-center">
-                <h2 className="text-lg font-semibold mb-2">Create Your Own Links</h2>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                  Want to create your own custom links? Join LinkManager today!
-                </p>
-                <Link to="/">
-                  <Button variant="default" className="w-full">
-                    Get Started
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </motion.div>
+          <h1 className="text-3xl font-bold mb-4">{link.name}</h1>
+          {link.description && (
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
+              {link.description}
+            </p>
+          )}
+          <Button
+            onClick={() => window.location.href = link.original_url}
+            className="w-full bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity flex items-center justify-center space-x-2"
+          >
+            <span>Continue to Website</span>
+            <ExternalLink className="w-4 h-4" />
+          </Button>
+        </motion.div>
+      </div>
     </div>
   );
 };
