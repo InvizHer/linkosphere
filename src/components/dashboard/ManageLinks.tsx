@@ -12,6 +12,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -29,6 +37,8 @@ import {
   SortAsc,
   SortDesc,
   Eye,
+  Edit,
+  Info,
 } from "lucide-react";
 import {
   Card,
@@ -48,6 +58,15 @@ const ManageLinks = () => {
     direction: "desc",
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedLink, setSelectedLink] = useState<any>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isInfoDialogOpen, setIsInfoDialogOpen] = useState(false);
+  const [editFormData, setEditFormData] = useState({
+    name: "",
+    description: "",
+    original_url: "",
+    thumbnail_url: "",
+  });
 
   useEffect(() => {
     if (user) {
@@ -112,6 +131,58 @@ const ManageLinks = () => {
         title: "Success",
         description: "Link deleted successfully",
       });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleEdit = (link: any) => {
+    setSelectedLink(link);
+    setEditFormData({
+      name: link.name,
+      description: link.description || "",
+      original_url: link.original_url,
+      thumbnail_url: link.thumbnail_url || "",
+    });
+    setIsEditDialogOpen(true);
+  };
+
+  const handleInfo = (link: any) => {
+    setSelectedLink(link);
+    setIsInfoDialogOpen(true);
+  };
+
+  const handleUpdateLink = async () => {
+    try {
+      const { error } = await supabase
+        .from("links")
+        .update({
+          name: editFormData.name,
+          description: editFormData.description,
+          original_url: editFormData.original_url,
+          thumbnail_url: editFormData.thumbnail_url,
+        })
+        .eq("id", selectedLink.id);
+
+      if (error) throw error;
+
+      setLinks(
+        links.map((link) =>
+          link.id === selectedLink.id
+            ? { ...link, ...editFormData }
+            : link
+        )
+      );
+
+      toast({
+        title: "Success",
+        description: "Link updated successfully",
+      });
+      setIsEditDialogOpen(false);
     } catch (error: any) {
       toast({
         title: "Error",
@@ -238,27 +309,23 @@ const ManageLinks = () => {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem
-                              onClick={() => handleCopy(link.token)}
-                            >
+                            <DropdownMenuItem onClick={() => handleEdit(link)}>
+                              <Edit className="mr-2 h-4 w-4" />
+                              Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleInfo(link)}>
+                              <Info className="mr-2 h-4 w-4" />
+                              Info
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleCopy(link.token)}>
                               <Copy className="mr-2 h-4 w-4" />
                               Copy Link
                             </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() =>
-                                window.open(
-                                  `/view?token=${link.token}`,
-                                  "_blank"
-                                )
-                              }
-                            >
+                            <DropdownMenuItem onClick={() => window.open(`/view?token=${link.token}`, "_blank")}>
                               <ExternalLink className="mr-2 h-4 w-4" />
                               Open Link
                             </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => handleDelete(link.id)}
-                              className="text-red-500 focus:text-red-500"
-                            >
+                            <DropdownMenuItem onClick={() => handleDelete(link.id)} className="text-red-500 focus:text-red-500">
                               <Trash2 className="mr-2 h-4 w-4" />
                               Delete
                             </DropdownMenuItem>
@@ -270,10 +337,7 @@ const ManageLinks = () => {
                 </AnimatePresence>
                 {filteredLinks.length === 0 && !isLoading && (
                   <TableRow>
-                    <TableCell
-                      colSpan={4}
-                      className="h-24 text-center text-gray-500"
-                    >
+                    <TableCell colSpan={4} className="h-24 text-center text-gray-500">
                       No links found
                     </TableCell>
                   </TableRow>
@@ -283,6 +347,109 @@ const ManageLinks = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Edit Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Link</DialogTitle>
+            <DialogDescription>
+              Make changes to your link here. Click save when you're done.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="edit-name">Name</Label>
+              <Input
+                id="edit-name"
+                value={editFormData.name}
+                onChange={(e) =>
+                  setEditFormData({ ...editFormData, name: e.target.value })
+                }
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-description">Description</Label>
+              <Input
+                id="edit-description"
+                value={editFormData.description}
+                onChange={(e) =>
+                  setEditFormData({ ...editFormData, description: e.target.value })
+                }
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-url">URL</Label>
+              <Input
+                id="edit-url"
+                value={editFormData.original_url}
+                onChange={(e) =>
+                  setEditFormData({ ...editFormData, original_url: e.target.value })
+                }
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-thumbnail">Thumbnail URL</Label>
+              <Input
+                id="edit-thumbnail"
+                value={editFormData.thumbnail_url}
+                onChange={(e) =>
+                  setEditFormData({ ...editFormData, thumbnail_url: e.target.value })
+                }
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleUpdateLink}>Save changes</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Info Dialog */}
+      <Dialog open={isInfoDialogOpen} onOpenChange={setIsInfoDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Link Information</DialogTitle>
+          </DialogHeader>
+          {selectedLink && (
+            <div className="space-y-4">
+              <div>
+                <Label>Name</Label>
+                <p className="text-sm text-gray-500">{selectedLink.name}</p>
+              </div>
+              {selectedLink.description && (
+                <div>
+                  <Label>Description</Label>
+                  <p className="text-sm text-gray-500">{selectedLink.description}</p>
+                </div>
+              )}
+              <div>
+                <Label>Original URL</Label>
+                <p className="text-sm text-gray-500">{selectedLink.original_url}</p>
+              </div>
+              <div>
+                <Label>Views</Label>
+                <p className="text-sm text-gray-500">{selectedLink.views || 0}</p>
+              </div>
+              <div>
+                <Label>Created At</Label>
+                <p className="text-sm text-gray-500">
+                  {new Date(selectedLink.created_at).toLocaleString()}
+                </p>
+              </div>
+              {selectedLink.password && (
+                <div>
+                  <Label>Password Protected</Label>
+                  <p className="text-sm text-gray-500">Yes</p>
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </motion.div>
   );
 };
