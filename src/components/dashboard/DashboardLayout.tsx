@@ -1,11 +1,10 @@
 import { ReactNode } from "react";
-import { Outlet } from "react-router-dom";
 import { Header } from "@/components/layout/Header";
 import { MobileFooter } from "@/components/layout/MobileFooter";
 import { motion } from "framer-motion";
 
 interface DashboardLayoutProps {
-  children?: ReactNode;
+  children: ReactNode;
   activeTab?: string;
 }
 
@@ -18,7 +17,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         animate={{ opacity: 1 }}
         className="pt-16 pb-20 md:pb-8"
       >
-        {children || <Outlet />}
+        {children}
       </motion.main>
       <MobileFooter />
     </div>

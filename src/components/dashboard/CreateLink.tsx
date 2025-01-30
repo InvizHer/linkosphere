@@ -8,13 +8,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/components/ui/use-toast";
 import { motion } from "framer-motion";
-import { Link2, Lock, Image as ImageIcon, Loader2 } from "lucide-react";
+import { Link2, Lock, Image as ImageIcon, Loader2, Eye, EyeOff } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const CreateLink = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [showPasswordField, setShowPasswordField] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -31,13 +32,13 @@ const CreateLink = () => {
     setIsLoading(true);
     try {
       const { error } = await supabase.from("links").insert({
-        user_id: user.id,
         name: formData.name,
         description: formData.description,
         original_url: formData.originalUrl,
         password: formData.showPassword ? formData.password : null,
         show_password: formData.showPassword,
         thumbnail_url: formData.thumbnailUrl,
+        user_id: user.id
       });
 
       if (error) throw error;
@@ -161,16 +162,29 @@ const CreateLink = () => {
                   className="relative"
                 >
                   <Input
-                    type="password"
+                    type={showPasswordField ? "text" : "password"}
                     value={formData.password}
                     onChange={(e) =>
                       setFormData({ ...formData, password: e.target.value })
                     }
                     required
-                    className="pl-10"
+                    className="pl-10 pr-10"
                     placeholder="Enter password"
                   />
                   <Lock className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-2 top-2 p-0 h-5 w-5"
+                    onClick={() => setShowPasswordField(!showPasswordField)}
+                  >
+                    {showPasswordField ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </Button>
                 </motion.div>
               )}
             </div>
