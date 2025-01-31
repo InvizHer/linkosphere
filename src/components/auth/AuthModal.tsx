@@ -45,9 +45,9 @@ export const AuthModal = ({ isOpen, onClose, type }: AuthModalProps) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px] bg-white/80 backdrop-blur-sm">
+      <DialogContent className="sm:max-w-[425px] bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200 dark:border-gray-700">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+          <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             {type === "login" ? "Welcome Back" : "Create Account"}
           </DialogTitle>
         </DialogHeader>
@@ -65,7 +65,7 @@ export const AuthModal = ({ isOpen, onClose, type }: AuthModalProps) => {
                 value={formData.username}
                 onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                 required
-                className="bg-white/50 backdrop-blur-sm border-gray-200 focus:border-primary"
+                className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border-gray-200 dark:border-gray-700 focus:border-blue-500 dark:focus:border-blue-400"
               />
             </div>
           )}
@@ -77,7 +77,7 @@ export const AuthModal = ({ isOpen, onClose, type }: AuthModalProps) => {
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               required
-              className="bg-white/50 backdrop-blur-sm border-gray-200 focus:border-primary"
+              className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border-gray-200 dark:border-gray-700 focus:border-blue-500 dark:focus:border-blue-400"
             />
           </div>
           <div className="space-y-2">
@@ -88,15 +88,48 @@ export const AuthModal = ({ isOpen, onClose, type }: AuthModalProps) => {
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               required
-              className="bg-white/50 backdrop-blur-sm border-gray-200 focus:border-primary"
+              className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border-gray-200 dark:border-gray-700 focus:border-blue-500 dark:focus:border-blue-400"
             />
           </div>
           <Button
             type="submit"
-            className="w-full bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity"
+            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:opacity-90 transition-opacity text-white"
           >
-            {type === "login" ? "Login" : "Create Account"}
+            {type === "login" ? "Sign In" : "Create Account"}
           </Button>
+          <div className="text-center text-sm text-gray-500 dark:text-gray-400">
+            {type === "login" ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setFormData({ username: "", email: "", password: "" });
+                  onClose();
+                  setTimeout(() => {
+                    setFormData({ username: "", email: "", password: "" });
+                    onClose();
+                  }, 100);
+                }}
+                className="hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
+              >
+                Need an account? Sign up
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  setFormData({ username: "", email: "", password: "" });
+                  onClose();
+                  setTimeout(() => {
+                    setFormData({ username: "", email: "", password: "" });
+                    onClose();
+                  }, 100);
+                }}
+                className="hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
+              >
+                Already have an account? Sign in
+              </button>
+            )}
+          </div>
         </motion.form>
       </DialogContent>
     </Dialog>
