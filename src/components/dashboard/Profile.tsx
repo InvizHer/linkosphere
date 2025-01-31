@@ -26,17 +26,12 @@ import {
 } from "@/components/ui/dialog";
 import {
   User,
-  Settings,
   Mail,
   Key,
   LogOut,
   Trash2,
-  Edit,
-  Upload,
   Camera,
   Shield,
-  Bell,
-  Globe,
 } from "lucide-react";
 
 const Profile = () => {
@@ -93,8 +88,8 @@ const Profile = () => {
       await fetchProfile();
       setEditMode(false);
       toast({
-        title: "Profile Updated",
-        description: "Your profile has been updated successfully",
+        title: "Success",
+        description: "Profile updated successfully",
       });
     } catch (error: any) {
       toast({
@@ -110,7 +105,7 @@ const Profile = () => {
     if (formData.newPassword !== formData.confirmPassword) {
       toast({
         title: "Error",
-        description: "New passwords do not match",
+        description: "Passwords do not match",
         variant: "destructive",
       });
       return;
@@ -131,8 +126,8 @@ const Profile = () => {
       }));
 
       toast({
-        title: "Password Updated",
-        description: "Your password has been updated successfully",
+        title: "Success",
+        description: "Password updated successfully",
       });
     } catch (error: any) {
       toast({
@@ -177,45 +172,59 @@ const Profile = () => {
       transition={{ duration: 0.5 }}
       className="max-w-4xl mx-auto px-4 py-8"
     >
-      <div className="bg-white/10 dark:bg-gray-800/10 backdrop-blur-lg rounded-3xl shadow-xl overflow-hidden">
-        {/* Profile Header */}
-        <div className="bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 p-8">
-          <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/5 via-accent/5 to-primary/5 backdrop-blur-xl border border-white/10 shadow-2xl">
+        {/* Profile Header with Avatar */}
+        <div className="relative h-48 bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20">
+          <div className="absolute -bottom-16 left-1/2 -translate-x-1/2 md:left-12 md:translate-x-0">
             <motion.div
               initial={{ scale: 0.9 }}
               animate={{ scale: 1 }}
               className="relative group"
             >
-              <div className="w-32 h-32 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-4xl font-bold text-white shadow-lg overflow-hidden">
-                {profile.avatar_url ? (
-                  <img
-                    src={profile.avatar_url}
-                    alt={profile.username}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  profile.username.charAt(0).toUpperCase()
-                )}
+              <div className="w-32 h-32 rounded-full bg-gradient-to-br from-primary to-accent p-1">
+                <div className="w-full h-full rounded-full bg-white dark:bg-gray-900 flex items-center justify-center text-4xl font-bold overflow-hidden">
+                  {profile.avatar_url ? (
+                    <img
+                      src={profile.avatar_url}
+                      alt={profile.username}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <span className="bg-gradient-to-br from-primary to-accent bg-clip-text text-transparent">
+                      {profile.username.charAt(0).toUpperCase()}
+                    </span>
+                  )}
+                </div>
               </div>
               <button className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-full">
                 <Camera className="w-6 h-6 text-white" />
               </button>
             </motion.div>
+          </div>
+        </div>
 
-            <div className="flex-1 space-y-6">
-              <div className="space-y-2 text-center md:text-left">
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                  {profile.username}
-                </h1>
-                <p className="text-gray-500">{user?.email}</p>
-              </div>
+        {/* Profile Content */}
+        <div className="pt-20 md:pt-8 md:pl-48 p-8">
+          <div className="space-y-8">
+            {/* Basic Info */}
+            <div className="space-y-4">
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                {profile.username}
+              </h1>
+              <p className="text-gray-500">{user?.email}</p>
+            </div>
 
+            {/* Profile Form */}
+            <motion.form
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              onSubmit={handleUpdateProfile}
+              className="space-y-6"
+            >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <motion.div
-                  whileHover={{ scale: 1.02 }}
-                  className="space-y-2 bg-white/5 backdrop-blur-sm p-4 rounded-xl"
-                >
-                  <Label className="flex items-center gap-2 text-gray-400">
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2 text-gray-500">
                     <Mail className="h-4 w-4" />
                     Email Address
                   </Label>
@@ -223,15 +232,12 @@ const Profile = () => {
                     type="email"
                     value={user?.email}
                     disabled
-                    className="bg-white/10 border-0"
+                    className="bg-white/5 border-white/10"
                   />
-                </motion.div>
+                </div>
 
-                <motion.div
-                  whileHover={{ scale: 1.02 }}
-                  className="space-y-2 bg-white/5 backdrop-blur-sm p-4 rounded-xl"
-                >
-                  <Label className="flex items-center gap-2 text-gray-400">
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2 text-gray-500">
                     <User className="h-4 w-4" />
                     Username
                   </Label>
@@ -242,17 +248,18 @@ const Profile = () => {
                         setFormData({ ...formData, username: e.target.value })
                       }
                       disabled={!editMode}
-                      className="bg-white/10 border-0"
+                      className="bg-white/5 border-white/10"
                     />
                     <Button
-                      variant="ghost"
-                      size="icon"
+                      type="button"
+                      variant="outline"
                       onClick={() => setEditMode(!editMode)}
+                      className="shrink-0"
                     >
-                      <Edit className="h-4 w-4" />
+                      {editMode ? "Cancel" : "Edit"}
                     </Button>
                   </div>
-                </motion.div>
+                </div>
               </div>
 
               {editMode && (
@@ -260,38 +267,31 @@ const Profile = () => {
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                 >
-                  <Button onClick={handleUpdateProfile} className="w-full md:w-auto">
+                  <Button type="submit" className="w-full md:w-auto">
                     Save Changes
                   </Button>
                 </motion.div>
               )}
-            </div>
-          </div>
-        </div>
+            </motion.form>
 
-        {/* Profile Actions */}
-        <div className="p-8 space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              className="p-4 bg-white/5 backdrop-blur-sm rounded-xl space-y-4"
-            >
-              <h3 className="text-lg font-semibold flex items-center gap-2">
+            {/* Security Section */}
+            <div className="space-y-4">
+              <h2 className="text-xl font-semibold flex items-center gap-2">
                 <Shield className="h-5 w-5 text-primary" />
                 Security
-              </h3>
-              <div className="space-y-3">
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Dialog>
                   <DialogTrigger asChild>
                     <Button
                       variant="outline"
-                      className="w-full bg-white/5 border-0 hover:bg-white/10"
+                      className="w-full bg-white/5 border-white/10"
                     >
                       <Key className="h-4 w-4 mr-2" />
                       Change Password
                     </Button>
                   </DialogTrigger>
-                  <DialogContent>
+                  <DialogContent className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl">
                     <DialogHeader>
                       <DialogTitle>Change Password</DialogTitle>
                     </DialogHeader>
@@ -334,55 +334,27 @@ const Profile = () => {
                 <Button
                   onClick={() => signOut()}
                   variant="outline"
-                  className="w-full bg-white/5 border-0 hover:bg-white/10"
+                  className="w-full bg-white/5 border-white/10"
                 >
                   <LogOut className="h-4 w-4 mr-2" />
                   Sign Out
                 </Button>
               </div>
-            </motion.div>
+            </div>
 
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              className="p-4 bg-white/5 backdrop-blur-sm rounded-xl space-y-4"
-            >
-              <h3 className="text-lg font-semibold flex items-center gap-2">
-                <Bell className="h-5 w-5 text-primary" />
-                Preferences
-              </h3>
-              <div className="space-y-3">
-                <Button
-                  variant="outline"
-                  className="w-full bg-white/5 border-0 hover:bg-white/10"
-                >
-                  <Globe className="h-4 w-4 mr-2" />
-                  Language & Region
-                </Button>
-                <Button
-                  variant="outline"
-                  className="w-full bg-white/5 border-0 hover:bg-white/10"
-                >
-                  <Bell className="h-4 w-4 mr-2" />
-                  Notifications
-                </Button>
-              </div>
-            </motion.div>
-
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              className="md:col-span-2"
-            >
+            {/* Danger Zone */}
+            <div className="pt-6 border-t border-white/10">
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button
                     variant="destructive"
-                    className="w-full bg-red-500/10 hover:bg-red-500/20 text-red-500 border-0"
+                    className="w-full md:w-auto bg-red-500/10 hover:bg-red-500/20"
                   >
                     <Trash2 className="h-4 w-4 mr-2" />
                     Delete Account
                   </Button>
                 </AlertDialogTrigger>
-                <AlertDialogContent className="bg-white/90 backdrop-blur-lg border-0">
+                <AlertDialogContent className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl border-white/10">
                   <AlertDialogHeader>
                     <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                     <AlertDialogDescription>
@@ -403,7 +375,7 @@ const Profile = () => {
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
-            </motion.div>
+            </div>
           </div>
         </div>
       </div>
