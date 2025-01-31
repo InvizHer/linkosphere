@@ -18,7 +18,7 @@ export const MobileFooter = () => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="fixed bottom-0 left-0 right-0 md:hidden bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-t border-gray-200 dark:border-gray-700 z-50"
+      className="fixed bottom-0 left-0 right-0 md:hidden bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-t border-gray-200 dark:border-gray-700 z-50"
     >
       <div className="grid grid-cols-3 gap-1 p-2">
         {tabs.map((tab) => {
@@ -28,11 +28,13 @@ export const MobileFooter = () => {
           return (
             <Button
               key={tab.id}
-              variant={isActive ? "default" : "ghost"}
+              variant="ghost"
               size="sm"
               onClick={() => navigate(`/dashboard/${tab.id}`)}
-              className={`flex flex-col items-center justify-center py-2 ${
-                isActive ? "bg-primary/10 text-primary" : ""
+              className={`relative flex flex-col items-center justify-center py-2 ${
+                isActive 
+                  ? "text-primary before:absolute before:top-0 before:left-0 before:w-full before:h-0.5 before:bg-primary"
+                  : ""
               }`}
             >
               <Icon className="h-5 w-5" />
