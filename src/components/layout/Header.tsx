@@ -1,14 +1,22 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
-import { User } from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { User, PlusCircle, List, BarChart2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { motion } from "framer-motion";
 
 export const Header = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const isMobile = useIsMobile();
+  const currentPath = location.pathname.split("/")[2] || "create";
+
+  const tabs = [
+    { id: "create", label: "Create Link", icon: PlusCircle },
+    { id: "manage", label: "Manage Links", icon: List },
+    { id: "stats", label: "Statistics", icon: BarChart2 },
+  ];
 
   return (
     <motion.header
@@ -28,6 +36,31 @@ export const Header = () => {
               LinkManager
             </span>
           </motion.div>
+
+          {!isMobile && (
+            <div className="flex-1 flex justify-center space-x-2">
+              {tabs.map((tab) => {
+                const Icon = tab.icon;
+                const isActive = currentPath === tab.id;
+
+                return (
+                  <Button
+                    key={tab.id}
+                    variant={isActive ? "default" : "ghost"}
+                    onClick={() => navigate(`/dashboard/${tab.id}`)}
+                    className={`relative flex items-center space-x-2 ${
+                      isActive
+                        ? "bg-primary text-white before:absolute before:bottom-0 before:left-0 before:w-full before:h-1 before:bg-primary/20 before:rounded-t-full"
+                        : "hover:bg-gray-100 dark:hover:bg-gray-800"
+                    }`}
+                  >
+                    <Icon className="h-4 w-4" />
+                    <span>{tab.label}</span>
+                  </Button>
+                );
+              })}
+            </div>
+          )}
 
           <Button
             variant="ghost"

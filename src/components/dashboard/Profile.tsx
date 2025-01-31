@@ -24,7 +24,20 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { User, Settings, Mail, Key, LogOut, Trash2, Edit } from "lucide-react";
+import {
+  User,
+  Settings,
+  Mail,
+  Key,
+  LogOut,
+  Trash2,
+  Edit,
+  Upload,
+  Camera,
+  Shield,
+  Bell,
+  Globe,
+} from "lucide-react";
 
 const Profile = () => {
   const { user, signOut } = useAuth();
@@ -165,17 +178,28 @@ const Profile = () => {
       className="max-w-4xl mx-auto px-4 py-8"
     >
       <div className="bg-white/10 dark:bg-gray-800/10 backdrop-blur-lg rounded-3xl shadow-xl overflow-hidden">
-        <div className="bg-gradient-to-r from-primary/10 to-accent/10 p-8">
+        {/* Profile Header */}
+        <div className="bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 p-8">
           <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
             <motion.div
               initial={{ scale: 0.9 }}
               animate={{ scale: 1 }}
-              transition={{ duration: 0.5 }}
-              className="relative"
+              className="relative group"
             >
-              <div className="w-32 h-32 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-4xl font-bold text-white shadow-lg">
-                {profile.username.charAt(0).toUpperCase()}
+              <div className="w-32 h-32 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-4xl font-bold text-white shadow-lg overflow-hidden">
+                {profile.avatar_url ? (
+                  <img
+                    src={profile.avatar_url}
+                    alt={profile.username}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  profile.username.charAt(0).toUpperCase()
+                )}
               </div>
+              <button className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-full">
+                <Camera className="w-6 h-6 text-white" />
+              </button>
             </motion.div>
 
             <div className="flex-1 space-y-6">
@@ -191,15 +215,11 @@ const Profile = () => {
                   whileHover={{ scale: 1.02 }}
                   className="space-y-2 bg-white/5 backdrop-blur-sm p-4 rounded-xl"
                 >
-                  <Label
-                    htmlFor="email"
-                    className="flex items-center gap-2 text-gray-400"
-                  >
+                  <Label className="flex items-center gap-2 text-gray-400">
                     <Mail className="h-4 w-4" />
                     Email Address
                   </Label>
                   <Input
-                    id="email"
                     type="email"
                     value={user?.email}
                     disabled
@@ -211,16 +231,12 @@ const Profile = () => {
                   whileHover={{ scale: 1.02 }}
                   className="space-y-2 bg-white/5 backdrop-blur-sm p-4 rounded-xl"
                 >
-                  <Label
-                    htmlFor="username"
-                    className="flex items-center gap-2 text-gray-400"
-                  >
+                  <Label className="flex items-center gap-2 text-gray-400">
                     <User className="h-4 w-4" />
                     Username
                   </Label>
                   <div className="flex gap-2">
                     <Input
-                      id="username"
                       value={formData.username}
                       onChange={(e) =>
                         setFormData({ ...formData, username: e.target.value })
@@ -244,10 +260,7 @@ const Profile = () => {
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                 >
-                  <Button
-                    onClick={handleUpdateProfile}
-                    className="w-full md:w-auto"
-                  >
+                  <Button onClick={handleUpdateProfile} className="w-full md:w-auto">
                     Save Changes
                   </Button>
                 </motion.div>
@@ -256,69 +269,103 @@ const Profile = () => {
           </div>
         </div>
 
+        {/* Profile Actions */}
         <div className="p-8 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Dialog>
-              <DialogTrigger asChild>
+            <motion.div
+              whileHover={{ scale: 1.02 }}
+              className="p-4 bg-white/5 backdrop-blur-sm rounded-xl space-y-4"
+            >
+              <h3 className="text-lg font-semibold flex items-center gap-2">
+                <Shield className="h-5 w-5 text-primary" />
+                Security
+              </h3>
+              <div className="space-y-3">
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full bg-white/5 border-0 hover:bg-white/10"
+                    >
+                      <Key className="h-4 w-4 mr-2" />
+                      Change Password
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Change Password</DialogTitle>
+                    </DialogHeader>
+                    <form onSubmit={handleUpdatePassword} className="space-y-4">
+                      <div className="space-y-2">
+                        <Label>New Password</Label>
+                        <Input
+                          type="password"
+                          value={formData.newPassword}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              newPassword: e.target.value,
+                            })
+                          }
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Confirm Password</Label>
+                        <Input
+                          type="password"
+                          value={formData.confirmPassword}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              confirmPassword: e.target.value,
+                            })
+                          }
+                          required
+                        />
+                      </div>
+                      <Button type="submit" className="w-full">
+                        Update Password
+                      </Button>
+                    </form>
+                  </DialogContent>
+                </Dialog>
+
+                <Button
+                  onClick={() => signOut()}
+                  variant="outline"
+                  className="w-full bg-white/5 border-0 hover:bg-white/10"
+                >
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Sign Out
+                </Button>
+              </div>
+            </motion.div>
+
+            <motion.div
+              whileHover={{ scale: 1.02 }}
+              className="p-4 bg-white/5 backdrop-blur-sm rounded-xl space-y-4"
+            >
+              <h3 className="text-lg font-semibold flex items-center gap-2">
+                <Bell className="h-5 w-5 text-primary" />
+                Preferences
+              </h3>
+              <div className="space-y-3">
                 <Button
                   variant="outline"
-                  className="w-full bg-white/5 border-0 hover:bg-white/10 transition-all duration-300"
+                  className="w-full bg-white/5 border-0 hover:bg-white/10"
                 >
-                  <Key className="h-4 w-4 mr-2" />
-                  Change Password
+                  <Globe className="h-4 w-4 mr-2" />
+                  Language & Region
                 </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Change Password</DialogTitle>
-                </DialogHeader>
-                <form onSubmit={handleUpdatePassword} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="new-password">New Password</Label>
-                    <Input
-                      id="new-password"
-                      type="password"
-                      value={formData.newPassword}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          newPassword: e.target.value,
-                        })
-                      }
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="confirm-password">Confirm Password</Label>
-                    <Input
-                      id="confirm-password"
-                      type="password"
-                      value={formData.confirmPassword}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          confirmPassword: e.target.value,
-                        })
-                      }
-                      required
-                    />
-                  </div>
-                  <Button type="submit" className="w-full">
-                    Update Password
-                  </Button>
-                </form>
-              </DialogContent>
-            </Dialog>
-
-            <motion.div whileHover={{ scale: 1.02 }}>
-              <Button
-                onClick={() => signOut()}
-                variant="outline"
-                className="w-full bg-white/5 border-0 hover:bg-white/10 transition-all duration-300"
-              >
-                <LogOut className="h-4 w-4 mr-2" />
-                Sign Out
-              </Button>
+                <Button
+                  variant="outline"
+                  className="w-full bg-white/5 border-0 hover:bg-white/10"
+                >
+                  <Bell className="h-4 w-4 mr-2" />
+                  Notifications
+                </Button>
+              </div>
             </motion.div>
 
             <motion.div
