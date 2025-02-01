@@ -16,9 +16,11 @@ export const AuthModal = ({ isOpen, onClose, type }: AuthModalProps) => {
   });
   const { toast } = useToast();
   const { signIn, signUp } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
     try {
       if (type === "login") {
         await signIn(formData.email, formData.password);
@@ -40,7 +42,14 @@ export const AuthModal = ({ isOpen, onClose, type }: AuthModalProps) => {
         description: error.message,
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
+  };
+
+  const toggleAuthMode = () => {
+    setFormData({ username: "", email: "", password: "" });
+    onClose();
   };
 
   return (
@@ -93,22 +102,16 @@ export const AuthModal = ({ isOpen, onClose, type }: AuthModalProps) => {
           </div>
           <Button
             type="submit"
+            disabled={isLoading}
             className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:opacity-90 transition-opacity text-white"
           >
-            {type === "login" ? "Sign In" : "Create Account"}
+            {isLoading ? "Please wait..." : type === "login" ? "Sign In" : "Create Account"}
           </Button>
           <div className="text-center text-sm text-gray-500 dark:text-gray-400">
             {type === "login" ? (
               <button
                 type="button"
-                onClick={() => {
-                  setFormData({ username: "", email: "", password: "" });
-                  onClose();
-                  setTimeout(() => {
-                    setFormData({ username: "", email: "", password: "" });
-                    onClose();
-                  }, 100);
-                }}
+                onClick={toggleAuthMode}
                 className="hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
               >
                 Need an account? Sign up
@@ -116,14 +119,7 @@ export const AuthModal = ({ isOpen, onClose, type }: AuthModalProps) => {
             ) : (
               <button
                 type="button"
-                onClick={() => {
-                  setFormData({ username: "", email: "", password: "" });
-                  onClose();
-                  setTimeout(() => {
-                    setFormData({ username: "", email: "", password: "" });
-                    onClose();
-                  }, 100);
-                }}
+                onClick={toggleAuthMode}
                 className="hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
               >
                 Already have an account? Sign in

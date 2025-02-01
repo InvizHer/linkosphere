@@ -42,6 +42,11 @@ const Index = () => {
     },
   ];
 
+  const handleAuthModal = (type: "login" | "signup") => {
+    setAuthType(type);
+    setShowAuthModal(true);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-purple-900/20">
       {/* Navigation */}
@@ -60,18 +65,12 @@ const Index = () => {
               <div className="hidden sm:flex gap-4">
                 <Button
                   variant="ghost"
-                  onClick={() => {
-                    setAuthType("login");
-                    setShowAuthModal(true);
-                  }}
+                  onClick={() => handleAuthModal("login")}
                 >
                   Sign In
                 </Button>
                 <Button
-                  onClick={() => {
-                    setAuthType("signup");
-                    setShowAuthModal(true);
-                  }}
+                  onClick={() => handleAuthModal("signup")}
                 >
                   Get Started
                 </Button>
