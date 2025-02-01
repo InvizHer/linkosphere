@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { motion } from "framer-motion";
+import ShareModal from "@/components/share/ShareModal";
 import {
   Share2,
   Copy,
@@ -12,9 +13,8 @@ import {
   Lock,
   Eye,
   Calendar,
-  ArrowLeft,
   Heart,
-  Link as LinkIcon,
+  LinkIcon,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -25,6 +25,7 @@ const ViewLink = () => {
   const [loading, setLoading] = useState(true);
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -66,18 +67,6 @@ const ViewLink = () => {
         description: "Incorrect password",
         variant: "destructive",
       });
-    }
-  };
-
-  const handleShare = async () => {
-    try {
-      await navigator.share({
-        title: link.name,
-        text: link.description,
-        url: window.location.href,
-      });
-    } catch (error) {
-      handleCopyLink();
     }
   };
 
@@ -123,20 +112,24 @@ const ViewLink = () => {
               <LinkIcon className="h-6 w-6" />
               <span className="font-semibold">LinkManager</span>
             </Link>
-            <nav className="hidden md:flex space-x-4">
-              <Link
-                to="/"
-                className="text-gray-600 dark:text-gray-300 hover:text-[#9b87f5] transition-colors"
+            <div className="flex items-center space-x-4">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsShareModalOpen(true)}
+                className="text-[#9b87f5] hover:text-[#7E69AB]"
               >
-                Home
-              </Link>
-              <Link
-                to="/dashboard"
-                className="text-gray-600 dark:text-gray-300 hover:text-[#9b87f5] transition-colors"
+                <Share2 className="h-5 w-5" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleCopyLink}
+                className="text-[#9b87f5] hover:text-[#7E69AB]"
               >
-                Dashboard
-              </Link>
-            </nav>
+                <Copy className="h-5 w-5" />
+              </Button>
+            </div>
           </div>
         </div>
       </header>
@@ -156,115 +149,90 @@ const ViewLink = () => {
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
+                  <h1 className="text-2xl font-bold">{link.name}</h1>
+                  <div className="flex items-center space-x-4 mt-2">
+                    <span className="flex items-center">
+                      <Eye className="h-4 w-4 mr-1" />
+                      {link.views} views
+                    </span>
+                    <span className="flex items-center">
+                      <Calendar className="h-4 w-4 mr-1" />
+                      {new Date(link.created_at).toLocaleDateString()}
+                    </span>
+                  </div>
+                </div>
               </div>
             )}
             <CardContent className="p-6 space-y-6">
+              {link.description && (
+                <p className="text-gray-600 dark:text-gray-400">
+                  {link.description}
+                </p>
+              )}
+
               <div className="space-y-4">
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-[#9b87f5] to-[#7E69AB] bg-clip-text text-transparent">
-                  {link.name}
-                </h1>
-                {link.description && (
-                  <p className="text-gray-600 dark:text-gray-400">
-                    {link.description}
-                  </p>
+                {link.password ? (
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
+                      <Lock className="h-4 w-4 text-[#9b87f5]" />
+                      <span>This link is password protected</span>
+                    </div>
+                    {link.show_password && (
+                      <div className="text-sm text-gray-500 dark:text-gray-400">
+                        Password: {link.password}
+                      </div>
+                    )}
+                    <Input
+                      type="password"
+                      placeholder="Enter password to access link"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="bg-white/5 border-gray-200 dark:border-gray-700"
+                    />
+                    <Button
+                      className="w-full bg-[#9b87f5] hover:bg-[#7E69AB] text-white"
+                      onClick={handlePasswordSubmit}
+                    >
+                      <Lock className="h-4 w-4 mr-2" />
+                      Access Link
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between p-4 bg-white/5 dark:bg-gray-800/5 rounded-lg">
+                      <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-400">
+                        <ExternalLink className="h-4 w-4 text-[#9b87f5]" />
+                        <span className="truncate">{link.original_url}</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() =>
+                            navigator.clipboard.writeText(link.original_url)
+                          }
+                          className="text-[#9b87f5] hover:text-[#7E69AB]"
+                        >
+                          <Copy className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() =>
+                            window.open(link.original_url, "_blank")
+                          }
+                          className="text-[#9b87f5] hover:text-[#7E69AB]"
+                        >
+                          <ExternalLink className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
                 )}
               </div>
-
-              <div className="flex flex-wrap gap-4 text-sm text-gray-500 dark:text-gray-400">
-                <div className="flex items-center gap-2">
-                  <Eye className="h-4 w-4 text-[#9b87f5]" />
-                  <span>{link.views} views</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4 text-[#9b87f5]" />
-                  <span>
-                    Created {new Date(link.created_at).toLocaleDateString()}
-                  </span>
-                </div>
-              </div>
-
-              {link.password ? (
-                <div className="space-y-4">
-                  <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
-                    <Lock className="h-4 w-4 text-[#9b87f5]" />
-                    <span>This link is password protected</span>
-                  </div>
-                  {link.show_password && (
-                    <div className="text-sm text-gray-500 dark:text-gray-400">
-                      Password: {link.password}
-                    </div>
-                  )}
-                  <Input
-                    type="password"
-                    placeholder="Enter password to access link"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="bg-white/5 border-gray-200 dark:border-gray-700"
-                  />
-                  <Button
-                    className="w-full bg-[#9b87f5] hover:bg-[#7E69AB] text-white"
-                    onClick={handlePasswordSubmit}
-                  >
-                    <Lock className="h-4 w-4 mr-2" />
-                    Access Link
-                  </Button>
-                </div>
-              ) : (
-                <Button
-                  className="w-full bg-[#9b87f5] hover:bg-[#7E69AB] text-white"
-                  onClick={() => window.location.href = link.original_url}
-                >
-                  <ExternalLink className="h-4 w-4 mr-2" />
-                  Visit Link
-                </Button>
-              )}
             </CardContent>
           </Card>
-
-          <div className="space-y-8">
-            <Card className="bg-white/10 dark:bg-gray-800/10 backdrop-blur-lg border-0 shadow-lg">
-              <CardContent className="p-6">
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <Button
-                    variant="outline"
-                    className="flex-1 bg-white/5 border-gray-200 dark:border-gray-700 hover:bg-[#9b87f5]/10"
-                    onClick={handleShare}
-                  >
-                    <Share2 className="h-4 w-4 mr-2 text-[#9b87f5]" />
-                    Share Link
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="flex-1 bg-white/5 border-gray-200 dark:border-gray-700 hover:bg-[#9b87f5]/10"
-                    onClick={handleCopyLink}
-                  >
-                    <Copy className="h-4 w-4 mr-2 text-[#9b87f5]" />
-                    Copy Link
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-gradient-to-r from-[#9b87f5]/10 to-[#7E69AB]/10 border-0 shadow-lg">
-              <CardContent className="p-6 text-center">
-                <h2 className="text-xl font-semibold mb-2 bg-gradient-to-r from-[#9b87f5] to-[#7E69AB] bg-clip-text text-transparent">
-                  Create Your Own Custom Links
-                </h2>
-                <p className="text-gray-600 dark:text-gray-400 mb-4">
-                  Join LinkManager today and start creating your own personalized
-                  links with advanced features!
-                </p>
-                <Link to="/">
-                  <Button
-                    variant="default"
-                    className="w-full sm:w-auto bg-[#9b87f5] hover:bg-[#7E69AB] text-white"
-                  >
-                    Get Started
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
-          </div>
         </motion.div>
       </main>
 
@@ -284,6 +252,12 @@ const ViewLink = () => {
           </div>
         </div>
       </footer>
+
+      <ShareModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        url={window.location.href}
+      />
     </div>
   );
 };
