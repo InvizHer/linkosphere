@@ -22,6 +22,7 @@ import {
   Shield,
   Settings,
   UserCircle,
+  Edit,
 } from "lucide-react";
 
 const Profile = () => {
@@ -131,7 +132,7 @@ const Profile = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#9b87f5]"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
       </div>
     );
   }
@@ -143,16 +144,16 @@ const Profile = () => {
       transition={{ duration: 0.5 }}
       className="max-w-4xl mx-auto px-4 py-8"
     >
-      <div className="bg-gradient-to-br from-[#9b87f5]/5 via-[#7E69AB]/5 to-[#6E59A5]/5 rounded-3xl shadow-xl backdrop-blur-xl border border-white/10">
-        <div className="relative h-48 bg-gradient-to-r from-[#9b87f5]/20 via-[#7E69AB]/20 to-[#6E59A5]/20 rounded-t-3xl">
-          <div className="absolute -bottom-16 left-1/2 -translate-x-1/2 md:left-12 md:translate-x-0">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
+        <div className="relative h-48 bg-gradient-to-r from-primary/20 to-accent/20">
+          <div className="absolute -bottom-16 left-8">
             <motion.div
               initial={{ scale: 0.9 }}
               animate={{ scale: 1 }}
               className="relative group"
             >
-              <div className="w-32 h-32 rounded-full bg-gradient-to-br from-[#9b87f5] to-[#6E59A5] p-1">
-                <div className="w-full h-full rounded-full bg-white dark:bg-gray-900 flex items-center justify-center text-4xl font-bold overflow-hidden">
+              <div className="w-32 h-32 rounded-full bg-gradient-to-br from-primary to-accent p-1">
+                <div className="w-full h-full rounded-full bg-white dark:bg-gray-900 flex items-center justify-center overflow-hidden">
                   {profile.avatar_url ? (
                     <img
                       src={profile.avatar_url}
@@ -160,7 +161,7 @@ const Profile = () => {
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <UserCircle className="w-20 h-20 text-[#9b87f5]" />
+                    <UserCircle className="w-20 h-20 text-primary" />
                   )}
                 </div>
               </div>
@@ -171,91 +172,77 @@ const Profile = () => {
           </div>
         </div>
 
-        <div className="pt-20 md:pt-8 md:pl-48 p-8">
+        <div className="pt-20 px-8 pb-8">
           <div className="space-y-8">
-            <div className="space-y-4">
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-[#9b87f5] to-[#6E59A5] bg-clip-text text-transparent">
-                {profile.username}
-              </h1>
-              <p className="text-gray-500">{user?.email}</p>
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+                  {profile.username}
+                </h1>
+                <p className="text-gray-500">{user?.email}</p>
+              </div>
+              <Button
+                variant="outline"
+                onClick={() => signOut()}
+                className="flex items-center gap-2"
+              >
+                <LogOut className="h-4 w-4" />
+                Sign Out
+              </Button>
             </div>
 
-            <motion.form
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.2 }}
-              onSubmit={handleUpdateProfile}
-              className="space-y-6"
-            >
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label className="flex items-center gap-2 text-gray-500">
-                    <Mail className="h-4 w-4" />
-                    Email Address
-                  </Label>
-                  <Input
-                    type="email"
-                    value={user?.email}
-                    disabled
-                    className="bg-white/5 border-white/10"
-                  />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-xl font-semibold flex items-center gap-2">
+                    <User className="h-5 w-5 text-primary" />
+                    Profile Information
+                  </h2>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setEditMode(!editMode)}
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
                 </div>
-
-                <div className="space-y-2">
-                  <Label className="flex items-center gap-2 text-gray-500">
-                    <User className="h-4 w-4" />
-                    Username
-                  </Label>
-                  <div className="flex gap-2">
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label className="text-gray-500">Username</Label>
                     <Input
                       value={formData.username}
                       onChange={(e) =>
                         setFormData({ ...formData, username: e.target.value })
                       }
                       disabled={!editMode}
-                      className="bg-white/5 border-white/10"
+                      className="bg-gray-50 dark:bg-gray-900"
                     />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => setEditMode(!editMode)}
-                      className="shrink-0"
-                    >
-                      {editMode ? "Cancel" : "Edit"}
-                    </Button>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-gray-500">Email</Label>
+                    <Input
+                      type="email"
+                      value={user?.email}
+                      disabled
+                      className="bg-gray-50 dark:bg-gray-900"
+                    />
                   </div>
                 </div>
               </div>
 
-              {editMode && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                >
-                  <Button type="submit" className="w-full md:w-auto">
-                    Save Changes
-                  </Button>
-                </motion.div>
-              )}
-            </motion.form>
-
-            <div className="space-y-4">
-              <h2 className="text-xl font-semibold flex items-center gap-2">
-                <Shield className="h-5 w-5 text-[#9b87f5]" />
-                Security
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-4">
+                <h2 className="text-xl font-semibold flex items-center gap-2">
+                  <Shield className="h-5 w-5 text-primary" />
+                  Security
+                </h2>
                 <Dialog>
                   <DialogTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full bg-white/5 border-white/10"
-                    >
+                    <Button variant="outline" className="w-full">
                       <Key className="h-4 w-4 mr-2" />
                       Change Password
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl">
+                  <DialogContent>
                     <DialogHeader>
                       <DialogTitle>Change Password</DialogTitle>
                     </DialogHeader>
@@ -294,15 +281,6 @@ const Profile = () => {
                     </form>
                   </DialogContent>
                 </Dialog>
-
-                <Button
-                  onClick={() => signOut()}
-                  variant="outline"
-                  className="w-full bg-white/5 border-white/10"
-                >
-                  <LogOut className="h-4 w-4 mr-2" />
-                  Sign Out
-                </Button>
               </div>
             </div>
           </div>
