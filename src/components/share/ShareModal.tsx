@@ -5,7 +5,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Facebook, Twitter, Telegram, Share2, Whatsapp } from "lucide-react";
+import { 
+  Facebook, 
+  Twitter, 
+  MessageCircle, 
+  Share2, 
+  MessageSquare 
+} from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 
 interface ShareModalProps {
@@ -18,13 +24,13 @@ const ShareModal = ({ isOpen, onClose, url }: ShareModalProps) => {
   const shareOptions = [
     {
       name: "WhatsApp",
-      icon: Whatsapp,
+      icon: MessageSquare,
       color: "#25D366",
       url: `https://wa.me/?text=${encodeURIComponent(url)}`,
     },
     {
       name: "Telegram",
-      icon: Telegram,
+      icon: MessageCircle,
       color: "#0088cc",
       url: `https://t.me/share/url?url=${encodeURIComponent(url)}`,
     },
