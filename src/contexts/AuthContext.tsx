@@ -44,7 +44,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       password,
       options: {
         data: {
-          username,
+          username: username, // Properly set the username in metadata
         },
       },
     });
