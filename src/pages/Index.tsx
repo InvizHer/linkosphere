@@ -4,14 +4,15 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { Link, Shield, Zap, ArrowRight, Globe, Users } from "lucide-react";
-import { AuthModal } from "@/components/auth/AuthModal";
+import { LoginModal } from "@/components/auth/LoginModal";
+import { SignupModal } from "@/components/auth/SignupModal";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 const Index = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [showAuthModal, setShowAuthModal] = useState(false);
-  const [authType, setAuthType] = useState<"login" | "signup">("signup");
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showSignupModal, setShowSignupModal] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -42,9 +43,14 @@ const Index = () => {
     },
   ];
 
-  const handleAuthModal = (type: "login" | "signup") => {
-    setAuthType(type);
-    setShowAuthModal(true);
+  const handleShowLogin = () => {
+    setShowSignupModal(false);
+    setShowLoginModal(true);
+  };
+
+  const handleShowSignup = () => {
+    setShowLoginModal(false);
+    setShowSignupModal(true);
   };
 
   return (
@@ -65,12 +71,12 @@ const Index = () => {
               <div className="hidden sm:flex gap-4">
                 <Button
                   variant="ghost"
-                  onClick={() => handleAuthModal("login")}
+                  onClick={handleShowLogin}
                 >
                   Sign In
                 </Button>
                 <Button
-                  onClick={() => handleAuthModal("signup")}
+                  onClick={handleShowSignup}
                 >
                   Get Started
                 </Button>
@@ -118,8 +124,7 @@ const Index = () => {
               size="lg"
               className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:opacity-90 text-white"
               onClick={() => {
-                setAuthType("signup");
-                setShowAuthModal(true);
+                setShowSignupModal(true);
               }}
             >
               Get Started
@@ -129,8 +134,7 @@ const Index = () => {
               variant="outline"
               className="w-full"
               onClick={() => {
-                setAuthType("login");
-                setShowAuthModal(true);
+                setShowLoginModal(true);
               }}
             >
               Sign In
@@ -148,8 +152,7 @@ const Index = () => {
               size="lg"
               className="bg-gradient-to-r from-blue-600 to-purple-600 hover:opacity-90 text-white px-8 py-6 text-lg rounded-full flex items-center gap-2 group"
               onClick={() => {
-                setAuthType("signup");
-                setShowAuthModal(true);
+                setShowSignupModal(true);
               }}
             >
               Get Started
@@ -160,8 +163,7 @@ const Index = () => {
               variant="outline"
               className="px-8 py-6 text-lg rounded-full"
               onClick={() => {
-                setAuthType("login");
-                setShowAuthModal(true);
+                setShowLoginModal(true);
               }}
             >
               Sign In
@@ -200,11 +202,16 @@ const Index = () => {
         </motion.div>
       </div>
 
-      {/* Auth Modal */}
-      <AuthModal
-        isOpen={showAuthModal}
-        onClose={() => setShowAuthModal(false)}
-        type={authType}
+      {/* Auth Modals */}
+      <LoginModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        onSwitchToSignup={handleShowSignup}
+      />
+      <SignupModal
+        isOpen={showSignupModal}
+        onClose={() => setShowSignupModal(false)}
+        onSwitchToLogin={handleShowLogin}
       />
     </div>
   );
