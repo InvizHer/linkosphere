@@ -7,17 +7,6 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { motion } from "framer-motion";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import {
   Dialog,
   DialogContent,
   DialogHeader,
@@ -29,9 +18,10 @@ import {
   Mail,
   Key,
   LogOut,
-  Trash2,
   Camera,
   Shield,
+  Settings,
+  UserCircle,
 } from "lucide-react";
 
 const Profile = () => {
@@ -138,25 +128,6 @@ const Profile = () => {
     }
   };
 
-  const handleDeleteAccount = async () => {
-    try {
-      const { error } = await supabase.auth.admin.deleteUser(user!.id);
-      if (error) throw error;
-
-      await signOut();
-      toast({
-        title: "Account Deleted",
-        description: "Your account has been deleted successfully",
-      });
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-  };
-
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -172,16 +143,15 @@ const Profile = () => {
       transition={{ duration: 0.5 }}
       className="max-w-4xl mx-auto px-4 py-8"
     >
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/5 via-accent/5 to-primary/5 backdrop-blur-xl border border-white/10 shadow-2xl">
-        {/* Profile Header with Avatar */}
-        <div className="relative h-48 bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20">
+      <div className="bg-gradient-to-br from-[#9b87f5]/5 via-[#7E69AB]/5 to-[#6E59A5]/5 rounded-3xl shadow-xl backdrop-blur-xl border border-white/10">
+        <div className="relative h-48 bg-gradient-to-r from-[#9b87f5]/20 via-[#7E69AB]/20 to-[#6E59A5]/20 rounded-t-3xl">
           <div className="absolute -bottom-16 left-1/2 -translate-x-1/2 md:left-12 md:translate-x-0">
             <motion.div
               initial={{ scale: 0.9 }}
               animate={{ scale: 1 }}
               className="relative group"
             >
-              <div className="w-32 h-32 rounded-full bg-gradient-to-br from-primary to-accent p-1">
+              <div className="w-32 h-32 rounded-full bg-gradient-to-br from-[#9b87f5] to-[#6E59A5] p-1">
                 <div className="w-full h-full rounded-full bg-white dark:bg-gray-900 flex items-center justify-center text-4xl font-bold overflow-hidden">
                   {profile.avatar_url ? (
                     <img
@@ -190,9 +160,7 @@ const Profile = () => {
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <span className="bg-gradient-to-br from-primary to-accent bg-clip-text text-transparent">
-                      {profile.username.charAt(0).toUpperCase()}
-                    </span>
+                    <UserCircle className="w-20 h-20 text-[#9b87f5]" />
                   )}
                 </div>
               </div>
@@ -203,18 +171,15 @@ const Profile = () => {
           </div>
         </div>
 
-        {/* Profile Content */}
         <div className="pt-20 md:pt-8 md:pl-48 p-8">
           <div className="space-y-8">
-            {/* Basic Info */}
             <div className="space-y-4">
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-[#9b87f5] to-[#6E59A5] bg-clip-text text-transparent">
                 {profile.username}
               </h1>
               <p className="text-gray-500">{user?.email}</p>
             </div>
 
-            {/* Profile Form */}
             <motion.form
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -274,10 +239,9 @@ const Profile = () => {
               )}
             </motion.form>
 
-            {/* Security Section */}
             <div className="space-y-4">
               <h2 className="text-xl font-semibold flex items-center gap-2">
-                <Shield className="h-5 w-5 text-primary" />
+                <Shield className="h-5 w-5 text-[#9b87f5]" />
                 Security
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -340,41 +304,6 @@ const Profile = () => {
                   Sign Out
                 </Button>
               </div>
-            </div>
-
-            {/* Danger Zone */}
-            <div className="pt-6 border-t border-white/10">
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button
-                    variant="destructive"
-                    className="w-full md:w-auto bg-red-500/10 hover:bg-red-500/20"
-                  >
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    Delete Account
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl border-white/10">
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This action cannot be undone. This will permanently delete
-                      your account and remove your data from our servers.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel className="bg-white/50 hover:bg-white/80">
-                      Cancel
-                    </AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={handleDeleteAccount}
-                      className="bg-red-500 hover:bg-red-600 text-white"
-                    >
-                      Delete Account
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
             </div>
           </div>
         </div>
