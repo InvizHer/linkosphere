@@ -29,6 +29,7 @@ import {
   Lock,
   Image,
   MoreVertical,
+  CalendarDays,
 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
@@ -368,7 +369,7 @@ const ManageLinks = () => {
                     {link.views}
                   </span>
                   <span className="flex items-center gap-1">
-                    <Calendar className="h-4 w-4" />
+                    <CalendarDays className="h-4 w-4" />
                     {new Date(link.created_at).toLocaleDateString()}
                   </span>
                 </div>
