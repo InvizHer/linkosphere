@@ -156,24 +156,121 @@ const ManageLinks = () => {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DialogTrigger asChild>
-              <DropdownMenuItem
-                onClick={() => {
-                  setSelectedLink(link);
-                  setEditFormData({
-                    name: link.name,
-                    description: link.description || "",
-                    original_url: link.original_url,
-                    thumbnail_url: link.thumbnail_url || "",
-                    password: link.password || "",
-                    show_password: link.show_password,
-                  });
-                }}
-              >
-                <Edit className="h-4 w-4 mr-2" />
-                Edit
-              </DropdownMenuItem>
-            </DialogTrigger>
+            <Dialog>
+              <DialogTrigger asChild>
+                <DropdownMenuItem
+                  onClick={() => {
+                    setSelectedLink(link);
+                    setEditFormData({
+                      name: link.name,
+                      description: link.description || "",
+                      original_url: link.original_url,
+                      thumbnail_url: link.thumbnail_url || "",
+                      password: link.password || "",
+                      show_password: link.show_password,
+                    });
+                  }}
+                >
+                  <Edit className="h-4 w-4 mr-2" />
+                  Edit
+                </DropdownMenuItem>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Edit Link</DialogTitle>
+                </DialogHeader>
+                <form onSubmit={handleEdit} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-name">Name</Label>
+                    <Input
+                      id="edit-name"
+                      value={editFormData.name}
+                      onChange={(e) =>
+                        setEditFormData({
+                          ...editFormData,
+                          name: e.target.value,
+                        })
+                      }
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-description">Description</Label>
+                    <Textarea
+                      id="edit-description"
+                      value={editFormData.description}
+                      onChange={(e) =>
+                        setEditFormData({
+                          ...editFormData,
+                          description: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-original-url">Original URL</Label>
+                    <Input
+                      id="edit-original-url"
+                      type="url"
+                      value={editFormData.original_url}
+                      onChange={(e) =>
+                        setEditFormData({
+                          ...editFormData,
+                          original_url: e.target.value,
+                        })
+                      }
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-thumbnail-url">Thumbnail URL</Label>
+                    <Input
+                      id="edit-thumbnail-url"
+                      type="url"
+                      value={editFormData.thumbnail_url}
+                      onChange={(e) =>
+                        setEditFormData({
+                          ...editFormData,
+                          thumbnail_url: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-password">Password</Label>
+                    <Input
+                      id="edit-password"
+                      type="password"
+                      value={editFormData.password}
+                      onChange={(e) =>
+                        setEditFormData({
+                          ...editFormData,
+                          password: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id="edit-show-password"
+                      checked={editFormData.show_password}
+                      onCheckedChange={(checked) =>
+                        setEditFormData({
+                          ...editFormData,
+                          show_password: checked,
+                        })
+                      }
+                    />
+                    <Label htmlFor="edit-show-password">
+                      Show password to visitors
+                    </Label>
+                  </div>
+                  <Button type="submit" className="w-full">
+                    Save Changes
+                  </Button>
+                </form>
+              </DialogContent>
+            </Dialog>
             <DropdownMenuItem
               onClick={() => {
                 const url = `${window.location.origin}/view?token=${link.token}`;
