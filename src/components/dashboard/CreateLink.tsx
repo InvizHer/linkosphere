@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/components/ui/use-toast";
 import { motion } from "framer-motion";
-import { Link, Lock, Image, FileText, Copy, ExternalLink } from "lucide-react";
+import { Link, Lock, Image, FileText, Copy, ExternalLink, PartyPopper } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const CreateLink = () => {
@@ -17,6 +17,7 @@ const CreateLink = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [createdLink, setCreatedLink] = useState<string | null>(null);
+  const createdLinkRef = useRef<HTMLDivElement>(null);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -26,6 +27,17 @@ const CreateLink = () => {
     show_password: false,
   });
 
+  const clearForm = () => {
+    setFormData({
+      name: "",
+      description: "",
+      original_url: "",
+      thumbnail_url: "",
+      password: "",
+      show_password: false,
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -33,7 +45,7 @@ const CreateLink = () => {
         .from("links")
         .insert({
           name: formData.name,
-          description: formData.description,
+          description: formData.description || null,
           original_url: formData.original_url,
           thumbnail_url: formData.thumbnail_url || null,
           password: formData.password || null,
@@ -47,11 +59,17 @@ const CreateLink = () => {
 
       const linkUrl = `${window.location.origin}/view?token=${data.token}`;
       setCreatedLink(linkUrl);
+      clearForm();
 
       toast({
         title: "Link Created",
         description: "Your link has been created successfully",
       });
+
+      // Scroll to the created link section
+      setTimeout(() => {
+        createdLinkRef.current?.scrollIntoView({ behavior: "smooth" });
+      }, 100);
     } catch (error: any) {
       toast({
         title: "Error",
@@ -75,7 +93,7 @@ const CreateLink = () => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="max-w-2xl mx-auto"
+      className="max-w-2xl mx-auto space-y-8"
     >
       <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-gray-200 dark:border-gray-700">
         <CardHeader>
@@ -105,7 +123,7 @@ const CreateLink = () => {
             <div className="space-y-2">
               <Label htmlFor="description" className="flex items-center gap-2">
                 <FileText className="h-4 w-4" />
-                Description
+                Description (Optional)
               </Label>
               <Textarea
                 id="description"
@@ -153,7 +171,7 @@ const CreateLink = () => {
             <div className="space-y-2">
               <Label htmlFor="password" className="flex items-center gap-2">
                 <Lock className="h-4 w-4" />
-                Password Protection
+                Password Protection (Optional)
               </Label>
               <Input
                 id="password"
@@ -184,47 +202,55 @@ const CreateLink = () => {
               Create Link
             </Button>
           </form>
-
-          {createdLink && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mt-6 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700"
-            >
-              <div className="flex flex-col space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Your Link:</span>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={copyToClipboard}
-                      className="flex items-center gap-1"
-                    >
-                      <Copy className="h-4 w-4" />
-                      Copy
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => window.open(createdLink, "_blank")}
-                      className="flex items-center gap-1"
-                    >
-                      <ExternalLink className="h-4 w-4" />
-                      Visit
-                    </Button>
-                  </div>
-                </div>
-                <Input
-                  value={createdLink}
-                  readOnly
-                  className="bg-white dark:bg-gray-800 font-mono text-sm"
-                />
-              </div>
-            </motion.div>
-          )}
         </CardContent>
       </Card>
+
+      {createdLink && (
+        <motion.div
+          ref={createdLinkRef}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="p-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-lg border border-gray-200 dark:border-gray-700"
+        >
+          <div className="flex items-center gap-2 mb-4 text-primary">
+            <PartyPopper className="h-6 w-6" />
+            <h3 className="text-xl font-semibold">Congratulations!</h3>
+          </div>
+          <p className="text-gray-600 dark:text-gray-300 mb-6">
+            Your link has been created successfully. You can now share it with others!
+          </p>
+          <div className="flex flex-col space-y-4">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium">Your Link:</span>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={copyToClipboard}
+                  className="flex items-center gap-1"
+                >
+                  <Copy className="h-4 w-4" />
+                  Copy
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => window.open(createdLink, "_blank")}
+                  className="flex items-center gap-1"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  Visit
+                </Button>
+              </div>
+            </div>
+            <Input
+              value={createdLink}
+              readOnly
+              className="bg-white dark:bg-gray-800 font-mono text-sm"
+            />
+          </div>
+        </motion.div>
+      )}
     </motion.div>
   );
 };
