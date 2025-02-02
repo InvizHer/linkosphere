@@ -11,6 +11,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Header = () => {
   const { user, signOut } = useAuth();
@@ -18,6 +20,24 @@ export const Header = () => {
   const location = useLocation();
   const isMobile = useIsMobile();
   const currentPath = location.pathname.split("/")[2] || "create";
+  const [username, setUsername] = useState<string>("");
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!user) return;
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("username")
+        .eq("id", user.id)
+        .single();
+
+      if (!error && data) {
+        setUsername(data.username);
+      }
+    };
+
+    fetchProfile();
+  }, [user]);
 
   const tabs = [
     { id: "create", label: "Create Link", icon: PlusCircle },
@@ -25,7 +45,7 @@ export const Header = () => {
     { id: "stats", label: "Statistics", icon: BarChart2 },
   ];
 
-  const username = user?.email?.charAt(0).toUpperCase() || "U";
+  const userInitial = username ? username.charAt(0).toUpperCase() : "U";
 
   return (
     <motion.header
@@ -76,7 +96,7 @@ export const Header = () => {
               <Button variant="ghost" size="icon" className="relative">
                 <Avatar className="h-8 w-8">
                   <AvatarFallback className="bg-primary text-primary-foreground">
-                    {username}
+                    {userInitial}
                   </AvatarFallback>
                 </Avatar>
               </Button>

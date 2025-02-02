@@ -12,15 +12,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Mail, Key, Camera, UserCircle } from "lucide-react";
+import { Mail, Key, Camera, UserCircle, LogOut } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 
 const Profile = () => {
@@ -95,13 +88,29 @@ const Profile = () => {
     if (formData.newPassword !== formData.confirmPassword) {
       toast({
         title: "Error",
-        description: "Passwords do not match",
+        description: "New passwords do not match",
         variant: "destructive",
       });
       return;
     }
 
     try {
+      // First verify the current password
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: user!.email!,
+        password: formData.currentPassword,
+      });
+
+      if (signInError) {
+        toast({
+          title: "Error",
+          description: "Current password is incorrect",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // If current password is correct, proceed with password update
       const { error } = await supabase.auth.updateUser({
         password: formData.newPassword,
       });
@@ -144,106 +153,116 @@ const Profile = () => {
       transition={{ duration: 0.5 }}
       className="container max-w-4xl mx-auto px-4 py-8"
     >
-      <Card className="bg-card">
-        <CardHeader className="pb-4">
-          <div className="flex items-center space-x-4">
-            <div className="relative group">
-              <Avatar className="h-20 w-20">
-                {profile.avatar_url ? (
-                  <AvatarImage src={profile.avatar_url} alt={profile.username} />
-                ) : (
-                  <AvatarFallback className="bg-primary/10">
-                    <UserCircle className="w-12 h-12 text-primary" />
-                  </AvatarFallback>
-                )}
-                <button className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-full">
-                  <Camera className="w-6 h-6 text-white" />
-                </button>
-              </Avatar>
-            </div>
-            <div className="space-y-1">
-              <CardTitle className="text-2xl">{profile.username}</CardTitle>
-              <CardDescription>{user?.email}</CardDescription>
-            </div>
+      <div className="space-y-8">
+        {/* Profile Header */}
+        <div className="flex items-center space-x-4 p-6 bg-card rounded-lg shadow-sm">
+          <div className="relative group">
+            <Avatar className="h-20 w-20">
+              {profile.avatar_url ? (
+                <AvatarImage src={profile.avatar_url} alt={profile.username} />
+              ) : (
+                <AvatarFallback className="bg-primary/10">
+                  <UserCircle className="w-12 h-12 text-primary" />
+                </AvatarFallback>
+              )}
+              <button className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-full">
+                <Camera className="w-6 h-6 text-white" />
+              </button>
+            </Avatar>
           </div>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <Separator className="my-4" />
-          
-          <form onSubmit={handleUpdateProfile} className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label className="flex items-center gap-2 text-muted-foreground">
-                  <Mail className="h-4 w-4" />
-                  Email Address
-                </Label>
+          <div>
+            <h1 className="text-2xl font-bold">{profile.username}</h1>
+            <p className="text-muted-foreground">{user?.email}</p>
+          </div>
+        </div>
+
+        {/* Profile Form */}
+        <form onSubmit={handleUpdateProfile} className="space-y-6">
+          <div className="grid gap-6 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <Mail className="h-4 w-4" />
+                Email Address
+              </Label>
+              <Input type="email" value={user?.email} disabled />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <UserCircle className="h-4 w-4" />
+                Username
+              </Label>
+              <div className="flex gap-2">
                 <Input
-                  type="email"
-                  value={user?.email}
-                  disabled
-                  className="bg-muted"
+                  value={formData.username}
+                  onChange={(e) =>
+                    setFormData({ ...formData, username: e.target.value })
+                  }
+                  disabled={!editMode}
                 />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setEditMode(!editMode)}
+                >
+                  {editMode ? "Cancel" : "Edit"}
+                </Button>
               </div>
-
-              <div className="space-y-2">
-                <Label className="flex items-center gap-2 text-muted-foreground">
-                  <UserCircle className="h-4 w-4" />
-                  Username
-                </Label>
-                <div className="flex gap-2">
-                  <Input
-                    value={formData.username}
-                    onChange={(e) =>
-                      setFormData({ ...formData, username: e.target.value })
-                    }
-                    disabled={!editMode}
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setEditMode(!editMode)}
-                    className="shrink-0"
-                  >
-                    {editMode ? "Cancel" : "Edit"}
-                  </Button>
-                </div>
-              </div>
-            </div>
-
-            {editMode && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-              >
-                <Button type="submit">Save Changes</Button>
-              </motion.div>
-            )}
-          </form>
-
-          <Separator className="my-4" />
-
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Security Settings</h3>
-            <div className="grid gap-4 md:grid-cols-2">
-              <Button
-                variant="outline"
-                className="w-full"
-                onClick={() => setShowPasswordDialog(true)}
-              >
-                <Key className="h-4 w-4 mr-2" />
-                Change Password
-              </Button>
             </div>
           </div>
-        </CardContent>
-      </Card>
 
+          {editMode && (
+            <Button type="submit">Save Changes</Button>
+          )}
+        </form>
+
+        <Separator />
+
+        {/* Security Section */}
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold">Security Settings</h2>
+          <div className="grid gap-4 md:grid-cols-2">
+            <Button
+              variant="outline"
+              onClick={() => setShowPasswordDialog(true)}
+              className="w-full"
+            >
+              <Key className="h-4 w-4 mr-2" />
+              Change Password
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => signOut()}
+              className="w-full"
+            >
+              <LogOut className="h-4 w-4 mr-2" />
+              Sign Out
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Password Change Dialog */}
       <Dialog open={showPasswordDialog} onOpenChange={setShowPasswordDialog}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Change Password</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleUpdatePassword} className="space-y-4">
+            <div className="space-y-2">
+              <Label>Current Password</Label>
+              <Input
+                type="password"
+                value={formData.currentPassword}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    currentPassword: e.target.value,
+                  })
+                }
+                required
+              />
+            </div>
             <div className="space-y-2">
               <Label>New Password</Label>
               <Input
@@ -259,7 +278,7 @@ const Profile = () => {
               />
             </div>
             <div className="space-y-2">
-              <Label>Confirm Password</Label>
+              <Label>Confirm New Password</Label>
               <Input
                 type="password"
                 value={formData.confirmPassword}

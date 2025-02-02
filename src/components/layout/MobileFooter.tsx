@@ -28,18 +28,18 @@ export const MobileFooter = () => {
             <button
               key={tab.id}
               onClick={() => navigate(`/dashboard/${tab.id}`)}
-              className={`relative flex flex-col items-center justify-center py-3 px-2 rounded-lg transition-all duration-200 ${
+              className={`relative flex flex-col items-center justify-center py-3 px-2 rounded-xl transition-all duration-300 ${
                 isActive
-                  ? "bg-primary/10 text-primary"
+                  ? "bg-primary text-primary-foreground scale-105 shadow-lg"
                   : "text-gray-500 hover:text-primary hover:bg-primary/5"
               }`}
             >
-              <Icon className={`h-5 w-5 ${isActive ? "animate-pulse" : ""}`} />
+              <Icon className={`h-5 w-5 ${isActive ? "animate-bounce" : ""}`} />
               <span className="text-xs mt-1 font-medium">{tab.label}</span>
               {isActive && (
                 <motion.div
                   layoutId="activeTab"
-                  className="absolute -bottom-2 left-1/2 w-12 h-1 bg-primary rounded-full -translate-x-1/2"
+                  className="absolute -bottom-2 left-1/2 w-8 h-1 bg-primary-foreground rounded-full -translate-x-1/2"
                   transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 />
               )}
