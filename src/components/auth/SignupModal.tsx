@@ -24,6 +24,10 @@ export const SignupModal = ({ isOpen, onClose, onSwitchToLogin }: SignupModalPro
   const { toast } = useToast();
   const { signUp } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState({
+    username: "",
+    email: "",
+  });
 
   const checkUsernameExists = async (username: string) => {
     const { data } = await supabase
@@ -35,10 +39,42 @@ export const SignupModal = ({ isOpen, onClose, onSwitchToLogin }: SignupModalPro
   };
 
   const checkEmailExists = async (email: string) => {
-    const { data, error } = await supabase.auth.signInWithOtp({
+    const { error } = await supabase.auth.signInWithOtp({
       email: email,
     });
     return !error || error.message.includes('already registered');
+  };
+
+  const validateForm = async () => {
+    setErrors({ username: "", email: "" });
+    let isValid = true;
+
+    // Username validation
+    if (formData.username.length < 3) {
+      setErrors(prev => ({ ...prev, username: "Username must be at least 3 characters long" }));
+      isValid = false;
+    } else {
+      const usernameExists = await checkUsernameExists(formData.username);
+      if (usernameExists) {
+        setErrors(prev => ({ ...prev, username: "Username is already taken" }));
+        isValid = false;
+      }
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setErrors(prev => ({ ...prev, email: "Please enter a valid email address" }));
+      isValid = false;
+    } else {
+      const emailExists = await checkEmailExists(formData.email);
+      if (emailExists) {
+        setErrors(prev => ({ ...prev, email: "Email is already registered" }));
+        isValid = false;
+      }
+    }
+
+    return isValid;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -46,26 +82,8 @@ export const SignupModal = ({ isOpen, onClose, onSwitchToLogin }: SignupModalPro
     setIsLoading(true);
     
     try {
-      // Check if username exists
-      const usernameExists = await checkUsernameExists(formData.username);
-      if (usernameExists) {
-        toast({
-          title: "Username already taken",
-          description: "Please choose a different username",
-          variant: "destructive",
-        });
-        setIsLoading(false);
-        return;
-      }
-
-      // Check if email exists
-      const emailExists = await checkEmailExists(formData.email);
-      if (emailExists) {
-        toast({
-          title: "Email already registered",
-          description: "Please use a different email or sign in",
-          variant: "destructive",
-        });
+      const isValid = await validateForm();
+      if (!isValid) {
         setIsLoading(false);
         return;
       }
@@ -110,12 +128,18 @@ export const SignupModal = ({ isOpen, onClose, onSwitchToLogin }: SignupModalPro
                 <Input
                   id="username"
                   value={formData.username}
-                  onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                  onChange={(e) => {
+                    setFormData({ ...formData, username: e.target.value });
+                    setErrors(prev => ({ ...prev, username: "" }));
+                  }}
                   required
-                  className="pl-10"
+                  className={`pl-10 ${errors.username ? 'border-red-500' : ''}`}
                   placeholder="Choose a username"
                 />
               </div>
+              {errors.username && (
+                <p className="text-sm text-red-500 mt-1">{errors.username}</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
@@ -125,12 +149,18 @@ export const SignupModal = ({ isOpen, onClose, onSwitchToLogin }: SignupModalPro
                   id="email"
                   type="email"
                   value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  onChange={(e) => {
+                    setFormData({ ...formData, email: e.target.value });
+                    setErrors(prev => ({ ...prev, email: "" }));
+                  }}
                   required
-                  className="pl-10"
+                  className={`pl-10 ${errors.email ? 'border-red-500' : ''}`}
                   placeholder="Enter your email"
                 />
               </div>
+              {errors.email && (
+                <p className="text-sm text-red-500 mt-1">{errors.email}</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
