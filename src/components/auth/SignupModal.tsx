@@ -7,6 +7,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
 import { User, Mail, Lock } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface SignupModalProps {
   isOpen: boolean;
@@ -24,10 +25,51 @@ export const SignupModal = ({ isOpen, onClose, onSwitchToLogin }: SignupModalPro
   const { signUp } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
 
+  const checkUsernameExists = async (username: string) => {
+    const { data } = await supabase
+      .from('profiles')
+      .select('username')
+      .eq('username', username)
+      .single();
+    return !!data;
+  };
+
+  const checkEmailExists = async (email: string) => {
+    const { data, error } = await supabase.auth.signInWithOtp({
+      email: email,
+    });
+    return !error || error.message.includes('already registered');
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    
     try {
+      // Check if username exists
+      const usernameExists = await checkUsernameExists(formData.username);
+      if (usernameExists) {
+        toast({
+          title: "Username already taken",
+          description: "Please choose a different username",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      // Check if email exists
+      const emailExists = await checkEmailExists(formData.email);
+      if (emailExists) {
+        toast({
+          title: "Email already registered",
+          description: "Please use a different email or sign in",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
       await signUp(formData.email, formData.password, formData.username);
       toast({
         title: "Account Created",
@@ -102,6 +144,7 @@ export const SignupModal = ({ isOpen, onClose, onSwitchToLogin }: SignupModalPro
                   required
                   className="pl-10"
                   placeholder="Create a password"
+                  minLength={6}
                 />
               </div>
             </div>
