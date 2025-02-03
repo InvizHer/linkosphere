@@ -27,6 +27,34 @@ const CreateLink = () => {
     show_password: false,
   });
 
+  const placeholderThumbnails = [
+    "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b",
+    "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d",
+    "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158",
+    "https://images.unsplash.com/photo-1460925895917-afdab827c52f"
+  ];
+
+  const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const lines = e.target.value.split('\n');
+    if (lines.length <= 2) {
+      setFormData({ ...formData, description: e.target.value });
+    } else {
+      // Only keep the first two lines
+      setFormData({ 
+        ...formData, 
+        description: lines.slice(0, 2).join('\n') 
+      });
+      toast({
+        title: "Description limit reached",
+        description: "Description is limited to 2 lines",
+      });
+    }
+  };
+
+  const selectPlaceholderThumbnail = (url: string) => {
+    setFormData({ ...formData, thumbnail_url: url });
+  };
+
   const clearForm = () => {
     setFormData({
       name: "",
@@ -123,15 +151,14 @@ const CreateLink = () => {
             <div className="space-y-2">
               <Label htmlFor="description" className="flex items-center gap-2">
                 <FileText className="h-4 w-4" />
-                Description (Optional)
+                Description (Max 2 lines)
               </Label>
               <Textarea
                 id="description"
                 value={formData.description}
-                onChange={(e) =>
-                  setFormData({ ...formData, description: e.target.value })
-                }
-                className="bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm border-gray-200 dark:border-gray-700 focus:border-primary"
+                onChange={handleDescriptionChange}
+                className="two-line-description bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm border-gray-200 dark:border-gray-700 focus:border-primary"
+                placeholder="Enter a brief description (max 2 lines)"
               />
             </div>
 
@@ -165,7 +192,35 @@ const CreateLink = () => {
                   setFormData({ ...formData, thumbnail_url: e.target.value })
                 }
                 className="bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm border-gray-200 dark:border-gray-700 focus:border-primary"
+                placeholder="Enter thumbnail URL or select from below"
               />
+              
+              {formData.thumbnail_url && (
+                <img 
+                  src={formData.thumbnail_url} 
+                  alt="Thumbnail preview" 
+                  className="thumbnail-preview"
+                  onError={(e) => {
+                    e.currentTarget.src = "/placeholder.svg";
+                  }}
+                />
+              )}
+
+              <div className="grid grid-cols-2 gap-2 mt-2">
+                {placeholderThumbnails.map((url, index) => (
+                  <div
+                    key={index}
+                    onClick={() => selectPlaceholderThumbnail(url)}
+                    className="cursor-pointer hover:opacity-80 transition-opacity"
+                  >
+                    <img
+                      src={url}
+                      alt={`Placeholder ${index + 1}`}
+                      className="w-full h-24 object-cover rounded-md"
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
 
             <div className="space-y-2">
