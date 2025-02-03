@@ -18,10 +18,12 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { motion } from "framer-motion";
-import { Link, Eye, TrendingUp, Award } from "lucide-react";
+import { Link, Eye, TrendingUp, Award, Calendar } from "lucide-react";
+import { format, subDays, subMonths, subYears, startOfDay } from "date-fns";
 
 const Statistics = () => {
   const { user } = useAuth();
+  const [timeframe, setTimeframe] = useState("week");
   const [stats, setStats] = useState({
     totalLinks: 0,
     totalViews: 0,
@@ -34,10 +36,26 @@ const Statistics = () => {
     const fetchStats = async () => {
       if (!user) return;
 
+      let timeConstraint;
+      switch (timeframe) {
+        case "week":
+          timeConstraint = subDays(new Date(), 7);
+          break;
+        case "month":
+          timeConstraint = subMonths(new Date(), 1);
+          break;
+        case "year":
+          timeConstraint = subYears(new Date(), 1);
+          break;
+        default:
+          timeConstraint = subDays(new Date(), 7);
+      }
+
       const { data: links } = await supabase
         .from("links")
         .select("*")
-        .eq("user_id", user.id);
+        .eq("user_id", user.id)
+        .gte("created_at", startOfDay(timeConstraint).toISOString());
 
       if (!links) return;
 
@@ -69,10 +87,43 @@ const Statistics = () => {
     };
 
     fetchStats();
-  }, [user]);
+  }, [user, timeframe]);
 
   return (
     <div className="space-y-6">
+      <div className="flex justify-end space-x-2 mb-4">
+        <button
+          onClick={() => setTimeframe("week")}
+          className={`px-4 py-2 rounded-md ${
+            timeframe === "week"
+              ? "bg-primary text-white"
+              : "bg-gray-100 dark:bg-gray-800"
+          }`}
+        >
+          Week
+        </button>
+        <button
+          onClick={() => setTimeframe("month")}
+          className={`px-4 py-2 rounded-md ${
+            timeframe === "month"
+              ? "bg-primary text-white"
+              : "bg-gray-100 dark:bg-gray-800"
+          }`}
+        >
+          Month
+        </button>
+        <button
+          onClick={() => setTimeframe("year")}
+          className={`px-4 py-2 rounded-md ${
+            timeframe === "year"
+              ? "bg-primary text-white"
+              : "bg-gray-100 dark:bg-gray-800"
+          }`}
+        >
+          Year
+        </button>
+      </div>
+
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -166,7 +217,7 @@ const Statistics = () => {
       >
         <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-gray-200 dark:border-gray-700">
           <CardHeader>
-            <CardTitle>Top 5 Most Viewed Links</CardTitle>
+            <CardTitle>Top 5 Most Viewed Links ({timeframe})</CardTitle>
             <CardDescription>
               A visual representation of your most popular links
             </CardDescription>
