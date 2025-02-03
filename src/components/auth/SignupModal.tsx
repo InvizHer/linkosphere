@@ -34,7 +34,7 @@ export const SignupModal = ({ isOpen, onClose, onSwitchToLogin }: SignupModalPro
       .from('profiles')
       .select('username')
       .eq('username', username)
-      .single();
+      .maybeSingle();
     return !!data;
   };
 
