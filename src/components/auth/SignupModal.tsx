@@ -7,7 +7,6 @@ import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
 import { User, Mail, Lock } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 
 interface SignupModalProps {
   isOpen: boolean;
@@ -24,70 +23,11 @@ export const SignupModal = ({ isOpen, onClose, onSwitchToLogin }: SignupModalPro
   const { toast } = useToast();
   const { signUp } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState({
-    username: "",
-    email: "",
-  });
-
-  const checkUsernameExists = async (username: string) => {
-    const { data } = await supabase
-      .from('profiles')
-      .select('username')
-      .eq('username', username)
-      .maybeSingle();
-    return !!data;
-  };
-
-  const checkEmailExists = async (email: string) => {
-    const { error } = await supabase.auth.signInWithOtp({
-      email: email,
-    });
-    return !error || error.message.includes('already registered');
-  };
-
-  const validateForm = async () => {
-    setErrors({ username: "", email: "" });
-    let isValid = true;
-
-    // Username validation
-    if (formData.username.length < 3) {
-      setErrors(prev => ({ ...prev, username: "Username must be at least 3 characters long" }));
-      isValid = false;
-    } else {
-      const usernameExists = await checkUsernameExists(formData.username);
-      if (usernameExists) {
-        setErrors(prev => ({ ...prev, username: "Username is already taken" }));
-        isValid = false;
-      }
-    }
-
-    // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
-      setErrors(prev => ({ ...prev, email: "Please enter a valid email address" }));
-      isValid = false;
-    } else {
-      const emailExists = await checkEmailExists(formData.email);
-      if (emailExists) {
-        setErrors(prev => ({ ...prev, email: "Email is already registered" }));
-        isValid = false;
-      }
-    }
-
-    return isValid;
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
     try {
-      const isValid = await validateForm();
-      if (!isValid) {
-        setIsLoading(false);
-        return;
-      }
-
       await signUp(formData.email, formData.password, formData.username);
       toast({
         title: "Account Created",
@@ -128,18 +68,12 @@ export const SignupModal = ({ isOpen, onClose, onSwitchToLogin }: SignupModalPro
                 <Input
                   id="username"
                   value={formData.username}
-                  onChange={(e) => {
-                    setFormData({ ...formData, username: e.target.value });
-                    setErrors(prev => ({ ...prev, username: "" }));
-                  }}
+                  onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                   required
-                  className={`pl-10 ${errors.username ? 'border-red-500' : ''}`}
+                  className="pl-10"
                   placeholder="Choose a username"
                 />
               </div>
-              {errors.username && (
-                <p className="text-sm text-red-500 mt-1">{errors.username}</p>
-              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
@@ -149,18 +83,12 @@ export const SignupModal = ({ isOpen, onClose, onSwitchToLogin }: SignupModalPro
                   id="email"
                   type="email"
                   value={formData.email}
-                  onChange={(e) => {
-                    setFormData({ ...formData, email: e.target.value });
-                    setErrors(prev => ({ ...prev, email: "" }));
-                  }}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   required
-                  className={`pl-10 ${errors.email ? 'border-red-500' : ''}`}
+                  className="pl-10"
                   placeholder="Enter your email"
                 />
               </div>
-              {errors.email && (
-                <p className="text-sm text-red-500 mt-1">{errors.email}</p>
-              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
@@ -174,7 +102,6 @@ export const SignupModal = ({ isOpen, onClose, onSwitchToLogin }: SignupModalPro
                   required
                   className="pl-10"
                   placeholder="Create a password"
-                  minLength={6}
                 />
               </div>
             </div>

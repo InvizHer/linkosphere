@@ -47,7 +47,7 @@ export const LoginModal = ({ isOpen, onClose, onSwitchToSignup }: LoginModalProp
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[400px] p-0 overflow-hidden">
-        <div className="h-2 bg-gradient-to-r from-purple-600 to-pink-600" />
+        <div className="h-2 bg-gradient-to-r from-blue-600 to-purple-600" />
         <div className="p-6">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold text-center">
@@ -93,7 +93,7 @@ export const LoginModal = ({ isOpen, onClose, onSwitchToSignup }: LoginModalProp
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:opacity-90 transition-opacity text-white"
+              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:opacity-90 transition-opacity text-white"
             >
               {isLoading ? "Signing in..." : "Sign In"}
             </Button>
@@ -103,7 +103,7 @@ export const LoginModal = ({ isOpen, onClose, onSwitchToSignup }: LoginModalProp
                 <button
                   type="button"
                   onClick={onSwitchToSignup}
-                  className="text-purple-600 hover:text-purple-700 font-medium"
+                  className="text-blue-600 hover:text-blue-700 font-medium"
                 >
                   Sign up
                 </button>

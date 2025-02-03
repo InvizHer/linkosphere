@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { Link, Shield, Zap, ArrowRight, Globe, Users, Github, Twitter, CheckCircle, Sparkles } from "lucide-react";
+import { Link, Shield, Zap, ArrowRight, Globe, Users } from "lucide-react";
 import { LoginModal } from "@/components/auth/LoginModal";
 import { SignupModal } from "@/components/auth/SignupModal";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -43,24 +43,6 @@ const Index = () => {
     },
   ];
 
-  const benefits = [
-    {
-      icon: CheckCircle,
-      title: "Easy to Use",
-      description: "Intuitive interface for quick link creation and management",
-    },
-    {
-      icon: Sparkles,
-      title: "Customizable",
-      description: "Personalize your links with custom names and descriptions",
-    },
-    {
-      icon: Zap,
-      title: "Lightning Fast",
-      description: "Instant link generation and real-time analytics",
-    },
-  ];
-
   const handleShowLogin = () => {
     setShowSignupModal(false);
     setShowLoginModal(true);
@@ -80,7 +62,7 @@ const Index = () => {
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent"
+              className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"
             >
               LinkManager
             </motion.div>
@@ -90,13 +72,11 @@ const Index = () => {
                 <Button
                   variant="ghost"
                   onClick={handleShowLogin}
-                  className="hover:text-purple-600 dark:hover:text-purple-400"
                 >
                   Sign In
                 </Button>
                 <Button
                   onClick={handleShowSignup}
-                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:opacity-90"
                 >
                   Get Started
                 </Button>
@@ -114,7 +94,7 @@ const Index = () => {
           className="text-center max-w-4xl mx-auto"
         >
           <motion.h1 
-            className="text-4xl sm:text-5xl lg:text-7xl font-bold mb-6 bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 bg-clip-text text-transparent"
+            className="text-4xl sm:text-5xl lg:text-7xl font-bold mb-6 bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 bg-clip-text text-transparent"
             initial={{ scale: 0.95 }}
             animate={{ scale: 1 }}
             transition={{ duration: 0.5 }}
@@ -142,8 +122,10 @@ const Index = () => {
           >
             <Button
               size="lg"
-              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:opacity-90 text-white"
-              onClick={handleShowSignup}
+              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:opacity-90 text-white"
+              onClick={() => {
+                setShowSignupModal(true);
+              }}
             >
               Get Started
             </Button>
@@ -151,7 +133,9 @@ const Index = () => {
               size="lg"
               variant="outline"
               className="w-full"
-              onClick={handleShowLogin}
+              onClick={() => {
+                setShowLoginModal(true);
+              }}
             >
               Sign In
             </Button>
@@ -166,8 +150,10 @@ const Index = () => {
           >
             <Button
               size="lg"
-              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:opacity-90 text-white px-8 py-6 text-lg rounded-full flex items-center gap-2 group"
-              onClick={handleShowSignup}
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:opacity-90 text-white px-8 py-6 text-lg rounded-full flex items-center gap-2 group"
+              onClick={() => {
+                setShowSignupModal(true);
+              }}
             >
               Get Started
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -175,8 +161,10 @@ const Index = () => {
             <Button
               size="lg"
               variant="outline"
-              className="px-8 py-6 text-lg rounded-full hover:text-purple-600 dark:hover:text-purple-400"
-              onClick={handleShowLogin}
+              className="px-8 py-6 text-lg rounded-full"
+              onClick={() => {
+                setShowLoginModal(true);
+              }}
             >
               Sign In
             </Button>
@@ -201,8 +189,8 @@ const Index = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 * index }}
               >
-                <div className="w-14 h-14 bg-gradient-to-br from-purple-500/10 to-pink-500/10 dark:from-purple-500/20 dark:to-pink-500/20 rounded-xl flex items-center justify-center mb-4 group-hover:from-purple-500/20 group-hover:to-pink-500/20 transition-colors">
-                  <Icon className="h-7 w-7 text-purple-600 dark:text-purple-400" />
+                <div className="w-14 h-14 bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-500/20 dark:to-purple-500/20 rounded-xl flex items-center justify-center mb-4 group-hover:from-blue-500/20 group-hover:to-purple-500/20 transition-colors">
+                  <Icon className="h-7 w-7 text-blue-600 dark:text-blue-400" />
                 </div>
                 <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
                 <p className="text-gray-600 dark:text-gray-400 text-sm">
@@ -212,93 +200,7 @@ const Index = () => {
             );
           })}
         </motion.div>
-
-        {/* Benefits Section */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
-          className="mt-32"
-        >
-          <h2 className="text-3xl font-bold text-center mb-16 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-            Why Choose LinkManager?
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {benefits.map((benefit, index) => {
-              const Icon = benefit.icon;
-              return (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 * index }}
-                  className="bg-white/30 dark:bg-gray-800/30 backdrop-blur-sm p-8 rounded-2xl border border-gray-200 dark:border-gray-700"
-                >
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-purple-500/10 to-pink-500/10 rounded-full flex items-center justify-center">
-                      <Icon className="h-6 w-6 text-purple-600 dark:text-purple-400" />
-                    </div>
-                    <h3 className="text-xl font-semibold">{benefit.title}</h3>
-                  </div>
-                  <p className="text-gray-600 dark:text-gray-400">
-                    {benefit.description}
-                  </p>
-                </motion.div>
-              );
-            })}
-          </div>
-        </motion.div>
       </div>
-
-      {/* Footer */}
-      <footer className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-t border-gray-200 dark:border-gray-800 py-12">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div>
-              <h3 className="text-xl font-bold mb-4 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                LinkManager
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Transform your links into powerful tools with advanced analytics and security features.
-              </p>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Quick Links</h4>
-              <ul className="space-y-2">
-                <li>
-                  <a href="#features" className="text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400">
-                    Features
-                  </a>
-                </li>
-                <li>
-                  <a href="#about" className="text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400">
-                    About Us
-                  </a>
-                </li>
-                <li>
-                  <a href="#contact" className="text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400">
-                    Contact
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Connect With Us</h4>
-              <div className="flex gap-4">
-                <a href="#" className="text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400">
-                  <Github className="w-6 h-6" />
-                </a>
-                <a href="#" className="text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400">
-                  <Twitter className="w-6 h-6" />
-                </a>
-              </div>
-            </div>
-          </div>
-          <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700 text-center text-gray-600 dark:text-gray-400">
-            © 2024 LinkManager. All rights reserved.
-          </div>
-        </div>
-      </footer>
 
       {/* Auth Modals */}
       <LoginModal
