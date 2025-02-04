@@ -1,7 +1,7 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { useNavigate, useLocation } from "react-router-dom";
-import { PlusCircle, List, BarChart2, Settings, LogOut } from "lucide-react";
+import { PlusCircle, List, BarChart2, Settings, LogOut, Home } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { motion } from "framer-motion";
 import {
@@ -19,7 +19,7 @@ export const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const isMobile = useIsMobile();
-  const currentPath = location.pathname.split("/")[2] || "create";
+  const currentPath = location.pathname.split("/")[2] || "home";
   const [username, setUsername] = useState<string>("");
 
   useEffect(() => {
@@ -40,6 +40,7 @@ export const Header = () => {
   }, [user]);
 
   const tabs = [
+    { id: "home", label: "Dashboard", icon: Home },
     { id: "create", label: "Create Link", icon: PlusCircle },
     { id: "manage", label: "Manage Links", icon: List },
     { id: "stats", label: "Statistics", icon: BarChart2 },
@@ -58,7 +59,7 @@ export const Header = () => {
           <motion.div
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            onClick={() => navigate("/dashboard/create")}
+            onClick={() => navigate("/dashboard")}
             className="cursor-pointer"
           >
             <span className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
@@ -76,7 +77,7 @@ export const Header = () => {
                   <Button
                     key={tab.id}
                     variant={isActive ? "default" : "ghost"}
-                    onClick={() => navigate(`/dashboard/${tab.id}`)}
+                    onClick={() => navigate(`/dashboard${tab.id === "home" ? "" : `/${tab.id}`}`)}
                     className={`relative flex items-center space-x-2 ${
                       isActive
                         ? "bg-primary text-white before:absolute before:bottom-0 before:left-0 before:w-full before:h-1 before:bg-primary/20 before:rounded-t-full"

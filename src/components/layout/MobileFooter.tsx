@@ -1,13 +1,14 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { PlusCircle, List, BarChart2 } from "lucide-react";
+import { PlusCircle, List, BarChart2, Home } from "lucide-react";
 import { motion } from "framer-motion";
 
 export const MobileFooter = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const currentPath = location.pathname.split("/")[2] || "create";
+  const currentPath = location.pathname.split("/")[2] || "home";
 
   const tabs = [
+    { id: "home", label: "Home", icon: Home },
     { id: "create", label: "Create", icon: PlusCircle },
     { id: "manage", label: "Manage", icon: List },
     { id: "stats", label: "Stats", icon: BarChart2 },
@@ -19,7 +20,7 @@ export const MobileFooter = () => {
       animate={{ opacity: 1, y: 0 }}
       className="fixed bottom-0 left-0 right-0 md:hidden bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-t border-gray-200 dark:border-gray-800 shadow-lg z-50"
     >
-      <div className="grid grid-cols-3 gap-1 p-2">
+      <div className="grid grid-cols-4 gap-1 p-2">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = currentPath === tab.id;
@@ -27,7 +28,7 @@ export const MobileFooter = () => {
           return (
             <button
               key={tab.id}
-              onClick={() => navigate(`/dashboard/${tab.id}`)}
+              onClick={() => navigate(`/dashboard${tab.id === "home" ? "" : `/${tab.id}`}`)}
               className={`relative flex flex-col items-center justify-center py-3 px-2 rounded-xl transition-all duration-300 ${
                 isActive
                   ? "bg-primary text-primary-foreground scale-105 shadow-lg"
