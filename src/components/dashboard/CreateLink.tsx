@@ -19,6 +19,7 @@ import {
   PartyPopper,
   ChevronDown,
   ChevronUp,
+  Info,
 } from "lucide-react";
 import {
   Card,
@@ -175,24 +176,13 @@ const CreateLink = () => {
                 }
                 className="bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm border-gray-200 dark:border-gray-700 focus:border-primary"
                 rows={2}
+                placeholder="Enter a brief description (maximum 2 lines)"
               />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="original_url" className="flex items-center gap-2">
-                <Link className="h-4 w-4" />
-                Original URL
-              </Label>
-              <Input
-                id="original_url"
-                type="url"
-                value={formData.original_url}
-                onChange={(e) =>
-                  setFormData({ ...formData, original_url: e.target.value })
-                }
-                required
-                className="bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm border-gray-200 dark:border-gray-700 focus:border-primary"
-              />
+              {formData.description && !validateDescription(formData.description) && (
+                <p className="text-sm text-red-500">
+                  Description cannot be longer than 2 lines
+                </p>
+              )}
             </div>
 
             <Accordion type="single" collapsible>
@@ -202,67 +192,88 @@ const CreateLink = () => {
                 </AccordionTrigger>
                 <AccordionContent className="space-y-4">
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="custom_thumbnail" className="flex items-center gap-2">
-                        <Image className="h-4 w-4" />
-                        Custom Thumbnail
-                      </Label>
-                      <Switch
-                        id="custom_thumbnail"
-                        checked={customThumbnail}
-                        onCheckedChange={setCustomThumbnail}
-                      />
+                    <div className="rounded-lg bg-blue-50 dark:bg-blue-900/20 p-4 mb-4">
+                      <h4 className="font-medium text-blue-700 dark:text-blue-300 mb-2 flex items-center gap-2">
+                        <Info className="h-4 w-4" />
+                        Advanced Features Guide
+                      </h4>
+                      <p className="text-sm text-blue-600 dark:text-blue-400">
+                        Customize your link with these optional features:
+                      </p>
+                      <ul className="list-disc list-inside text-sm text-blue-600 dark:text-blue-400 mt-2 space-y-1">
+                        <li>Custom Thumbnail: Add a unique preview image for your link</li>
+                        <li>Password Protection: Secure your link with a password</li>
+                      </ul>
                     </div>
 
-                    {customThumbnail && (
-                      <Input
-                        id="thumbnail_url"
-                        type="url"
-                        value={formData.thumbnail_url}
-                        onChange={(e) =>
-                          setFormData({ ...formData, thumbnail_url: e.target.value })
-                        }
-                        placeholder="Enter thumbnail URL"
-                        className="bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm border-gray-200 dark:border-gray-700 focus:border-primary"
-                      />
-                    )}
-
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="password_protection" className="flex items-center gap-2">
-                        <Lock className="h-4 w-4" />
-                        Password Protection
-                      </Label>
-                      <Switch
-                        id="password_protection"
-                        checked={showPasswordProtection}
-                        onCheckedChange={setShowPasswordProtection}
-                      />
-                    </div>
-
-                    {showPasswordProtection && (
-                      <div className="space-y-4">
-                        <Input
-                          id="password"
-                          type="password"
-                          value={formData.password}
-                          onChange={(e) =>
-                            setFormData({ ...formData, password: e.target.value })
-                          }
-                          placeholder="Enter password"
-                          className="bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm border-gray-200 dark:border-gray-700 focus:border-primary"
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="custom_thumbnail" className="flex items-center gap-2">
+                          <Image className="h-4 w-4" />
+                          Custom Thumbnail
+                        </Label>
+                        <Switch
+                          id="custom_thumbnail"
+                          checked={customThumbnail}
+                          onCheckedChange={setCustomThumbnail}
                         />
-                        <div className="flex items-center space-x-2">
-                          <Switch
-                            id="show_password"
-                            checked={formData.show_password}
-                            onCheckedChange={(checked) =>
-                              setFormData({ ...formData, show_password: checked })
-                            }
-                          />
-                          <Label htmlFor="show_password">Show password to visitors</Label>
-                        </div>
                       </div>
-                    )}
+
+                      {customThumbnail && (
+                        <div className="space-y-2">
+                          <Input
+                            id="thumbnail_url"
+                            type="url"
+                            value={formData.thumbnail_url}
+                            onChange={(e) =>
+                              setFormData({ ...formData, thumbnail_url: e.target.value })
+                            }
+                            placeholder="Enter thumbnail URL"
+                            className="bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm border-gray-200 dark:border-gray-700 focus:border-primary"
+                          />
+                          <p className="text-sm text-muted-foreground">
+                            Leave empty to use the default thumbnail
+                          </p>
+                        </div>
+                      )}
+
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="password_protection" className="flex items-center gap-2">
+                          <Lock className="h-4 w-4" />
+                          Password Protection
+                        </Label>
+                        <Switch
+                          id="password_protection"
+                          checked={showPasswordProtection}
+                          onCheckedChange={setShowPasswordProtection}
+                        />
+                      </div>
+
+                      {showPasswordProtection && (
+                        <div className="space-y-4">
+                          <Input
+                            id="password"
+                            type="password"
+                            value={formData.password}
+                            onChange={(e) =>
+                              setFormData({ ...formData, password: e.target.value })
+                            }
+                            placeholder="Enter password"
+                            className="bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm border-gray-200 dark:border-gray-700 focus:border-primary"
+                          />
+                          <div className="flex items-center space-x-2">
+                            <Switch
+                              id="show_password"
+                              checked={formData.show_password}
+                              onCheckedChange={(checked) =>
+                                setFormData({ ...formData, show_password: checked })
+                              }
+                            />
+                            <Label htmlFor="show_password">Show password to visitors</Label>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </AccordionContent>
               </AccordionItem>
