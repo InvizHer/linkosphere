@@ -9,8 +9,31 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/components/ui/use-toast";
 import { motion } from "framer-motion";
-import { Link, Lock, Image, FileText, Copy, ExternalLink, PartyPopper } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Link,
+  Lock,
+  Image,
+  FileText,
+  Copy,
+  ExternalLink,
+  PartyPopper,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+
+const DEFAULT_THUMBNAIL = "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?auto=format&fit=crop&w=800&q=80";
 
 const CreateLink = () => {
   const { user } = useAuth();
@@ -18,28 +41,48 @@ const CreateLink = () => {
   const { toast } = useToast();
   const [createdLink, setCreatedLink] = useState<string | null>(null);
   const createdLinkRef = useRef<HTMLDivElement>(null);
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [customThumbnail, setCustomThumbnail] = useState(false);
+  const [showPasswordProtection, setShowPasswordProtection] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
     original_url: "",
-    thumbnail_url: "",
+    thumbnail_url: DEFAULT_THUMBNAIL,
     password: "",
     show_password: false,
   });
+
+  const validateDescription = (text: string) => {
+    const lines = text.split('\n').filter(line => line.trim() !== '');
+    return lines.length <= 2;
+  };
 
   const clearForm = () => {
     setFormData({
       name: "",
       description: "",
       original_url: "",
-      thumbnail_url: "",
+      thumbnail_url: DEFAULT_THUMBNAIL,
       password: "",
       show_password: false,
     });
+    setCustomThumbnail(false);
+    setShowPasswordProtection(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (formData.description && !validateDescription(formData.description)) {
+      toast({
+        title: "Validation Error",
+        description: "Description cannot be longer than 2 lines",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       const { data, error } = await supabase
         .from("links")
@@ -47,9 +90,9 @@ const CreateLink = () => {
           name: formData.name,
           description: formData.description || null,
           original_url: formData.original_url,
-          thumbnail_url: formData.thumbnail_url || null,
-          password: formData.password || null,
-          show_password: formData.show_password,
+          thumbnail_url: customThumbnail ? formData.thumbnail_url : DEFAULT_THUMBNAIL,
+          password: showPasswordProtection ? formData.password : null,
+          show_password: showPasswordProtection ? formData.show_password : false,
           user_id: user?.id,
         } as any)
         .select()
@@ -66,7 +109,6 @@ const CreateLink = () => {
         description: "Your link has been created successfully",
       });
 
-      // Scroll to the created link section
       setTimeout(() => {
         createdLinkRef.current?.scrollIntoView({ behavior: "smooth" });
       }, 100);
@@ -123,7 +165,7 @@ const CreateLink = () => {
             <div className="space-y-2">
               <Label htmlFor="description" className="flex items-center gap-2">
                 <FileText className="h-4 w-4" />
-                Description (Optional)
+                Description (Max 2 lines)
               </Label>
               <Textarea
                 id="description"
@@ -132,6 +174,7 @@ const CreateLink = () => {
                   setFormData({ ...formData, description: e.target.value })
                 }
                 className="bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm border-gray-200 dark:border-gray-700 focus:border-primary"
+                rows={2}
               />
             </div>
 
@@ -152,48 +195,78 @@ const CreateLink = () => {
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="thumbnail_url" className="flex items-center gap-2">
-                <Image className="h-4 w-4" />
-                Thumbnail URL
-              </Label>
-              <Input
-                id="thumbnail_url"
-                type="url"
-                value={formData.thumbnail_url}
-                onChange={(e) =>
-                  setFormData({ ...formData, thumbnail_url: e.target.value })
-                }
-                className="bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm border-gray-200 dark:border-gray-700 focus:border-primary"
-              />
-            </div>
+            <Accordion type="single" collapsible>
+              <AccordionItem value="advanced">
+                <AccordionTrigger className="text-sm font-medium">
+                  Advanced Options
+                </AccordionTrigger>
+                <AccordionContent className="space-y-4">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="custom_thumbnail" className="flex items-center gap-2">
+                        <Image className="h-4 w-4" />
+                        Custom Thumbnail
+                      </Label>
+                      <Switch
+                        id="custom_thumbnail"
+                        checked={customThumbnail}
+                        onCheckedChange={setCustomThumbnail}
+                      />
+                    </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="password" className="flex items-center gap-2">
-                <Lock className="h-4 w-4" />
-                Password Protection (Optional)
-              </Label>
-              <Input
-                id="password"
-                type="password"
-                value={formData.password}
-                onChange={(e) =>
-                  setFormData({ ...formData, password: e.target.value })
-                }
-                className="bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm border-gray-200 dark:border-gray-700 focus:border-primary"
-              />
-            </div>
+                    {customThumbnail && (
+                      <Input
+                        id="thumbnail_url"
+                        type="url"
+                        value={formData.thumbnail_url}
+                        onChange={(e) =>
+                          setFormData({ ...formData, thumbnail_url: e.target.value })
+                        }
+                        placeholder="Enter thumbnail URL"
+                        className="bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm border-gray-200 dark:border-gray-700 focus:border-primary"
+                      />
+                    )}
 
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="show_password"
-                checked={formData.show_password}
-                onCheckedChange={(checked) =>
-                  setFormData({ ...formData, show_password: checked })
-                }
-              />
-              <Label htmlFor="show_password">Show password to visitors</Label>
-            </div>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="password_protection" className="flex items-center gap-2">
+                        <Lock className="h-4 w-4" />
+                        Password Protection
+                      </Label>
+                      <Switch
+                        id="password_protection"
+                        checked={showPasswordProtection}
+                        onCheckedChange={setShowPasswordProtection}
+                      />
+                    </div>
+
+                    {showPasswordProtection && (
+                      <div className="space-y-4">
+                        <Input
+                          id="password"
+                          type="password"
+                          value={formData.password}
+                          onChange={(e) =>
+                            setFormData({ ...formData, password: e.target.value })
+                          }
+                          placeholder="Enter password"
+                          className="bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm border-gray-200 dark:border-gray-700 focus:border-primary"
+                        />
+                        <div className="flex items-center space-x-2">
+                          <Switch
+                            id="show_password"
+                            checked={formData.show_password}
+                            onCheckedChange={(checked) =>
+                              setFormData({ ...formData, show_password: checked })
+                            }
+                          />
+                          <Label htmlFor="show_password">Show password to visitors</Label>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
 
             <Button
               type="submit"
