@@ -8,9 +8,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
 import {
-  BarChart,
-  Bar,
   LineChart,
   Line,
   XAxis,
@@ -18,14 +18,14 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Legend,
 } from "recharts";
 import { motion } from "framer-motion";
-import { Link, Eye, TrendingUp, Award, Calendar, Activity, Users, Clock } from "lucide-react";
+import { Link, Eye, TrendingUp, Award, Calendar, Activity, Users, Clock, RefreshCcw } from "lucide-react";
 import { format, subDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear } from "date-fns";
 
 const Statistics = () => {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [stats, setStats] = useState({
     totalLinks: 0,
     totalViews: 0,
@@ -37,104 +37,147 @@ const Statistics = () => {
   });
   const [timeSeriesData, setTimeSeriesData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchStats = async () => {
+    if (!user) {
+      setError("Please log in to view statistics");
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const now = new Date();
+      const weekStart = startOfWeek(now);
+      const weekEnd = endOfWeek(now);
+      const monthStart = startOfMonth(now);
+      const monthEnd = endOfMonth(now);
+      const yearStart = startOfYear(now);
+      const yearEnd = endOfYear(now);
+
+      const { data: links, error: linksError } = await supabase
+        .from("links")
+        .select("*")
+        .eq("user_id", user.id);
+
+      if (linksError) {
+        throw new Error(linksError.message);
+      }
+
+      if (!links) {
+        setStats({
+          totalLinks: 0,
+          totalViews: 0,
+          averageViews: 0,
+          mostViewedLink: null,
+          weeklyViews: 0,
+          monthlyViews: 0,
+          yearlyViews: 0,
+        });
+        setTimeSeriesData([]);
+        return;
+      }
+
+      // Calculate basic stats
+      const totalLinks = links.length;
+      const totalViews = links.reduce((sum, link) => sum + (link.views || 0), 0);
+      const averageViews = totalLinks > 0 ? totalViews / totalLinks : 0;
+      const mostViewedLink = links.reduce(
+        (prev, current) =>
+          (prev?.views || 0) > (current.views || 0) ? prev : current,
+        null
+      );
+
+      // Calculate time-based views
+      const weeklyViews = links.reduce(
+        (sum, link) => {
+          const createdAt = new Date(link.created_at);
+          return createdAt >= weekStart && createdAt <= weekEnd
+            ? sum + (link.views || 0)
+            : sum;
+        },
+        0
+      );
+
+      const monthlyViews = links.reduce(
+        (sum, link) => {
+          const createdAt = new Date(link.created_at);
+          return createdAt >= monthStart && createdAt <= monthEnd
+            ? sum + (link.views || 0)
+            : sum;
+        },
+        0
+      );
+
+      const yearlyViews = links.reduce(
+        (sum, link) => {
+          const createdAt = new Date(link.created_at);
+          return createdAt >= yearStart && createdAt <= yearEnd
+            ? sum + (link.views || 0)
+            : sum;
+        },
+        0
+      );
+
+      setStats({
+        totalLinks,
+        totalViews,
+        averageViews,
+        mostViewedLink,
+        weeklyViews,
+        monthlyViews,
+        yearlyViews,
+      });
+
+      // Prepare time series data for the last 7 days
+      const last7Days = Array.from({ length: 7 }, (_, i) => {
+        const date = subDays(now, i);
+        const views = links.reduce((sum, link) => {
+          const createdAt = new Date(link.created_at);
+          return format(createdAt, 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd')
+            ? sum + (link.views || 0)
+            : sum;
+        }, 0);
+        return {
+          date: format(date, 'MMM dd'),
+          views,
+        };
+      }).reverse();
+
+      setTimeSeriesData(last7Days);
+    } catch (err: any) {
+      setError(err.message);
+      toast({
+        variant: "destructive",
+        title: "Error fetching statistics",
+        description: err.message,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchStats = async () => {
-      if (!user) return;
-      setLoading(true);
-
-      try {
-        const now = new Date();
-        const weekStart = startOfWeek(now);
-        const weekEnd = endOfWeek(now);
-        const monthStart = startOfMonth(now);
-        const monthEnd = endOfMonth(now);
-        const yearStart = startOfYear(now);
-        const yearEnd = endOfYear(now);
-
-        const { data: links } = await supabase
-          .from("links")
-          .select("*")
-          .eq("user_id", user.id);
-
-        if (!links) return;
-
-        // Calculate basic stats
-        const totalLinks = links.length;
-        const totalViews = links.reduce((sum, link) => sum + (link.views || 0), 0);
-        const averageViews = totalLinks > 0 ? totalViews / totalLinks : 0;
-        const mostViewedLink = links.reduce(
-          (prev, current) =>
-            (prev?.views || 0) > (current.views || 0) ? prev : current,
-          null
-        );
-
-        // Calculate time-based views
-        const weeklyViews = links.reduce(
-          (sum, link) => {
-            const createdAt = new Date(link.created_at);
-            return createdAt >= weekStart && createdAt <= weekEnd
-              ? sum + (link.views || 0)
-              : sum;
-          },
-          0
-        );
-
-        const monthlyViews = links.reduce(
-          (sum, link) => {
-            const createdAt = new Date(link.created_at);
-            return createdAt >= monthStart && createdAt <= monthEnd
-              ? sum + (link.views || 0)
-              : sum;
-          },
-          0
-        );
-
-        const yearlyViews = links.reduce(
-          (sum, link) => {
-            const createdAt = new Date(link.created_at);
-            return createdAt >= yearStart && createdAt <= yearEnd
-              ? sum + (link.views || 0)
-              : sum;
-          },
-          0
-        );
-
-        setStats({
-          totalLinks,
-          totalViews,
-          averageViews,
-          mostViewedLink,
-          weeklyViews,
-          monthlyViews,
-          yearlyViews,
-        });
-
-        // Prepare time series data for the last 7 days
-        const last7Days = Array.from({ length: 7 }, (_, i) => {
-          const date = subDays(now, i);
-          const views = links.reduce((sum, link) => {
-            const createdAt = new Date(link.created_at);
-            return format(createdAt, 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd')
-              ? sum + (link.views || 0)
-              : sum;
-          }, 0);
-          return {
-            date: format(date, 'MMM dd'),
-            views,
-          };
-        }).reverse();
-
-        setTimeSeriesData(last7Days);
-      } catch (error) {
-        console.error("Error fetching statistics:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchStats();
   }, [user]);
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
+        <div className="text-destructive text-center">
+          <p className="text-lg font-semibold">{error}</p>
+          <p className="text-sm text-muted-foreground">Please try again later</p>
+        </div>
+        <Button onClick={fetchStats} variant="outline" className="gap-2">
+          <RefreshCcw className="h-4 w-4" />
+          Retry
+        </Button>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
