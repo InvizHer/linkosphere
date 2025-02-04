@@ -3,10 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { Link, Shield, Zap, ArrowRight, Globe, Users } from "lucide-react";
+import { Link, Shield, Zap, ArrowRight, Globe, Users, ChartBar, Lock } from "lucide-react";
 import { LoginModal } from "@/components/auth/LoginModal";
 import { SignupModal } from "@/components/auth/SignupModal";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { Footer } from "@/components/layout/Footer";
 
 const Index = () => {
   const { user } = useAuth();
@@ -41,6 +42,26 @@ const Index = () => {
       title: "Team Collaboration",
       description: "Work together seamlessly with shared link management",
     },
+    {
+      icon: ChartBar,
+      title: "Advanced Analytics",
+      description: "Track link performance with detailed insights and metrics",
+    },
+    {
+      icon: Lock,
+      title: "Enhanced Security",
+      description: "Keep your links safe with advanced security features",
+    },
+    {
+      icon: Zap,
+      title: "Fast Performance",
+      description: "Lightning-fast link redirection and management",
+    },
+    {
+      icon: Shield,
+      title: "Data Privacy",
+      description: "Your data is protected with enterprise-grade security",
+    },
   ];
 
   const handleShowLogin = () => {
@@ -69,17 +90,10 @@ const Index = () => {
             <div className="flex items-center gap-4">
               <ThemeToggle />
               <div className="hidden sm:flex gap-4">
-                <Button
-                  variant="ghost"
-                  onClick={handleShowLogin}
-                >
+                <Button variant="ghost" onClick={handleShowLogin}>
                   Sign In
                 </Button>
-                <Button
-                  onClick={handleShowSignup}
-                >
-                  Get Started
-                </Button>
+                <Button onClick={handleShowSignup}>Get Started</Button>
               </div>
             </div>
           </div>
@@ -123,9 +137,7 @@ const Index = () => {
             <Button
               size="lg"
               className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:opacity-90 text-white"
-              onClick={() => {
-                setShowSignupModal(true);
-              }}
+              onClick={handleShowSignup}
             >
               Get Started
             </Button>
@@ -133,9 +145,7 @@ const Index = () => {
               size="lg"
               variant="outline"
               className="w-full"
-              onClick={() => {
-                setShowLoginModal(true);
-              }}
+              onClick={handleShowLogin}
             >
               Sign In
             </Button>
@@ -151,9 +161,7 @@ const Index = () => {
             <Button
               size="lg"
               className="bg-gradient-to-r from-blue-600 to-purple-600 hover:opacity-90 text-white px-8 py-6 text-lg rounded-full flex items-center gap-2 group"
-              onClick={() => {
-                setShowSignupModal(true);
-              }}
+              onClick={handleShowSignup}
             >
               Get Started
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -162,9 +170,7 @@ const Index = () => {
               size="lg"
               variant="outline"
               className="px-8 py-6 text-lg rounded-full"
-              onClick={() => {
-                setShowLoginModal(true);
-              }}
+              onClick={handleShowLogin}
             >
               Sign In
             </Button>
@@ -201,6 +207,9 @@ const Index = () => {
           })}
         </motion.div>
       </div>
+
+      {/* Footer */}
+      <Footer />
 
       {/* Auth Modals */}
       <LoginModal

@@ -7,6 +7,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
 import { User, Mail, Lock } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface SignupModalProps {
   isOpen: boolean;
@@ -24,10 +25,60 @@ export const SignupModal = ({ isOpen, onClose, onSwitchToLogin }: SignupModalPro
   const { signUp } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
 
+  const checkUsernameExists = async (username: string) => {
+    const { data, error } = await supabase
+      .rpc('check_username_exists', { username_to_check: username });
+    
+    if (error) {
+      console.error('Error checking username:', error);
+      return true; // Assume exists on error to prevent creation
+    }
+    
+    return data;
+  };
+
+  const checkEmailExists = async (email: string) => {
+    const { data, error } = await supabase
+      .rpc('check_email_exists', { email_to_check: email });
+    
+    if (error) {
+      console.error('Error checking email:', error);
+      return true; // Assume exists on error to prevent creation
+    }
+    
+    return data;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    
     try {
+      // Check username
+      const usernameExists = await checkUsernameExists(formData.username);
+      if (usernameExists) {
+        toast({
+          title: "Username already taken",
+          description: "Please choose a different username",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      // Check email
+      const emailExists = await checkEmailExists(formData.email);
+      if (emailExists) {
+        toast({
+          title: "Email already registered",
+          description: "Please use a different email or sign in",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      // Proceed with signup
       await signUp(formData.email, formData.password, formData.username);
       toast({
         title: "Account Created",
