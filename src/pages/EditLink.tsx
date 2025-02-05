@@ -176,7 +176,7 @@ const EditLink = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-6 space-y-6">
+    <div className="container mx-auto px-4 py-6 space-y-6 mb-20 md:mb-0">
       <div className="flex items-center justify-between">
         <Button
           variant="ghost"
@@ -197,22 +197,22 @@ const EditLink = () => {
       </div>
 
       <div className="grid gap-6 md:grid-cols-3">
-        {/* Stats Cards */}
+        {/* Stats Cards - Full width on mobile, 3 columns on desktop */}
         <Card className="md:col-span-3 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
-          <CardHeader>
+          <CardHeader className="pb-2">
             <CardTitle className="text-xl font-bold">Link Statistics</CardTitle>
             <CardDescription>Overview of your link's performance</CardDescription>
           </CardHeader>
-          <CardContent className="grid gap-4 md:grid-cols-3">
+          <CardContent className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
             <div className="flex items-center gap-4 p-4 rounded-lg bg-gray-50 dark:bg-gray-900/50">
-              <Eye className="h-8 w-8 text-primary" />
+              <Eye className="h-8 w-8 text-primary shrink-0" />
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Views</p>
                 <p className="text-2xl font-bold">{stats.views}</p>
               </div>
             </div>
             <div className="flex items-center gap-4 p-4 rounded-lg bg-gray-50 dark:bg-gray-900/50">
-              <Calendar className="h-8 w-8 text-primary" />
+              <Calendar className="h-8 w-8 text-primary shrink-0" />
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Created</p>
                 <p className="text-sm font-medium">
@@ -221,7 +221,7 @@ const EditLink = () => {
               </div>
             </div>
             <div className="flex items-center gap-4 p-4 rounded-lg bg-gray-50 dark:bg-gray-900/50">
-              <Clock className="h-8 w-8 text-primary" />
+              <Clock className="h-8 w-8 text-primary shrink-0" />
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Updated</p>
                 <p className="text-sm font-medium">
@@ -232,11 +232,11 @@ const EditLink = () => {
           </CardContent>
         </Card>
 
-        {/* Edit Form */}
+        {/* Edit Form - Full width on mobile, 2 columns on desktop */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="md:col-span-2"
+          className="md:col-span-2 space-y-6"
         >
           <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
             <CardHeader>
@@ -246,7 +246,7 @@ const EditLink = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="space-y-2">
                   <Label htmlFor="name">Name</Label>
                   <Input
@@ -259,6 +259,7 @@ const EditLink = () => {
                       })
                     }
                     required
+                    className="bg-white dark:bg-gray-900"
                   />
                 </div>
 
@@ -273,6 +274,7 @@ const EditLink = () => {
                         description: e.target.value,
                       })
                     }
+                    className="bg-white dark:bg-gray-900"
                   />
                 </div>
 
@@ -290,11 +292,13 @@ const EditLink = () => {
                         })
                       }
                       required
+                      className="bg-white dark:bg-gray-900"
                     />
                     <Button
                       type="button"
                       variant="outline"
                       onClick={() => window.open(formData.original_url, "_blank")}
+                      className="shrink-0"
                     >
                       <ExternalLink className="h-4 w-4" />
                     </Button>
@@ -313,6 +317,8 @@ const EditLink = () => {
                         thumbnail_url: e.target.value,
                       })
                     }
+                    className="bg-white dark:bg-gray-900"
+                    placeholder="Enter a valid image URL for the thumbnail"
                   />
                 </div>
 
@@ -328,6 +334,8 @@ const EditLink = () => {
                         password: e.target.value,
                       })
                     }
+                    className="bg-white dark:bg-gray-900"
+                    placeholder="Leave empty for no password protection"
                   />
                 </div>
 
@@ -353,25 +361,28 @@ const EditLink = () => {
           </Card>
         </motion.div>
 
-        {/* Preview Card */}
+        {/* Preview Card - Full width on mobile, 1 column on desktop */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
           className="md:col-span-1"
         >
-          <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+          <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm sticky top-4">
             <CardHeader>
               <CardTitle>Link Preview</CardTitle>
               <CardDescription>How your link appears to others</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {formData.thumbnail_url && (
-                <div className="relative aspect-video rounded-lg overflow-hidden">
+                <div className="relative aspect-video rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-900">
                   <img
                     src={formData.thumbnail_url}
                     alt="Link thumbnail"
                     className="object-cover w-full h-full"
+                    onError={(e) => {
+                      e.currentTarget.src = "https://via.placeholder.com/400x225?text=Invalid+Image+URL";
+                    }}
                   />
                 </div>
               )}
@@ -383,12 +394,12 @@ const EditLink = () => {
                   </p>
                 )}
                 <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-                  <LinkIcon className="h-4 w-4" />
+                  <LinkIcon className="h-4 w-4 shrink-0" />
                   <span className="truncate">{formData.original_url}</span>
                 </div>
                 {formData.password && (
                   <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-                    <Lock className="h-4 w-4" />
+                    <Lock className="h-4 w-4 shrink-0" />
                     <span>Password protected</span>
                   </div>
                 )}

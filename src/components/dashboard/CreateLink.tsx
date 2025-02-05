@@ -135,7 +135,7 @@ const CreateLink = () => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="max-w-2xl mx-auto space-y-8"
+      className="max-w-2xl mx-auto space-y-8 mb-20 md:mb-0"
     >
       <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-gray-200 dark:border-gray-700">
         <CardHeader>
@@ -202,67 +202,96 @@ const CreateLink = () => {
                 </AccordionTrigger>
                 <AccordionContent className="space-y-4">
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="custom_thumbnail" className="flex items-center gap-2">
-                        <Image className="h-4 w-4" />
-                        Custom Thumbnail
-                      </Label>
-                      <Switch
-                        id="custom_thumbnail"
-                        checked={customThumbnail}
-                        onCheckedChange={setCustomThumbnail}
-                      />
-                    </div>
-
-                    {customThumbnail && (
-                      <Input
-                        id="thumbnail_url"
-                        type="url"
-                        value={formData.thumbnail_url}
-                        onChange={(e) =>
-                          setFormData({ ...formData, thumbnail_url: e.target.value })
-                        }
-                        placeholder="Enter thumbnail URL"
-                        className="bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm border-gray-200 dark:border-gray-700 focus:border-primary"
-                      />
-                    )}
-
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="password_protection" className="flex items-center gap-2">
-                        <Lock className="h-4 w-4" />
-                        Password Protection
-                      </Label>
-                      <Switch
-                        id="password_protection"
-                        checked={showPasswordProtection}
-                        onCheckedChange={setShowPasswordProtection}
-                      />
-                    </div>
-
-                    {showPasswordProtection && (
-                      <div className="space-y-4">
-                        <Input
-                          id="password"
-                          type="password"
-                          value={formData.password}
-                          onChange={(e) =>
-                            setFormData({ ...formData, password: e.target.value })
-                          }
-                          placeholder="Enter password"
-                          className="bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm border-gray-200 dark:border-gray-700 focus:border-primary"
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="custom_thumbnail" className="flex items-center gap-2">
+                          <Image className="h-4 w-4" />
+                          Custom Thumbnail
+                        </Label>
+                        <Switch
+                          id="custom_thumbnail"
+                          checked={customThumbnail}
+                          onCheckedChange={setCustomThumbnail}
                         />
-                        <div className="flex items-center space-x-2">
-                          <Switch
-                            id="show_password"
-                            checked={formData.show_password}
-                            onCheckedChange={(checked) =>
-                              setFormData({ ...formData, show_password: checked })
-                            }
-                          />
-                          <Label htmlFor="show_password">Show password to visitors</Label>
-                        </div>
                       </div>
-                    )}
+                      
+                      <div className="text-sm text-gray-500 dark:text-gray-400">
+                        A thumbnail image makes your link more visually appealing. Use a direct image URL (ending in .jpg, .png, etc.)
+                      </div>
+
+                      {customThumbnail && (
+                        <div className="space-y-2">
+                          <Input
+                            id="thumbnail_url"
+                            type="url"
+                            value={formData.thumbnail_url}
+                            onChange={(e) =>
+                              setFormData({ ...formData, thumbnail_url: e.target.value })
+                            }
+                            placeholder="Enter thumbnail URL (e.g., https://example.com/image.jpg)"
+                            className="bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm border-gray-200 dark:border-gray-700 focus:border-primary"
+                          />
+                          {formData.thumbnail_url && (
+                            <div className="mt-2 relative aspect-video rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-900">
+                              <img
+                                src={formData.thumbnail_url}
+                                alt="Thumbnail preview"
+                                className="object-cover w-full h-full"
+                                onError={(e) => {
+                                  e.currentTarget.src = "https://via.placeholder.com/400x225?text=Invalid+Image+URL";
+                                }}
+                              />
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="password_protection" className="flex items-center gap-2">
+                          <Lock className="h-4 w-4" />
+                          Password Protection
+                        </Label>
+                        <Switch
+                          id="password_protection"
+                          checked={showPasswordProtection}
+                          onCheckedChange={setShowPasswordProtection}
+                        />
+                      </div>
+
+                      <div className="text-sm text-gray-500 dark:text-gray-400">
+                        Add a password to restrict access to your link. Only users with the password can view the content.
+                      </div>
+
+                      {showPasswordProtection && (
+                        <div className="space-y-4">
+                          <Input
+                            id="password"
+                            type="password"
+                            value={formData.password}
+                            onChange={(e) =>
+                              setFormData({ ...formData, password: e.target.value })
+                            }
+                            placeholder="Enter a secure password"
+                            className="bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm border-gray-200 dark:border-gray-700 focus:border-primary"
+                          />
+                          <div className="flex items-center space-x-2">
+                            <Switch
+                              id="show_password"
+                              checked={formData.show_password}
+                              onCheckedChange={(checked) =>
+                                setFormData({ ...formData, show_password: checked })
+                              }
+                            />
+                            <div>
+                              <Label htmlFor="show_password">Show password to visitors</Label>
+                              <p className="text-sm text-gray-500 dark:text-gray-400">
+                                Enable this to display the password on the link page
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </AccordionContent>
               </AccordionItem>
