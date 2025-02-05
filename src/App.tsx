@@ -1,45 +1,33 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { ThemeProvider } from "next-themes";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter as Router } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { Toaster } from "@/components/ui/toaster";
-import Index from "@/pages/Index";
-import ViewLink from "@/pages/ViewLink";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ThemeProvider } from "@/components/theme-provider";
 import Dashboard from "@/pages/Dashboard";
-import DashboardHome from "@/components/dashboard/DashboardHome";
-import CreateLink from "@/components/dashboard/CreateLink";
-import ManageLinks from "@/components/dashboard/ManageLinks";
-import EditLink from "@/pages/EditLink";
-import Statistics from "@/components/dashboard/Statistics";
-import Profile from "@/components/dashboard/Profile";
+import Index from "@/pages/Index";
 import NotFound from "@/pages/NotFound";
+import ViewLink from "@/pages/ViewLink";
+import { Routes, Route } from "react-router-dom";
 
 const queryClient = new QueryClient();
 
 function App() {
   return (
-    <Router>
-      <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-        <QueryClientProvider client={queryClient}>
+    <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
+      <QueryClientProvider client={queryClient}>
+        <Router>
           <AuthProvider>
             <Routes>
               <Route path="/" element={<Index />} />
+              <Route path="/dashboard/*" element={<Dashboard />} />
               <Route path="/view" element={<ViewLink />} />
-              <Route path="/dashboard" element={<Dashboard />}>
-                <Route index element={<DashboardHome />} />
-                <Route path="create" element={<CreateLink />} />
-                <Route path="manage" element={<ManageLinks />} />
-                <Route path="edit" element={<EditLink />} />
-                <Route path="statistics" element={<Statistics />} />
-                <Route path="profile" element={<Profile />} />
-              </Route>
               <Route path="*" element={<NotFound />} />
             </Routes>
             <Toaster />
           </AuthProvider>
-        </QueryClientProvider>
-      </ThemeProvider>
-    </Router>
+        </Router>
+      </QueryClientProvider>
+    </ThemeProvider>
   );
 }
 
