@@ -1,17 +1,17 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
-import { QueryClient, QueryClientProvider } from "react-query";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "@/contexts/AuthContext";
-import { Toaster } from "@/components/ui/toast";
+import { Toaster } from "@/components/ui/toaster";
 import Index from "@/pages/Index";
 import ViewLink from "@/pages/ViewLink";
 import Dashboard from "@/pages/Dashboard";
-import DashboardHome from "@/pages/DashboardHome";
-import CreateLink from "@/pages/CreateLink";
+import DashboardHome from "@/components/dashboard/DashboardHome";
+import CreateLink from "@/components/dashboard/CreateLink";
 import ManageLinks from "@/components/dashboard/ManageLinks";
 import EditLink from "@/pages/EditLink";
-import Statistics from "@/pages/Statistics";
-import Profile from "@/pages/Profile";
+import Statistics from "@/components/dashboard/Statistics";
+import Profile from "@/components/dashboard/Profile";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
