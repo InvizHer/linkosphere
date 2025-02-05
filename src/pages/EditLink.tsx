@@ -18,6 +18,7 @@ import {
   Clock,
   Lock,
   ExternalLink,
+  Info,
 } from "lucide-react";
 import {
   Card,
@@ -26,6 +27,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const EditLink = () => {
   const { user } = useAuth();
@@ -176,8 +183,8 @@ const EditLink = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-6 space-y-6 mb-20 md:mb-0">
-      <div className="flex items-center justify-between">
+    <div className="container mx-auto px-4 py-6 space-y-6 mb-20">
+      <div className="flex items-center justify-between sticky top-0 bg-background/80 backdrop-blur-sm z-10 py-2">
         <Button
           variant="ghost"
           onClick={() => navigate("/dashboard/manage")}
@@ -192,18 +199,18 @@ const EditLink = () => {
           className="flex items-center gap-2"
         >
           <Trash2 className="h-4 w-4" />
-          Delete Link
+          <span className="hidden sm:inline">Delete Link</span>
         </Button>
       </div>
 
       <div className="grid gap-6 md:grid-cols-3">
-        {/* Stats Cards - Full width on mobile, 3 columns on desktop */}
+        {/* Stats Cards */}
         <Card className="md:col-span-3 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
           <CardHeader className="pb-2">
             <CardTitle className="text-xl font-bold">Link Statistics</CardTitle>
             <CardDescription>Overview of your link's performance</CardDescription>
           </CardHeader>
-          <CardContent className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
+          <CardContent className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
             <div className="flex items-center gap-4 p-4 rounded-lg bg-gray-50 dark:bg-gray-900/50">
               <Eye className="h-8 w-8 text-primary shrink-0" />
               <div>
@@ -229,10 +236,17 @@ const EditLink = () => {
                 </p>
               </div>
             </div>
+            <div className="flex items-center gap-4 p-4 rounded-lg bg-gray-50 dark:bg-gray-900/50">
+              <LinkIcon className="h-8 w-8 text-primary shrink-0" />
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Token</p>
+                <p className="text-sm font-medium">{token}</p>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
-        {/* Edit Form - Full width on mobile, 2 columns on desktop */}
+        {/* Edit Form */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -294,19 +308,42 @@ const EditLink = () => {
                       required
                       className="bg-white dark:bg-gray-900"
                     />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => window.open(formData.original_url, "_blank")}
-                      className="shrink-0"
-                    >
-                      <ExternalLink className="h-4 w-4" />
-                    </Button>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() =>
+                              window.open(formData.original_url, "_blank")
+                            }
+                            className="shrink-0"
+                          >
+                            <ExternalLink className="h-4 w-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Open original URL</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="thumbnail_url">Thumbnail URL</Label>
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="thumbnail_url">Thumbnail URL</Label>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-4 w-4 text-muted-foreground" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Enter a valid image URL for the thumbnail preview</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
                   <Input
                     id="thumbnail_url"
                     type="url"
@@ -318,12 +355,24 @@ const EditLink = () => {
                       })
                     }
                     className="bg-white dark:bg-gray-900"
-                    placeholder="Enter a valid image URL for the thumbnail"
+                    placeholder="https://example.com/image.jpg"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="password">Password Protection</Label>
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="password">Password Protection</Label>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-4 w-4 text-muted-foreground" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Add a password to restrict access to your link</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
                   <Input
                     id="password"
                     type="password"
@@ -361,14 +410,14 @@ const EditLink = () => {
           </Card>
         </motion.div>
 
-        {/* Preview Card - Full width on mobile, 1 column on desktop */}
+        {/* Preview Card */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
           className="md:col-span-1"
         >
-          <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm sticky top-4">
+          <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm sticky top-24">
             <CardHeader>
               <CardTitle>Link Preview</CardTitle>
               <CardDescription>How your link appears to others</CardDescription>
@@ -381,7 +430,8 @@ const EditLink = () => {
                     alt="Link thumbnail"
                     className="object-cover w-full h-full"
                     onError={(e) => {
-                      e.currentTarget.src = "https://via.placeholder.com/400x225?text=Invalid+Image+URL";
+                      e.currentTarget.src =
+                        "https://via.placeholder.com/400x225?text=Invalid+Image+URL";
                     }}
                   />
                 </div>
