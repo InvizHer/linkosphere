@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -19,6 +20,8 @@ import {
   Lock,
   ExternalLink,
   Info,
+  BarChart2,
+  Image,
 } from "lucide-react";
 import {
   Card,
@@ -207,7 +210,10 @@ const EditLink = () => {
         {/* Stats Cards */}
         <Card className="md:col-span-3 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
           <CardHeader className="pb-2">
-            <CardTitle className="text-xl font-bold">Link Statistics</CardTitle>
+            <CardTitle className="text-xl font-bold flex items-center gap-2">
+              <BarChart2 className="h-5 w-5" />
+              Link Statistics
+            </CardTitle>
             <CardDescription>Overview of your link's performance</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
@@ -263,203 +269,4 @@ const EditLink = () => {
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="space-y-2">
                   <Label htmlFor="name">Name</Label>
-                  <Input
-                    id="name"
-                    value={formData.name}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        name: e.target.value,
-                      })
-                    }
-                    required
-                    className="bg-white dark:bg-gray-900"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="description">Description</Label>
-                  <Textarea
-                    id="description"
-                    value={formData.description}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        description: e.target.value,
-                      })
-                    }
-                    className="bg-white dark:bg-gray-900"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="original_url">Original URL</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      id="original_url"
-                      type="url"
-                      value={formData.original_url}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          original_url: e.target.value,
-                        })
-                      }
-                      required
-                      className="bg-white dark:bg-gray-900"
-                    />
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() =>
-                              window.open(formData.original_url, "_blank")
-                            }
-                            className="shrink-0"
-                          >
-                            <ExternalLink className="h-4 w-4" />
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Open original URL</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <Label htmlFor="thumbnail_url">Thumbnail URL</Label>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Info className="h-4 w-4 text-muted-foreground" />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Enter a valid image URL for the thumbnail preview</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </div>
-                  <Input
-                    id="thumbnail_url"
-                    type="url"
-                    value={formData.thumbnail_url}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        thumbnail_url: e.target.value,
-                      })
-                    }
-                    className="bg-white dark:bg-gray-900"
-                    placeholder="https://example.com/image.jpg"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <Label htmlFor="password">Password Protection</Label>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Info className="h-4 w-4 text-muted-foreground" />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Add a password to restrict access to your link</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </div>
-                  <Input
-                    id="password"
-                    type="password"
-                    value={formData.password}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        password: e.target.value,
-                      })
-                    }
-                    className="bg-white dark:bg-gray-900"
-                    placeholder="Leave empty for no password protection"
-                  />
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="show_password"
-                    checked={formData.show_password}
-                    onCheckedChange={(checked) =>
-                      setFormData({
-                        ...formData,
-                        show_password: checked,
-                      })
-                    }
-                  />
-                  <Label htmlFor="show_password">Show password to visitors</Label>
-                </div>
-
-                <Button type="submit" className="w-full">
-                  Save Changes
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        {/* Preview Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="md:col-span-1"
-        >
-          <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm sticky top-24">
-            <CardHeader>
-              <CardTitle>Link Preview</CardTitle>
-              <CardDescription>How your link appears to others</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {formData.thumbnail_url && (
-                <div className="relative aspect-video rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-900">
-                  <img
-                    src={formData.thumbnail_url}
-                    alt="Link thumbnail"
-                    className="object-cover w-full h-full"
-                    onError={(e) => {
-                      e.currentTarget.src =
-                        "https://via.placeholder.com/400x225?text=Invalid+Image+URL";
-                    }}
-                  />
-                </div>
-              )}
-              <div className="space-y-2">
-                <h3 className="font-semibold">{formData.name}</h3>
-                {formData.description && (
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    {formData.description}
-                  </p>
-                )}
-                <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-                  <LinkIcon className="h-4 w-4 shrink-0" />
-                  <span className="truncate">{formData.original_url}</span>
-                </div>
-                {formData.password && (
-                  <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-                    <Lock className="h-4 w-4 shrink-0" />
-                    <span>Password protected</span>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-      </div>
-    </div>
-  );
-};
-
-export default EditLink;
+                  

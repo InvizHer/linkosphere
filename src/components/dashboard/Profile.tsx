@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,8 +14,23 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Mail, Key, Camera, UserCircle, LogOut } from "lucide-react";
+import {
+  Mail,
+  Key,
+  Camera,
+  UserCircle,
+  LogOut,
+  AlertCircle,
+  Shield,
+} from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 const Profile = () => {
   const { user, signOut } = useAuth();
@@ -95,7 +111,6 @@ const Profile = () => {
     }
 
     try {
-      // First verify the current password
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email: user!.email!,
         password: formData.currentPassword,
@@ -110,7 +125,6 @@ const Profile = () => {
         return;
       }
 
-      // If current password is correct, proceed with password update
       const { error } = await supabase.auth.updateUser({
         password: formData.newPassword,
       });
@@ -151,100 +165,109 @@ const Profile = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="container max-w-4xl mx-auto px-4 py-8"
+      className="container max-w-4xl mx-auto px-4 py-8 mb-20"
     >
-      <div className="space-y-8">
-        {/* Profile Header */}
-        <div className="flex items-center space-x-4 p-6 bg-card rounded-lg shadow-sm">
-          <div className="relative group">
-            <Avatar className="h-20 w-20">
-              {profile.avatar_url ? (
-                <AvatarImage src={profile.avatar_url} alt={profile.username} />
-              ) : (
-                <AvatarFallback className="bg-primary/10">
-                  <UserCircle className="w-12 h-12 text-primary" />
-                </AvatarFallback>
-              )}
-              <button className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-full">
-                <Camera className="w-6 h-6 text-white" />
-              </button>
-            </Avatar>
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold">{profile.username}</h1>
-            <p className="text-muted-foreground">{user?.email}</p>
-          </div>
-        </div>
-
-        {/* Profile Form */}
-        <form onSubmit={handleUpdateProfile} className="space-y-6">
-          <div className="grid gap-6 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label className="flex items-center gap-2">
-                <Mail className="h-4 w-4" />
-                Email Address
-              </Label>
-              <Input type="email" value={user?.email} disabled />
+      <Card className="mb-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+        <CardHeader>
+          <CardTitle className="text-2xl font-bold">Profile Settings</CardTitle>
+          <CardDescription>Manage your account settings and preferences</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-8">
+          {/* Profile Header */}
+          <div className="flex flex-col sm:flex-row items-center gap-6 p-6 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
+            <div className="relative group">
+              <Avatar className="h-24 w-24">
+                {profile.avatar_url ? (
+                  <AvatarImage src={profile.avatar_url} alt={profile.username} />
+                ) : (
+                  <AvatarFallback className="bg-primary/10">
+                    <UserCircle className="w-12 h-12 text-primary" />
+                  </AvatarFallback>
+                )}
+                <button className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-full">
+                  <Camera className="w-6 h-6 text-white" />
+                </button>
+              </Avatar>
             </div>
+            <div className="text-center sm:text-left">
+              <h1 className="text-2xl font-bold">{profile.username}</h1>
+              <p className="text-muted-foreground">{user?.email}</p>
+            </div>
+          </div>
 
-            <div className="space-y-2">
-              <Label className="flex items-center gap-2">
-                <UserCircle className="h-4 w-4" />
-                Username
-              </Label>
-              <div className="flex gap-2">
-                <Input
-                  value={formData.username}
-                  onChange={(e) =>
-                    setFormData({ ...formData, username: e.target.value })
-                  }
-                  disabled={!editMode}
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setEditMode(!editMode)}
-                >
-                  {editMode ? "Cancel" : "Edit"}
-                </Button>
+          {/* Profile Form */}
+          <form onSubmit={handleUpdateProfile} className="space-y-6">
+            <div className="grid gap-6 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <Mail className="h-4 w-4" />
+                  Email Address
+                </Label>
+                <Input type="email" value={user?.email} disabled />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <UserCircle className="h-4 w-4" />
+                  Username
+                </Label>
+                <div className="flex gap-2">
+                  <Input
+                    value={formData.username}
+                    onChange={(e) =>
+                      setFormData({ ...formData, username: e.target.value })
+                    }
+                    disabled={!editMode}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setEditMode(!editMode)}
+                  >
+                    {editMode ? "Cancel" : "Edit"}
+                  </Button>
+                </div>
               </div>
             </div>
+
+            {editMode && (
+              <Button type="submit" className="w-full sm:w-auto">Save Changes</Button>
+            )}
+          </form>
+
+          <Separator />
+
+          {/* Security Section */}
+          <div className="space-y-4">
+            <h2 className="text-lg font-semibold flex items-center gap-2">
+              <Shield className="h-5 w-5" />
+              Security Settings
+            </h2>
+            <div className="grid gap-4 md:grid-cols-2">
+              <Button
+                variant="outline"
+                onClick={() => setShowPasswordDialog(true)}
+                className="w-full"
+              >
+                <Key className="h-4 w-4 mr-2" />
+                Change Password
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={() => signOut()}
+                className="w-full"
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                Sign Out
+              </Button>
+            </div>
           </div>
-
-          {editMode && (
-            <Button type="submit">Save Changes</Button>
-          )}
-        </form>
-
-        <Separator />
-
-        {/* Security Section */}
-        <div className="space-y-4">
-          <h2 className="text-lg font-semibold">Security Settings</h2>
-          <div className="grid gap-4 md:grid-cols-2">
-            <Button
-              variant="outline"
-              onClick={() => setShowPasswordDialog(true)}
-              className="w-full"
-            >
-              <Key className="h-4 w-4 mr-2" />
-              Change Password
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={() => signOut()}
-              className="w-full"
-            >
-              <LogOut className="h-4 w-4 mr-2" />
-              Sign Out
-            </Button>
-          </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
       {/* Password Change Dialog */}
       <Dialog open={showPasswordDialog} onOpenChange={setShowPasswordDialog}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Change Password</DialogTitle>
           </DialogHeader>
