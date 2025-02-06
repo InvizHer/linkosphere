@@ -129,7 +129,7 @@ const EditLink = () => {
         updated_at: linkData.updated_at,
       });
 
-      // Process weekly data
+      // Process weekly data from real view records
       const viewsData = linkData.link_views || [];
       const last7Days = Array.from({ length: 7 }, (_, i) => {
         const date = subDays(new Date(), i);
@@ -144,7 +144,7 @@ const EditLink = () => {
       }).reverse();
       setWeeklyData(last7Days);
 
-      // Process monthly data
+      // Process monthly data from real view records
       const last6Months = Array.from({ length: 6 }, (_, i) => {
         const monthStart = startOfMonth(subMonths(new Date(), i));
         const monthEnd = endOfMonth(subMonths(new Date(), i));

@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -5,12 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { motion } from "framer-motion";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   Share2,
   Copy,
@@ -25,7 +20,12 @@ import {
   MessageCircle,
   MessageSquare,
 } from "lucide-react";
-
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Footer } from "@/components/layout/Footer";
 
 const ViewLink = () => {
@@ -61,16 +61,35 @@ const ViewLink = () => {
       setLink(data);
       setLoading(false);
 
-      // Increment views
-      await supabase.rpc("increment_link_views", { link_id: data.id });
+      // Record view if not password protected or already verified
+      if (!data.password || isVerified) {
+        await recordView(data.id);
+      }
     };
 
     fetchLink();
-  }, [token]);
+  }, [token, isVerified]);
 
-  const handlePasswordSubmit = () => {
+  const recordView = async (linkId: string) => {
+    try {
+      // Insert view record
+      await supabase.from("link_views").insert({
+        link_id: linkId,
+        ip_address: "anonymous", // You could implement IP tracking if needed
+        user_agent: navigator.userAgent,
+      });
+
+      // Increment the views counter
+      await supabase.rpc("increment_link_views", { link_id: linkId });
+    } catch (error) {
+      console.error("Error recording view:", error);
+    }
+  };
+
+  const handlePasswordSubmit = async () => {
     if (password === link.password) {
       setIsVerified(true);
+      await recordView(link.id);
     } else {
       toast({
         title: "Error",
