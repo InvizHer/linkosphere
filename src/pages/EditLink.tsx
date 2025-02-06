@@ -269,4 +269,98 @@ const EditLink = () => {
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="space-y-2">
                   <Label htmlFor="name">Name</Label>
-                  
+                  <Input
+                    id="name"
+                    value={formData.name}
+                    onChange={(e) =>
+                      setFormData({ ...formData, name: e.target.value })
+                    }
+                    className="bg-white/50 dark:bg-gray-900/50"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="description">Description</Label>
+                  <Textarea
+                    id="description"
+                    value={formData.description}
+                    onChange={(e) =>
+                      setFormData({ ...formData, description: e.target.value })
+                    }
+                    className="bg-white/50 dark:bg-gray-900/50"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="original_url">Original URL</Label>
+                  <Input
+                    id="original_url"
+                    value={formData.original_url}
+                    onChange={(e) =>
+                      setFormData({ ...formData, original_url: e.target.value })
+                    }
+                    className="bg-white/50 dark:bg-gray-900/50"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="thumbnail_url">Thumbnail URL</Label>
+                  <Input
+                    id="thumbnail_url"
+                    value={formData.thumbnail_url}
+                    onChange={(e) =>
+                      setFormData({ ...formData, thumbnail_url: e.target.value })
+                    }
+                    className="bg-white/50 dark:bg-gray-900/50"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="password">Password Protection</Label>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      id="password"
+                      type="password"
+                      value={formData.password}
+                      onChange={(e) =>
+                        setFormData({ ...formData, password: e.target.value })
+                      }
+                      className="bg-white/50 dark:bg-gray-900/50"
+                    />
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Lock className="h-4 w-4 text-gray-500" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Optional password protection for your link</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Switch
+                    id="show_password"
+                    checked={formData.show_password}
+                    onCheckedChange={(checked) =>
+                      setFormData({ ...formData, show_password: checked })
+                    }
+                  />
+                  <Label htmlFor="show_password">Show password field</Label>
+                </div>
+
+                <Button type="submit" className="w-full">
+                  Update Link
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
+    </div>
+  );
+};
+
+export default EditLink;
