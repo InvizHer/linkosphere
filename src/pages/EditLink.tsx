@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -96,16 +95,16 @@ const EditLink = () => {
         return;
       }
 
-      const { data, error } = await supabase
+      const { data: linkData, error: linkError } = await supabase
         .from("links")
-        .select("*")
+        .select("*, link_views(*)")
         .eq("token", token)
         .eq("user_id", user?.id)
         .single();
 
-      if (error) throw error;
+      if (linkError) throw linkError;
 
-      if (!data) {
+      if (!linkData) {
         toast({
           title: "Error",
           description: "Link not found",
@@ -116,26 +115,31 @@ const EditLink = () => {
       }
 
       setFormData({
-        name: data.name,
-        description: data.description || "",
-        original_url: data.original_url,
-        thumbnail_url: data.thumbnail_url || "",
-        password: data.password || "",
-        show_password: data.show_password || false,
+        name: linkData.name,
+        description: linkData.description || "",
+        original_url: linkData.original_url,
+        thumbnail_url: linkData.thumbnail_url || "",
+        password: linkData.password || "",
+        show_password: linkData.show_password || false,
       });
 
       setStats({
-        views: data.views || 0,
-        created_at: data.created_at,
-        updated_at: data.updated_at,
+        views: linkData.views || 0,
+        created_at: linkData.created_at,
+        updated_at: linkData.updated_at,
       });
 
       // Process weekly data
+      const viewsData = linkData.link_views || [];
       const last7Days = Array.from({ length: 7 }, (_, i) => {
         const date = subDays(new Date(), i);
+        const dayViews = viewsData.filter(
+          (view: any) => 
+            format(new Date(view.viewed_at), 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd')
+        ).length;
         return {
           date: format(date, "EEE"),
-          views: Math.floor(Math.random() * data.views / 7), // Replace with real data when available
+          views: dayViews,
         };
       }).reverse();
       setWeeklyData(last7Days);
@@ -144,9 +148,15 @@ const EditLink = () => {
       const last6Months = Array.from({ length: 6 }, (_, i) => {
         const monthStart = startOfMonth(subMonths(new Date(), i));
         const monthEnd = endOfMonth(subMonths(new Date(), i));
+        const monthViews = viewsData.filter(
+          (view: any) => {
+            const viewDate = new Date(view.viewed_at);
+            return viewDate >= monthStart && viewDate <= monthEnd;
+          }
+        ).length;
         return {
           month: format(monthStart, "MMM"),
-          views: Math.floor(Math.random() * data.views / 6), // Replace with real data when available
+          views: monthViews,
         };
       }).reverse();
       setMonthlyData(last6Months);

@@ -26,6 +26,8 @@ import {
   MessageSquare,
 } from "lucide-react";
 
+import { Footer } from "@/components/layout/Footer";
+
 const ViewLink = () => {
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
@@ -124,7 +126,7 @@ const ViewLink = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-700">
         <div className="container mx-auto px-4">
@@ -169,12 +171,13 @@ const ViewLink = () => {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 pt-24 pb-24">
+      <main className="container mx-auto px-4 pt-24 pb-24 flex-grow">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="max-w-2xl mx-auto"
         >
+          {/* Link Card */}
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl overflow-hidden">
             {link.thumbnail_url && (
               <div className="relative h-48 md:h-64">
@@ -266,23 +269,29 @@ const ViewLink = () => {
               )}
             </div>
           </div>
+
+          {/* Promotional Message */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="mt-8 text-center bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6"
+          >
+            <h2 className="text-2xl font-bold mb-4">Want to create your own link?</h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
+              Start creating professional, trackable links with advanced features like password protection and analytics.
+            </p>
+            <Link
+              to="/signup"
+              className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors"
+            >
+              Get Started
+            </Link>
+          </motion.div>
         </motion.div>
       </main>
 
-      {/* Footer */}
-      <footer className="fixed bottom-0 left-0 right-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-t border-gray-200 dark:border-gray-700">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-gray-500">
-              Powered by LinkManager © {new Date().getFullYear()}
-            </p>
-            <div className="flex items-center gap-2">
-              <Heart className="h-4 w-4 text-primary" />
-              <span className="text-sm text-gray-500">Made with love</span>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };
