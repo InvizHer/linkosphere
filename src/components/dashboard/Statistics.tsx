@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -18,10 +19,26 @@ import {
   ResponsiveContainer,
   LineChart,
   Line,
+  PieChart,
+  Pie,
+  Cell,
+  Legend,
 } from "recharts";
 import { motion } from "framer-motion";
-import { Link, Eye, TrendingUp, Award, Calendar } from "lucide-react";
-import { format, subDays, startOfMonth, endOfMonth, subMonths } from "date-fns";
+import { 
+  Link, 
+  Eye, 
+  TrendingUp, 
+  Award, 
+  Calendar,
+  Clock,
+  Globe,
+  Lock,
+  Unlock,
+  Share2,
+  ExternalLink
+} from "lucide-react";
+import { format, subDays, startOfMonth, endOfMonth, subMonths, differenceInDays } from "date-fns";
 
 const Statistics = () => {
   const { user } = useAuth();
@@ -30,9 +47,14 @@ const Statistics = () => {
     totalViews: 0,
     averageViews: 0,
     mostViewedLink: null as any,
+    passwordProtectedLinks: 0,
+    publicLinks: 0,
+    lastCreatedLink: null as any,
+    oldestLink: null as any,
   });
   const [weeklyData, setWeeklyData] = useState<any[]>([]);
   const [monthlyData, setMonthlyData] = useState<any[]>([]);
+  const [peakHoursData, setPeakHoursData] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -54,12 +76,23 @@ const Statistics = () => {
           (prev?.views || 0) > (current.views || 0) ? prev : current,
         null
       );
+      const passwordProtectedLinks = links.filter(link => link.password).length;
+      const publicLinks = links.filter(link => !link.password).length;
+      const sortedLinks = [...links].sort((a, b) => 
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
+      const lastCreatedLink = sortedLinks[0];
+      const oldestLink = sortedLinks[sortedLinks.length - 1];
 
       setStats({
         totalLinks,
         totalViews,
         averageViews,
         mostViewedLink,
+        passwordProtectedLinks,
+        publicLinks,
+        lastCreatedLink,
+        oldestLink,
       });
 
       // Process weekly data
@@ -95,10 +128,19 @@ const Statistics = () => {
       }).reverse();
 
       setMonthlyData(last6Months);
+
+      // Generate demo peak hours data (random for now, replace with real data when available)
+      const hours = Array.from({ length: 24 }, (_, i) => ({
+        hour: i,
+        views: Math.floor(Math.random() * 100),
+      }));
+      setPeakHoursData(hours);
     };
 
     fetchStats();
   }, [user]);
+
+  const COLORS = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b'];
 
   return (
     <div className="space-y-6">
@@ -199,19 +241,9 @@ const Statistics = () => {
               <div className="h-[300px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={weeklyData}>
-                    <CartesianGrid
-                      strokeDasharray="3 3"
-                      className="stroke-gray-200 dark:stroke-gray-700"
-                    />
-                    <XAxis
-                      dataKey="date"
-                      className="text-xs"
-                      tick={{ fill: "currentColor" }}
-                    />
-                    <YAxis
-                      className="text-xs"
-                      tick={{ fill: "currentColor" }}
-                    />
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200 dark:stroke-gray-700" />
+                    <XAxis dataKey="date" className="text-xs" tick={{ fill: "currentColor" }} />
+                    <YAxis className="text-xs" tick={{ fill: "currentColor" }} />
                     <Tooltip
                       contentStyle={{
                         backgroundColor: "rgba(255, 255, 255, 0.8)",
@@ -220,18 +252,8 @@ const Statistics = () => {
                         boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
                       }}
                     />
-                    <Bar
-                      dataKey="links"
-                      name="Links Created"
-                      fill="var(--primary)"
-                      radius={[4, 4, 0, 0]}
-                    />
-                    <Bar
-                      dataKey="views"
-                      name="Views"
-                      fill="var(--accent)"
-                      radius={[4, 4, 0, 0]}
-                    />
+                    <Bar dataKey="links" name="Links Created" fill="var(--primary)" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="views" name="Views" fill="var(--accent)" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -253,19 +275,9 @@ const Statistics = () => {
               <div className="h-[300px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={monthlyData}>
-                    <CartesianGrid
-                      strokeDasharray="3 3"
-                      className="stroke-gray-200 dark:stroke-gray-700"
-                    />
-                    <XAxis
-                      dataKey="month"
-                      className="text-xs"
-                      tick={{ fill: "currentColor" }}
-                    />
-                    <YAxis
-                      className="text-xs"
-                      tick={{ fill: "currentColor" }}
-                    />
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200 dark:stroke-gray-700" />
+                    <XAxis dataKey="month" className="text-xs" tick={{ fill: "currentColor" }} />
+                    <YAxis className="text-xs" tick={{ fill: "currentColor" }} />
                     <Tooltip
                       contentStyle={{
                         backgroundColor: "rgba(255, 255, 255, 0.8)",
@@ -274,23 +286,174 @@ const Statistics = () => {
                         boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
                       }}
                     />
-                    <Line
-                      type="monotone"
-                      dataKey="links"
-                      name="Links Created"
-                      stroke="var(--primary)"
-                      strokeWidth={2}
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="views"
-                      name="Views"
-                      stroke="var(--accent)"
-                      strokeWidth={2}
-                    />
+                    <Line type="monotone" dataKey="links" name="Links Created" stroke="var(--primary)" strokeWidth={2} />
+                    <Line type="monotone" dataKey="views" name="Views" stroke="var(--accent)" strokeWidth={2} />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-2">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.7 }}
+        >
+          <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle>Link Security Distribution</CardTitle>
+              <CardDescription>Overview of protected vs public links</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={[
+                        { name: 'Public Links', value: stats.publicLinks },
+                        { name: 'Protected Links', value: stats.passwordProtectedLinks },
+                      ]}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      paddingAngle={5}
+                      dataKey="value"
+                    >
+                      {[0, 1].map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8 }}
+        >
+          <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle>Peak Hours</CardTitle>
+              <CardDescription>View distribution across hours (24-hour format)</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={peakHoursData}>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200 dark:stroke-gray-700" />
+                    <XAxis dataKey="hour" className="text-xs" tick={{ fill: "currentColor" }} />
+                    <YAxis className="text-xs" tick={{ fill: "currentColor" }} />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "rgba(255, 255, 255, 0.8)",
+                        borderRadius: "8px",
+                        border: "none",
+                        boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                      }}
+                    />
+                    <Line type="monotone" dataKey="views" stroke="var(--primary)" strokeWidth={2} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.9 }}
+        >
+          <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Protected Links</CardTitle>
+              <Lock className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.passwordProtectedLinks}</div>
+              <p className="text-xs text-muted-foreground">Password protected</p>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.0 }}
+        >
+          <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Public Links</CardTitle>
+              <Globe className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.publicLinks}</div>
+              <p className="text-xs text-muted-foreground">Publicly accessible</p>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.1 }}
+        >
+          <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Latest Link</CardTitle>
+              <Clock className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              {stats.lastCreatedLink ? (
+                <div>
+                  <div className="text-sm font-medium truncate">
+                    {stats.lastCreatedLink.name}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {new Date(stats.lastCreatedLink.created_at).toLocaleDateString()}
+                  </p>
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">No links yet</p>
+              )}
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.2 }}
+        >
+          <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Account Age</CardTitle>
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              {stats.oldestLink ? (
+                <div>
+                  <div className="text-2xl font-bold">
+                    {differenceInDays(new Date(), new Date(stats.oldestLink.created_at))}
+                  </div>
+                  <p className="text-xs text-muted-foreground">Days since first link</p>
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">No links yet</p>
+              )}
             </CardContent>
           </Card>
         </motion.div>
