@@ -18,10 +18,11 @@ import {
   Link as LinkIcon,
   Clock,
   Lock,
-  ExternalLink,
-  Info,
   BarChart2,
   Image,
+  Settings,
+  TrendingUp,
+  Share2,
 } from "lucide-react";
 import {
   Card,
@@ -36,6 +37,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const EditLink = () => {
   const { user } = useAuth();
@@ -186,8 +188,8 @@ const EditLink = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-6 space-y-6 mb-20">
-      <div className="flex items-center justify-between sticky top-0 bg-background/80 backdrop-blur-sm z-10 py-2">
+    <div className="container mx-auto px-4 py-6 mb-20">
+      <div className="flex items-center justify-between sticky top-0 bg-background/80 backdrop-blur-sm z-10 py-2 mb-6">
         <Button
           variant="ghost"
           onClick={() => navigate("/dashboard/manage")}
@@ -196,87 +198,123 @@ const EditLink = () => {
           <ArrowLeft className="h-4 w-4" />
           Back to Links
         </Button>
-        <Button
-          variant="destructive"
-          onClick={handleDelete}
-          className="flex items-center gap-2"
-        >
-          <Trash2 className="h-4 w-4" />
-          <span className="hidden sm:inline">Delete Link</span>
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            onClick={() => window.open(`/view?token=${token}`, '_blank')}
+            className="flex items-center gap-2"
+          >
+            <Share2 className="h-4 w-4" />
+            <span className="hidden sm:inline">Share</span>
+          </Button>
+          <Button
+            variant="destructive"
+            onClick={handleDelete}
+            className="flex items-center gap-2"
+          >
+            <Trash2 className="h-4 w-4" />
+            <span className="hidden sm:inline">Delete</span>
+          </Button>
+        </div>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-3">
-        {/* Stats Cards */}
-        <Card className="md:col-span-3 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-xl font-bold flex items-center gap-2">
-              <BarChart2 className="h-5 w-5" />
-              Link Statistics
-            </CardTitle>
-            <CardDescription>Overview of your link's performance</CardDescription>
-          </CardHeader>
-          <CardContent className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
-            <div className="flex items-center gap-4 p-4 rounded-lg bg-gray-50 dark:bg-gray-900/50">
-              <Eye className="h-8 w-8 text-primary shrink-0" />
-              <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Views</p>
-                <p className="text-2xl font-bold">{stats.views}</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-4 p-4 rounded-lg bg-gray-50 dark:bg-gray-900/50">
-              <Calendar className="h-8 w-8 text-primary shrink-0" />
-              <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Created</p>
-                <p className="text-sm font-medium">
-                  {new Date(stats.created_at).toLocaleDateString()}
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-4 p-4 rounded-lg bg-gray-50 dark:bg-gray-900/50">
-              <Clock className="h-8 w-8 text-primary shrink-0" />
-              <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Updated</p>
-                <p className="text-sm font-medium">
-                  {new Date(stats.updated_at).toLocaleDateString()}
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-4 p-4 rounded-lg bg-gray-50 dark:bg-gray-900/50">
-              <LinkIcon className="h-8 w-8 text-primary shrink-0" />
-              <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Token</p>
-                <p className="text-sm font-medium">{token}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      <Tabs defaultValue="stats" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-2 mb-4">
+          <TabsTrigger value="stats" className="flex items-center gap-2">
+            <BarChart2 className="h-4 w-4" />
+            Statistics
+          </TabsTrigger>
+          <TabsTrigger value="settings" className="flex items-center gap-2">
+            <Settings className="h-4 w-4" />
+            Settings
+          </TabsTrigger>
+        </TabsList>
 
-        {/* Edit Form */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="md:col-span-2 space-y-6"
-        >
+        <TabsContent value="stats" className="space-y-6">
+          <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xl font-bold flex items-center gap-2">
+                <BarChart2 className="h-5 w-5" />
+                Link Performance
+              </CardTitle>
+              <CardDescription>Overview of your link's performance</CardDescription>
+            </CardHeader>
+            <CardContent className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="flex items-center gap-4 p-4 rounded-lg bg-gray-50 dark:bg-gray-900/50">
+                <Eye className="h-8 w-8 text-primary shrink-0" />
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Total Views</p>
+                  <p className="text-2xl font-bold">{stats.views}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4 p-4 rounded-lg bg-gray-50 dark:bg-gray-900/50">
+                <TrendingUp className="h-8 w-8 text-primary shrink-0" />
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Average Daily Views</p>
+                  <p className="text-2xl font-bold">
+                    {Math.round(stats.views / Math.max(1, Math.floor((new Date().getTime() - new Date(stats.created_at).getTime()) / (1000 * 60 * 60 * 24))))}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4 p-4 rounded-lg bg-gray-50 dark:bg-gray-900/50">
+                <Calendar className="h-8 w-8 text-primary shrink-0" />
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Created</p>
+                  <p className="text-sm font-medium">
+                    {new Date(stats.created_at).toLocaleDateString()}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4 p-4 rounded-lg bg-gray-50 dark:bg-gray-900/50">
+                <Clock className="h-8 w-8 text-primary shrink-0" />
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Last Updated</p>
+                  <p className="text-sm font-medium">
+                    {new Date(stats.updated_at).toLocaleDateString()}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="settings">
           <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
             <CardHeader>
-              <CardTitle>Edit Link Details</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <Settings className="h-5 w-5" />
+                Link Settings
+              </CardTitle>
               <CardDescription>
-                Update your link's information below
+                Configure your link's details and options
               </CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Name</Label>
-                  <Input
-                    id="name"
-                    value={formData.name}
-                    onChange={(e) =>
-                      setFormData({ ...formData, name: e.target.value })
-                    }
-                    className="bg-white/50 dark:bg-gray-900/50"
-                  />
+                <div className="grid gap-6 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Name</Label>
+                    <Input
+                      id="name"
+                      value={formData.name}
+                      onChange={(e) =>
+                        setFormData({ ...formData, name: e.target.value })
+                      }
+                      className="bg-white/50 dark:bg-gray-900/50"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="original_url">Original URL</Label>
+                    <Input
+                      id="original_url"
+                      value={formData.original_url}
+                      onChange={(e) =>
+                        setFormData({ ...formData, original_url: e.target.value })
+                      }
+                      className="bg-white/50 dark:bg-gray-900/50"
+                    />
+                  </div>
                 </div>
 
                 <div className="space-y-2">
@@ -286,18 +324,6 @@ const EditLink = () => {
                     value={formData.description}
                     onChange={(e) =>
                       setFormData({ ...formData, description: e.target.value })
-                    }
-                    className="bg-white/50 dark:bg-gray-900/50"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="original_url">Original URL</Label>
-                  <Input
-                    id="original_url"
-                    value={formData.original_url}
-                    onChange={(e) =>
-                      setFormData({ ...formData, original_url: e.target.value })
                     }
                     className="bg-white/50 dark:bg-gray-900/50"
                   />
@@ -315,50 +341,55 @@ const EditLink = () => {
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="password">Password Protection</Label>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      id="password"
-                      type="password"
-                      value={formData.password}
-                      onChange={(e) =>
-                        setFormData({ ...formData, password: e.target.value })
-                      }
-                      className="bg-white/50 dark:bg-gray-900/50"
-                    />
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Lock className="h-4 w-4 text-gray-500" />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Optional password protection for your link</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
+                <div className="space-y-4">
+                  <Label>Security Settings</Label>
+                  <div className="space-y-4 rounded-lg border p-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="password">Password Protection</Label>
+                      <div className="flex items-center gap-2">
+                        <Input
+                          id="password"
+                          type="password"
+                          value={formData.password}
+                          onChange={(e) =>
+                            setFormData({ ...formData, password: e.target.value })
+                          }
+                          className="bg-white/50 dark:bg-gray-900/50"
+                        />
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Lock className="h-4 w-4 text-gray-500" />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Optional password protection for your link</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <Switch
+                        id="show_password"
+                        checked={formData.show_password}
+                        onCheckedChange={(checked) =>
+                          setFormData({ ...formData, show_password: checked })
+                        }
+                      />
+                      <Label htmlFor="show_password">Show password field</Label>
+                    </div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <Switch
-                    id="show_password"
-                    checked={formData.show_password}
-                    onCheckedChange={(checked) =>
-                      setFormData({ ...formData, show_password: checked })
-                    }
-                  />
-                  <Label htmlFor="show_password">Show password field</Label>
-                </div>
-
                 <Button type="submit" className="w-full">
-                  Update Link
+                  Save Changes
                 </Button>
               </form>
             </CardContent>
           </Card>
-        </motion.div>
-      </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

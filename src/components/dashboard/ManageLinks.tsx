@@ -25,12 +25,11 @@ import {
   Pagination,
   PaginationContent,
   PaginationItem,
-  PaginationLink,
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { motion } from "framer-motion";
-import { Edit2, ExternalLink, Link as LinkIcon, Search, SlidersHorizontal } from "lucide-react";
+import { Edit2, ExternalLink, Link as LinkIcon, Search, SlidersHorizontal, Eye, Calendar } from "lucide-react";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -118,14 +117,14 @@ const ManageLinks = () => {
             </div>
           </div>
 
-          <div className="rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <div className="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Name</TableHead>
                     <TableHead className="hidden sm:table-cell">Views</TableHead>
-                    <TableHead className="hidden sm:table-cell">Created At</TableHead>
+                    <TableHead className="hidden sm:table-cell">Created</TableHead>
                     <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -135,12 +134,25 @@ const ManageLinks = () => {
                       key={link.id}
                       className="hover:bg-gray-50 dark:hover:bg-gray-700/50"
                     >
-                      <TableCell className="font-medium max-w-[200px] truncate">
-                        {link.name}
+                      <TableCell className="font-medium">
+                        <div className="flex items-center gap-2">
+                          <LinkIcon className="h-4 w-4 text-primary/60" />
+                          <span className="truncate max-w-[150px] sm:max-w-[200px]">
+                            {link.name}
+                          </span>
+                        </div>
                       </TableCell>
-                      <TableCell className="hidden sm:table-cell">{link.views}</TableCell>
                       <TableCell className="hidden sm:table-cell">
-                        {new Date(link.created_at).toLocaleDateString()}
+                        <div className="flex items-center gap-1">
+                          <Eye className="h-4 w-4 text-gray-500" />
+                          {link.views}
+                        </div>
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell">
+                        <div className="flex items-center gap-1">
+                          <Calendar className="h-4 w-4 text-gray-500" />
+                          {new Date(link.created_at).toLocaleDateString()}
+                        </div>
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
@@ -148,6 +160,7 @@ const ManageLinks = () => {
                             variant="ghost"
                             size="icon"
                             onClick={() => navigate(`/dashboard/edit?token=${link.token}`)}
+                            className="hover:bg-primary/10"
                           >
                             <Edit2 className="h-4 w-4" />
                           </Button>
@@ -155,6 +168,7 @@ const ManageLinks = () => {
                             variant="ghost"
                             size="icon"
                             onClick={() => window.open(`/view?token=${link.token}`, '_blank')}
+                            className="hover:bg-primary/10"
                           >
                             <ExternalLink className="h-4 w-4" />
                           </Button>
