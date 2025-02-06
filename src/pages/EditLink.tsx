@@ -318,4 +318,165 @@ const EditLink = () => {
             <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Created</CardTitle>
-                <Calendar className="h-4 w-4 text
+                <Calendar className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {new Date(stats.created_at).toLocaleDateString()}
+                </div>
+                <p className="text-xs text-muted-foreground">Creation date</p>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Updated</CardTitle>
+                <Clock className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {new Date(stats.updated_at).toLocaleDateString()}
+                </div>
+                <p className="text-xs text-muted-foreground">Last update</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="text-lg">Weekly Views</CardTitle>
+                <CardDescription>Views over the last 7 days</CardDescription>
+              </CardHeader>
+              <CardContent className="h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={weeklyData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="date" />
+                    <YAxis />
+                    <RechartsTooltip />
+                    <Bar dataKey="views" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="text-lg">Monthly Views</CardTitle>
+                <CardDescription>Views over the last 6 months</CardDescription>
+              </CardHeader>
+              <CardContent className="h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={monthlyData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="month" />
+                    <YAxis />
+                    <RechartsTooltip />
+                    <Line type="monotone" dataKey="views" stroke="#3b82f6" strokeWidth={2} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="settings" className="space-y-6">
+          <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle>Link Settings</CardTitle>
+              <CardDescription>Update your link's information</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Name</Label>
+                  <Input
+                    id="name"
+                    value={formData.name}
+                    onChange={(e) =>
+                      setFormData({ ...formData, name: e.target.value })
+                    }
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="description">Description</Label>
+                  <Textarea
+                    id="description"
+                    value={formData.description}
+                    onChange={(e) =>
+                      setFormData({ ...formData, description: e.target.value })
+                    }
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="original_url">Original URL</Label>
+                  <Input
+                    id="original_url"
+                    value={formData.original_url}
+                    onChange={(e) =>
+                      setFormData({ ...formData, original_url: e.target.value })
+                    }
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="thumbnail_url">Thumbnail URL</Label>
+                  <Input
+                    id="thumbnail_url"
+                    value={formData.thumbnail_url}
+                    onChange={(e) =>
+                      setFormData({ ...formData, thumbnail_url: e.target.value })
+                    }
+                  />
+                </div>
+
+                <div className="space-y-4">
+                  <Label htmlFor="password">Password Protection</Label>
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <div className="text-sm font-medium">
+                        Enable Password Protection
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        Require a password to access this link
+                      </div>
+                    </div>
+                    <Switch
+                      id="show_password"
+                      checked={formData.show_password}
+                      onCheckedChange={(checked) =>
+                        setFormData({ ...formData, show_password: checked })
+                      }
+                    />
+                  </div>
+                  {formData.show_password && (
+                    <Input
+                      id="password"
+                      type="password"
+                      value={formData.password}
+                      onChange={(e) =>
+                        setFormData({ ...formData, password: e.target.value })
+                      }
+                      placeholder="Enter password"
+                    />
+                  )}
+                </div>
+
+                <Button type="submit" className="w-full">
+                  Save Changes
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+};
+
+export default EditLink;
