@@ -63,7 +63,7 @@ export const Header = () => {
             className="cursor-pointer"
           >
             <span className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              LinkManager
+              Lincly
             </span>
           </motion.div>
 
