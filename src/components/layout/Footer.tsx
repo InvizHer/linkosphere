@@ -8,7 +8,7 @@ export const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="space-y-4">
             <h3 className="text-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              LinkManager
+              Lincly
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-400">
               Transform your links into powerful tools with advanced analytics and security features.
