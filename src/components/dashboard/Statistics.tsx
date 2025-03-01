@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,7 +10,6 @@ import {
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
-import { Chart } from "@/components/ui/chart";
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { Link, Users, Eye, TrendingUp, Clock, Calendar, ArrowUpRight, Info } from "lucide-react";
 
@@ -161,81 +159,81 @@ const Statistics = () => {
               className="w-full md:w-auto"
             >
               <TabsList className="grid w-full grid-cols-3 md:w-[300px]">
-                <TabsTrigger value="7days">Last 7 Days</TabsTrigger>
-                <TabsTrigger value="30days">Last 30 Days</TabsTrigger>
-                <TabsTrigger value="alltime">All Time</TabsTrigger>
+                <TabsTrigger value="7days" className="text-xs md:text-sm">Last 7 Days</TabsTrigger>
+                <TabsTrigger value="30days" className="text-xs md:text-sm">Last 30 Days</TabsTrigger>
+                <TabsTrigger value="alltime" className="text-xs md:text-sm">All Time</TabsTrigger>
               </TabsList>
             </Tabs>
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Stats Overview Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
             <Card className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
-              <CardContent className="p-6">
+              <CardContent className="p-3 md:p-6">
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Views</p>
-                    <h3 className="text-2xl font-bold mt-1">{stats.totalViews.toLocaleString()}</h3>
-                    <div className={`text-xs mt-2 flex items-center ${changes.views >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                    <p className="text-xs md:text-sm font-medium text-gray-500 dark:text-gray-400">Total Views</p>
+                    <h3 className="text-lg md:text-2xl font-bold mt-1">{stats.totalViews.toLocaleString()}</h3>
+                    <div className={`text-xs mt-1 md:mt-2 flex items-center ${changes.views >= 0 ? 'text-green-500' : 'text-red-500'}`}>
                       {changes.views >= 0 ? <ArrowUpRight className="h-3 w-3 mr-1" /> : <ArrowUpRight className="h-3 w-3 mr-1 rotate-180" />}
-                      {Math.abs(changes.views)}% from previous period
+                      {Math.abs(changes.views)}%
                     </div>
                   </div>
-                  <div className="bg-primary/10 p-3 rounded-full">
-                    <Eye className="h-5 w-5 text-primary" />
+                  <div className="bg-primary/10 p-2 md:p-3 rounded-full">
+                    <Eye className="h-4 w-4 md:h-5 md:w-5 text-primary" />
                   </div>
                 </div>
               </CardContent>
             </Card>
 
             <Card className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
-              <CardContent className="p-6">
+              <CardContent className="p-3 md:p-6">
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Links</p>
-                    <h3 className="text-2xl font-bold mt-1">{stats.totalLinks.toLocaleString()}</h3>
-                    <div className={`text-xs mt-2 flex items-center ${changes.links >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                    <p className="text-xs md:text-sm font-medium text-gray-500 dark:text-gray-400">Total Links</p>
+                    <h3 className="text-lg md:text-2xl font-bold mt-1">{stats.totalLinks.toLocaleString()}</h3>
+                    <div className={`text-xs mt-1 md:mt-2 flex items-center ${changes.links >= 0 ? 'text-green-500' : 'text-red-500'}`}>
                       {changes.links >= 0 ? <ArrowUpRight className="h-3 w-3 mr-1" /> : <ArrowUpRight className="h-3 w-3 mr-1 rotate-180" />}
-                      {Math.abs(changes.links)}% from previous period
+                      {Math.abs(changes.links)}%
                     </div>
                   </div>
-                  <div className="bg-primary/10 p-3 rounded-full">
-                    <Link className="h-5 w-5 text-primary" />
+                  <div className="bg-primary/10 p-2 md:p-3 rounded-full">
+                    <Link className="h-4 w-4 md:h-5 md:w-5 text-primary" />
                   </div>
                 </div>
               </CardContent>
             </Card>
 
             <Card className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
-              <CardContent className="p-6">
+              <CardContent className="p-3 md:p-6">
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Active Links</p>
-                    <h3 className="text-2xl font-bold mt-1">{stats.activeLinks.toLocaleString()}</h3>
-                    <div className="text-xs mt-2 text-gray-500">
-                      {Math.round((stats.activeLinks / stats.totalLinks) * 100) || 0}% of total links
+                    <p className="text-xs md:text-sm font-medium text-gray-500 dark:text-gray-400">Active Links</p>
+                    <h3 className="text-lg md:text-2xl font-bold mt-1">{stats.activeLinks.toLocaleString()}</h3>
+                    <div className="text-xs mt-1 md:mt-2 text-gray-500">
+                      {Math.round((stats.activeLinks / stats.totalLinks) * 100) || 0}%
                     </div>
                   </div>
-                  <div className="bg-primary/10 p-3 rounded-full">
-                    <TrendingUp className="h-5 w-5 text-primary" />
+                  <div className="bg-primary/10 p-2 md:p-3 rounded-full">
+                    <TrendingUp className="h-4 w-4 md:h-5 md:w-5 text-primary" />
                   </div>
                 </div>
               </CardContent>
             </Card>
 
             <Card className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
-              <CardContent className="p-6">
+              <CardContent className="p-3 md:p-6">
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Avg. Views Per Link</p>
-                    <h3 className="text-2xl font-bold mt-1">{stats.averageViewsPerLink.toLocaleString()}</h3>
-                    <div className="text-xs mt-2 text-gray-500">
-                      Across all your links
+                    <p className="text-xs md:text-sm font-medium text-gray-500 dark:text-gray-400">Avg. Views Per Link</p>
+                    <h3 className="text-lg md:text-2xl font-bold mt-1">{stats.averageViewsPerLink.toLocaleString()}</h3>
+                    <div className="text-xs mt-1 md:mt-2 text-gray-500">
+                      Across all
                     </div>
                   </div>
-                  <div className="bg-primary/10 p-3 rounded-full">
-                    <Users className="h-5 w-5 text-primary" />
+                  <div className="bg-primary/10 p-2 md:p-3 rounded-full">
+                    <Users className="h-4 w-4 md:h-5 md:w-5 text-primary" />
                   </div>
                 </div>
               </CardContent>
@@ -246,30 +244,30 @@ const Statistics = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <Card className="col-span-1 lg:col-span-2 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm border border-gray-100 dark:border-gray-700">
               <CardHeader className="pb-2">
-                <CardTitle className="text-lg font-medium">Views Over Time</CardTitle>
+                <CardTitle className="text-base md:text-lg font-medium">Views Over Time</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="h-80">
+                <div className="h-60 md:h-80">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart
                       data={viewsByDate}
                       margin={{
                         top: 5,
-                        right: 30,
-                        left: 20,
+                        right: 10,
+                        left: 0,
                         bottom: 5,
                       }}
                     >
                       <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                       <XAxis 
                         dataKey="date" 
-                        tick={{fontSize: 12}}
+                        tick={{fontSize: 10}}
                         tickFormatter={(date) => {
                           const d = new Date(date);
                           return `${d.getMonth() + 1}/${d.getDate()}`;
                         }}
                       />
-                      <YAxis tick={{fontSize: 12}} />
+                      <YAxis tick={{fontSize: 10}} />
                       <Tooltip 
                         contentStyle={{
                           backgroundColor: 'rgba(255, 255, 255, 0.9)',
@@ -303,12 +301,12 @@ const Statistics = () => {
 
             <Card className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm border border-gray-100 dark:border-gray-700">
               <CardHeader className="pb-2">
-                <CardTitle className="text-lg font-medium">Top Performing Links</CardTitle>
+                <CardTitle className="text-base md:text-lg font-medium">Top Performing Links</CardTitle>
               </CardHeader>
               <CardContent>
                 {topLinks.length > 0 ? (
-                  <div className="h-80 flex flex-col">
-                    <div className="h-60">
+                  <div className="h-60 md:h-80 flex flex-col">
+                    <div className="h-40 md:h-60">
                       <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
                           <Pie
@@ -316,8 +314,8 @@ const Statistics = () => {
                             cx="50%"
                             cy="50%"
                             labelLine={false}
-                            outerRadius={80}
-                            innerRadius={40}
+                            outerRadius={window.innerWidth < 768 ? 60 : 80}
+                            innerRadius={window.innerWidth < 768 ? 30 : 40}
                             fill="#8884d8"
                             dataKey="views"
                             label={({ name, percent }) => `${(percent * 100).toFixed(0)}%`}
@@ -338,13 +336,13 @@ const Statistics = () => {
                         </PieChart>
                       </ResponsiveContainer>
                     </div>
-                    <div className="mt-4">
+                    <div className="mt-2 md:mt-4">
                       <div className="grid grid-cols-1 gap-1">
                         {topLinks.map((link, index) => (
-                          <div key={link.id} className="flex items-center gap-2 text-xs">
-                            <div className="h-3 w-3 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }}></div>
-                            <span className="truncate">{link.name}</span>
-                            <span className="ml-auto font-semibold">{link.views} views</span>
+                          <div key={link.id} className="flex items-center gap-1 md:gap-2 text-xs">
+                            <div className="h-2 md:h-3 w-2 md:w-3 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }}></div>
+                            <span className="truncate max-w-[100px] md:max-w-full">{link.name}</span>
+                            <span className="ml-auto font-semibold">{link.views}</span>
                           </div>
                         ))}
                       </div>
@@ -352,8 +350,8 @@ const Statistics = () => {
                   </div>
                 ) : (
                   <div className="h-60 flex flex-col items-center justify-center">
-                    <Info className="h-10 w-10 text-gray-300 mb-2" />
-                    <p className="text-gray-500 text-center">No link data available yet</p>
+                    <Info className="h-8 w-8 md:h-10 md:w-10 text-gray-300 mb-2" />
+                    <p className="text-gray-500 text-center text-sm">No link data available yet</p>
                   </div>
                 )}
               </CardContent>
@@ -363,47 +361,47 @@ const Statistics = () => {
           {/* Top Links Table */}
           <Card className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm border border-gray-100 dark:border-gray-700">
             <CardHeader className="pb-2">
-              <CardTitle className="text-lg font-medium">Top Links (Last 30 Days)</CardTitle>
+              <CardTitle className="text-base md:text-lg font-medium">Top Links (Last 30 Days)</CardTitle>
             </CardHeader>
             <CardContent>
               {topLinks.length > 0 ? (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
+                <div className="overflow-x-auto -mx-2 px-2">
+                  <table className="w-full text-xs md:text-sm">
                     <thead>
                       <tr className="border-b border-gray-200 dark:border-gray-700">
-                        <th className="text-left py-3 px-4 font-medium text-gray-500">Link</th>
-                        <th className="text-left py-3 px-4 font-medium text-gray-500">Views</th>
-                        <th className="text-left py-3 px-4 font-medium text-gray-500 hidden md:table-cell">Created</th>
-                        <th className="text-left py-3 px-4 font-medium text-gray-500 hidden md:table-cell">Last Click</th>
+                        <th className="text-left py-2 md:py-3 px-2 md:px-4 font-medium text-gray-500">Link</th>
+                        <th className="text-left py-2 md:py-3 px-2 md:px-4 font-medium text-gray-500">Views</th>
+                        <th className="text-left py-2 md:py-3 px-2 md:px-4 font-medium text-gray-500 hidden md:table-cell">Created</th>
+                        <th className="text-left py-2 md:py-3 px-2 md:px-4 font-medium text-gray-500 hidden md:table-cell">Last Click</th>
                       </tr>
                     </thead>
                     <tbody>
                       {topLinks.map((link) => (
                         <tr key={link.id} className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/10 transition-colors">
-                          <td className="py-3 px-4">
+                          <td className="py-2 md:py-3 px-2 md:px-4">
                             <div className="flex items-center gap-2">
-                              <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                                <Link className="h-4 w-4 text-primary" />
+                              <div className="h-6 w-6 md:h-8 md:w-8 rounded-full bg-primary/10 flex items-center justify-center">
+                                <Link className="h-3 w-3 md:h-4 md:w-4 text-primary" />
                               </div>
                               <div>
-                                <div className="font-medium">{link.name}</div>
-                                <div className="text-xs text-gray-500">/{link.token}</div>
+                                <div className="font-medium text-xs md:text-sm truncate max-w-[120px] md:max-w-full">{link.name}</div>
+                                <div className="text-[10px] md:text-xs text-gray-500">/{link.token}</div>
                               </div>
                             </div>
                           </td>
-                          <td className="py-3 px-4">
+                          <td className="py-2 md:py-3 px-2 md:px-4">
                             <div className="flex items-center gap-1">
-                              <Eye className="h-4 w-4 text-gray-400" />
+                              <Eye className="h-3 w-3 md:h-4 md:w-4 text-gray-400" />
                               <span>{link.views}</span>
                             </div>
                           </td>
-                          <td className="py-3 px-4 hidden md:table-cell">
+                          <td className="py-2 md:py-3 px-2 md:px-4 hidden md:table-cell">
                             <div className="flex items-center gap-1">
                               <Calendar className="h-4 w-4 text-gray-400" />
                               <span>{new Date(link.created_at).toLocaleDateString()}</span>
                             </div>
                           </td>
-                          <td className="py-3 px-4 hidden md:table-cell">
+                          <td className="py-2 md:py-3 px-2 md:px-4 hidden md:table-cell">
                             <div className="flex items-center gap-1">
                               <Clock className="h-4 w-4 text-gray-400" />
                               <span>{new Date(Date.now() - Math.random() * 8640000000).toLocaleDateString()}</span>
