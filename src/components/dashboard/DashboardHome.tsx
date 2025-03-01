@@ -1,10 +1,13 @@
+
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Table,
   TableBody,
@@ -20,10 +23,13 @@ import {
   Clock,
   TrendingUp,
   Activity,
-  Users,
-  Share2,
   Lock,
   Unlock,
+  Users,
+  Share2,
+  Sparkles,
+  BarChart2,
+  Calendar,
 } from "lucide-react";
 
 const DashboardHome = () => {
@@ -36,7 +42,9 @@ const DashboardHome = () => {
     publicLinks: 0,
   });
   const [recentLinks, setRecentLinks] = useState<any[]>([]);
+  const [topLinks, setTopLinks] = useState<any[]>([]);
   const [greeting, setGreeting] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const getGreeting = () => {
@@ -52,256 +60,342 @@ const DashboardHome = () => {
     const fetchUserData = async () => {
       if (!user) return;
 
-      // Fetch username
-      const { data: profileData } = await supabase
-        .from("profiles")
-        .select("username")
-        .eq("id", user.id)
-        .single();
+      setLoading(true);
+      try {
+        // Fetch username
+        const { data: profileData } = await supabase
+          .from("profiles")
+          .select("username")
+          .eq("id", user.id)
+          .single();
 
-      if (profileData) {
-        setUsername(profileData.username);
-      }
+        if (profileData) {
+          setUsername(profileData.username);
+        }
 
-      // Fetch links statistics
-      const { data: links } = await supabase
-        .from("links")
-        .select("*")
-        .eq("user_id", user.id);
+        // Fetch links statistics
+        const { data: links } = await supabase
+          .from("links")
+          .select("*")
+          .eq("user_id", user.id);
 
-      if (links) {
-        setStats({
-          totalLinks: links.length,
-          totalViews: links.reduce((sum, link) => sum + (link.views || 0), 0),
-          privateLinks: links.filter((link) => link.password).length,
-          publicLinks: links.filter((link) => !link.password).length,
-        });
+        if (links) {
+          setStats({
+            totalLinks: links.length,
+            totalViews: links.reduce((sum, link) => sum + (link.views || 0), 0),
+            privateLinks: links.filter((link) => link.password).length,
+            publicLinks: links.filter((link) => !link.password).length,
+          });
 
-        // Get 5 most recent links
-        const recent = links
-          .sort(
-            (a, b) =>
-              new Date(b.created_at).getTime() -
-              new Date(a.created_at).getTime()
-          )
-          .slice(0, 5);
-        setRecentLinks(recent);
+          // Get 5 most recent links
+          const recent = links
+            .sort(
+              (a, b) =>
+                new Date(b.created_at).getTime() -
+                new Date(a.created_at).getTime()
+            )
+            .slice(0, 5);
+          setRecentLinks(recent);
+
+          // Get top 5 links by views
+          const top = [...links]
+            .sort((a, b) => (b.views || 0) - (a.views || 0))
+            .slice(0, 5);
+          setTopLinks(top);
+        }
+      } catch (error) {
+        console.error("Error fetching dashboard data:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchUserData();
   }, [user]);
 
-  return (
-    <div className="space-y-6 md:space-y-8">
-      {/* Welcome Section */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-center space-y-4 p-4 md:p-6 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 rounded-lg backdrop-blur-sm"
-      >
-        <h1 className="text-3xl md:text-4xl font-bold">
-          <span className="text-gray-600 dark:text-gray-300">{greeting},</span>{" "}
-          <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            {username}!
-          </span>
-        </h1>
-        <p className="text-gray-600 dark:text-gray-300 text-sm md:text-base">
-          Welcome to your personalized dashboard. Manage your links and track their performance.
-        </p>
-      </motion.div>
+  const getActivityMessage = () => {
+    if (stats.totalLinks === 0) return "Create your first link to get started!";
+    if (stats.totalViews === 0) return "Your links are waiting to be discovered!";
+    if (stats.totalViews > 100) return "Your links are generating great traffic!";
+    return "Keep creating and sharing your links!";
+  };
 
-      {/* Quick Actions */}
+  const statCards = [
+    { title: "Total Links", icon: LinkIcon, value: stats.totalLinks, color: "bg-blue-500" },
+    { title: "Total Views", icon: Eye, value: stats.totalViews, color: "bg-green-500" },
+    { title: "Private Links", icon: Lock, value: stats.privateLinks, color: "bg-purple-500" },
+    { title: "Public Links", icon: Unlock, value: stats.publicLinks, color: "bg-amber-500" },
+  ];
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-12 w-12 rounded-full border-4 border-primary border-t-transparent animate-spin"></div>
+          <p className="text-muted-foreground">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-8">
+      {/* Welcome Hero Section */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="grid grid-cols-1 md:grid-cols-2 gap-4"
+        transition={{ duration: 0.5 }}
+        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/80 via-primary/70 to-primary/80 text-white shadow-xl"
       >
-        <Link to="/dashboard/create" className="contents">
-          <Card className="bg-gradient-to-br from-primary/5 to-accent/5 hover:from-primary/10 hover:to-accent/10 transition-all cursor-pointer">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Create New Link</CardTitle>
-              <PlusCircle className="h-4 w-4 text-primary" />
-            </CardHeader>
-            <CardContent>
-              <p className="text-xs text-muted-foreground">
-                Create and customize a new shortened link
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-white/10 to-transparent"></div>
+        <div className="absolute -right-10 -top-10 h-56 w-56 rounded-full bg-white/10 blur-3xl"></div>
+        <div className="absolute -bottom-5 -left-5 h-32 w-32 rounded-full bg-white/10 blur-xl"></div>
+        
+        <div className="relative z-10 p-8 md:p-10">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+            <div className="space-y-2">
+              <Badge className="inline-flex bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm">
+                <Sparkles className="mr-1 h-3 w-3" />
+                Dashboard
+              </Badge>
+              <h1 className="text-2xl font-bold md:text-3xl lg:text-4xl">
+                {greeting}, {username}!
+              </h1>
+              <p className="max-w-md text-white/80">
+                {getActivityMessage()}
               </p>
-            </CardContent>
-          </Card>
-        </Link>
-        <Link to="/dashboard/manage" className="contents">
-          <Card className="bg-gradient-to-br from-primary/5 to-accent/5 hover:from-primary/10 hover:to-accent/10 transition-all cursor-pointer">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Manage Links</CardTitle>
-              <LinkIcon className="h-4 w-4 text-primary" />
-            </CardHeader>
-            <CardContent>
-              <p className="text-xs text-muted-foreground">
-                View and manage all your existing links
-              </p>
-            </CardContent>
-          </Card>
-        </Link>
+            </div>
+
+            <div className="mt-4 flex flex-wrap gap-2 md:mt-0">
+              <Button 
+                asChild 
+                size="sm" 
+                variant="secondary" 
+                className="bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm"
+              >
+                <Link to="/dashboard/create">
+                  <PlusCircle className="mr-1.5 h-4 w-4" />
+                  Create Link
+                </Link>
+              </Button>
+              <Button 
+                asChild 
+                size="sm" 
+                variant="secondary" 
+                className="bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm"
+              >
+                <Link to="/dashboard/stats">
+                  <BarChart2 className="mr-1.5 h-4 w-4" />
+                  View Stats
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </div>
       </motion.div>
 
       {/* Stats Grid */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="grid grid-cols-2 md:grid-cols-4 gap-4"
+        transition={{ delay: 0.1, duration: 0.5 }}
+        className="grid grid-cols-2 gap-4 md:grid-cols-4"
       >
-        <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Total Links</CardTitle>
-            <LinkIcon className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalLinks}</div>
-            <p className="text-xs text-muted-foreground">Links created</p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Total Views</CardTitle>
-            <Eye className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalViews}</div>
-            <p className="text-xs text-muted-foreground">Combined views</p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Private Links</CardTitle>
-            <Lock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.privateLinks}</div>
-            <p className="text-xs text-muted-foreground">Password protected</p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Public Links</CardTitle>
-            <Unlock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.publicLinks}</div>
-            <p className="text-xs text-muted-foreground">Publicly accessible</p>
-          </CardContent>
-        </Card>
+        {statCards.map((stat, index) => (
+          <Card key={stat.title} className="overflow-hidden border-none shadow-md">
+            <div className={`h-1 ${stat.color}`}></div>
+            <CardHeader className="pb-2">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
+                <stat.icon className={`h-4 w-4 text-gray-400`} />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stat.value}</div>
+              <p className="text-xs text-muted-foreground">
+                {stat.title === "Total Links" && "Links created"}
+                {stat.title === "Total Views" && "Combined views"}
+                {stat.title === "Private Links" && "Password protected"}
+                {stat.title === "Public Links" && "Publicly accessible"}
+              </p>
+            </CardContent>
+          </Card>
+        ))}
       </motion.div>
 
-      {/* Recent Links */}
+      {/* Links Tabs */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
+        transition={{ delay: 0.2, duration: 0.5 }}
       >
-        <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm overflow-hidden">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle className="text-xl">Recent Links</CardTitle>
-              <p className="text-sm text-muted-foreground">
-                Your most recently created links
-              </p>
-            </div>
-            <Link to="/dashboard/create">
-              <Button className="bg-gradient-to-r from-primary to-accent hover:opacity-90">
-                <PlusCircle className="h-4 w-4 mr-2" />
-                Create New Link
-              </Button>
-            </Link>
+        <Tabs defaultValue="recent" className="w-full">
+          <div className="flex items-center justify-between mb-4">
+            <TabsList className="grid w-full max-w-xs grid-cols-2">
+              <TabsTrigger value="recent">Recent Links</TabsTrigger>
+              <TabsTrigger value="top">Top Links</TabsTrigger>
+            </TabsList>
+            <Button asChild variant="outline" size="sm" className="hidden sm:flex">
+              <Link to="/dashboard/manage">
+                <Eye className="mr-1.5 h-4 w-4" />
+                View All Links
+              </Link>
+            </Button>
+          </div>
+
+          <Card className="border shadow-sm">
+            <TabsContent value="recent" className="mt-0">
+              <CardHeader className="border-b pb-3 pt-4">
+                <CardTitle className="text-base">Recently Created Links</CardTitle>
+                <CardDescription>Your 5 most recently created links</CardDescription>
+              </CardHeader>
+              <CardContent className="p-0">
+                <LinksTable links={recentLinks} emptyMessage="No links created yet" />
+              </CardContent>
+            </TabsContent>
+
+            <TabsContent value="top" className="mt-0">
+              <CardHeader className="border-b pb-3 pt-4">
+                <CardTitle className="text-base">Top Performing Links</CardTitle>
+                <CardDescription>Your most viewed links</CardDescription>
+              </CardHeader>
+              <CardContent className="p-0">
+                <LinksTable links={topLinks} emptyMessage="No link views yet" />
+              </CardContent>
+            </TabsContent>
+          </Card>
+        </Tabs>
+      </motion.div>
+
+      {/* Activity Card */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3, duration: 0.5 }}
+      >
+        <Card className="overflow-hidden border shadow-sm">
+          <CardHeader className="border-b bg-muted/50 pb-3">
+            <CardTitle className="flex items-center text-base">
+              <Activity className="mr-2 h-4 w-4 text-primary" />
+              Activity Summary
+            </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="rounded-md border overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead className="hidden md:table-cell">Views</TableHead>
-                    <TableHead className="hidden md:table-cell">Created</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {recentLinks.map((link) => (
-                    <TableRow key={link.id}>
-                      <TableCell className="font-medium">
-                        <div className="flex items-center gap-2">
-                          {link.password ? (
-                            <Lock className="h-4 w-4 text-muted-foreground" />
-                          ) : (
-                            <Unlock className="h-4 w-4 text-muted-foreground" />
-                          )}
-                          <span className="truncate max-w-[150px] md:max-w-[200px]">
-                            {link.name}
-                          </span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="hidden md:table-cell">
-                        <div className="flex items-center gap-1">
-                          <Eye className="h-4 w-4 text-muted-foreground" />
-                          {link.views || 0}
-                        </div>
-                      </TableCell>
-                      <TableCell className="hidden md:table-cell">
-                        <div className="flex items-center gap-1">
-                          <Clock className="h-4 w-4 text-muted-foreground" />
-                          {new Date(link.created_at).toLocaleDateString()}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-right space-x-2">
-                        <Link
-                          to={`/view?token=${link.token}`}
-                          target="_blank"
-                          className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-8 w-8"
-                        >
-                          <Share2 className="h-4 w-4" />
-                        </Link>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                  {recentLinks.length === 0 && (
-                    <TableRow>
-                      <TableCell
-                        colSpan={4}
-                        className="text-center text-muted-foreground py-8"
-                      >
-                        <div className="flex flex-col items-center gap-2">
-                          <LinkIcon className="h-8 w-8" />
-                          <p>No links created yet</p>
-                          <Link to="/dashboard/create">
-                            <Button variant="outline" className="mt-2">
-                              Create your first link
-                            </Button>
-                          </Link>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-            {recentLinks.length > 0 && (
-              <div className="mt-4 text-center">
-                <Link to="/dashboard/manage">
-                  <Button variant="outline" className="gap-2">
-                    <TrendingUp className="h-4 w-4" />
-                    View All Links
-                  </Button>
-                </Link>
+          <CardContent className="p-6">
+            <div className="grid gap-6 md:grid-cols-3">
+              <div className="flex flex-col items-center justify-center rounded-lg border bg-card p-4 text-center shadow-sm">
+                <Calendar className="mb-2 h-5 w-5 text-muted-foreground" />
+                <p className="text-sm font-medium">Last 7 Days</p>
+                <h4 className="text-2xl font-bold">{stats.totalViews}</h4>
+                <p className="text-xs text-muted-foreground">Total views</p>
               </div>
-            )}
+              
+              <div className="flex flex-col items-center justify-center rounded-lg border bg-card p-4 text-center shadow-sm">
+                <TrendingUp className="mb-2 h-5 w-5 text-muted-foreground" />
+                <p className="text-sm font-medium">Conversion</p>
+                <h4 className="text-2xl font-bold">
+                  {stats.totalLinks > 0 
+                    ? `${Math.round((stats.totalViews / stats.totalLinks) * 10) / 10}` 
+                    : "0"}
+                </h4>
+                <p className="text-xs text-muted-foreground">Avg views per link</p>
+              </div>
+              
+              <div className="flex flex-col items-center justify-center rounded-lg border bg-card p-4 text-center shadow-sm">
+                <Users className="mb-2 h-5 w-5 text-muted-foreground" />
+                <p className="text-sm font-medium">User Growth</p>
+                <h4 className="text-2xl font-bold">+1</h4>
+                <p className="text-xs text-muted-foreground">New account</p>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </motion.div>
+
+      {/* Mobile View All Button */}
+      <div className="mt-4 text-center sm:hidden">
+        <Button asChild variant="outline" className="w-full">
+          <Link to="/dashboard/manage">
+            <Eye className="mr-1.5 h-4 w-4" />
+            View All Links
+          </Link>
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+// Links table component
+const LinksTable = ({ links, emptyMessage }: { links: any[], emptyMessage: string }) => {
+  return (
+    <div className="overflow-hidden rounded-b-lg">
+      {links.length > 0 ? (
+        <Table>
+          <TableHeader>
+            <TableRow className="hover:bg-transparent">
+              <TableHead>Name</TableHead>
+              <TableHead className="hidden md:table-cell">Views</TableHead>
+              <TableHead className="hidden md:table-cell">Created</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {links.map((link) => (
+              <TableRow key={link.id} className="hover:bg-muted/50">
+                <TableCell className="font-medium">
+                  <div className="flex items-center gap-2">
+                    {link.password ? (
+                      <Lock className="h-4 w-4 text-muted-foreground" />
+                    ) : (
+                      <Unlock className="h-4 w-4 text-muted-foreground" />
+                    )}
+                    <span className="truncate max-w-[150px] md:max-w-[200px]">
+                      {link.name}
+                    </span>
+                  </div>
+                </TableCell>
+                <TableCell className="hidden md:table-cell">
+                  <div className="flex items-center gap-1">
+                    <Eye className="h-4 w-4 text-muted-foreground" />
+                    {link.views || 0}
+                  </div>
+                </TableCell>
+                <TableCell className="hidden md:table-cell">
+                  <div className="flex items-center gap-1">
+                    <Clock className="h-4 w-4 text-muted-foreground" />
+                    {new Date(link.created_at).toLocaleDateString()}
+                  </div>
+                </TableCell>
+                <TableCell className="text-right space-x-1">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    asChild
+                    className="h-8 w-8"
+                  >
+                    <Link
+                      to={`/view?token=${link.token}`}
+                      target="_blank"
+                    >
+                      <Share2 className="h-4 w-4" />
+                    </Link>
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      ) : (
+        <div className="flex flex-col items-center justify-center p-8 text-center text-muted-foreground">
+          <LinkIcon className="mb-2 h-8 w-8" />
+          <p>{emptyMessage}</p>
+          <Link to="/dashboard/create">
+            <Button variant="outline" className="mt-4">
+              <PlusCircle className="mr-1.5 h-4 w-4" />
+              Create your first link
+            </Button>
+          </Link>
+        </div>
+      )}
     </div>
   );
 };

@@ -66,7 +66,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         password,
       });
       if (error) throw error;
-      navigate("/dashboard/create");
+      navigate("/dashboard"); // Changed from "/dashboard/create" to "/dashboard"
     } catch (error: any) {
       console.error("Error during sign in:", error.message);
       throw error;

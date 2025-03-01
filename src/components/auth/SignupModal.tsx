@@ -1,4 +1,3 @@
-
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,6 +38,7 @@ export const SignupModal = ({ isOpen, onClose, onSwitchToLogin }: SignupModalPro
       email: "",
       password: "",
     },
+    mode: "onChange",
   });
 
   const checkUsernameExists = async (username: string) => {
@@ -48,13 +48,13 @@ export const SignupModal = ({ isOpen, onClose, onSwitchToLogin }: SignupModalPro
       
       if (error) {
         console.error('Error checking username:', error);
-        return false; // Changed to false to prevent blocking signup on error
+        return false;
       }
       
-      return data === true; // Explicitly check for true value
+      return data === true;
     } catch (err) {
       console.error('Exception checking username:', err);
-      return false; // Changed to false to prevent blocking signup on error
+      return false;
     }
   };
 
@@ -65,13 +65,13 @@ export const SignupModal = ({ isOpen, onClose, onSwitchToLogin }: SignupModalPro
       
       if (error) {
         console.error('Error checking email:', error);
-        return false; // Changed to false to prevent blocking signup on error
+        return false;
       }
       
-      return data === true; // Explicitly check for true value
+      return data === true;
     } catch (err) {
       console.error('Exception checking email:', err);
-      return false; // Changed to false to prevent blocking signup on error
+      return false;
     }
   };
 
@@ -81,7 +81,6 @@ export const SignupModal = ({ isOpen, onClose, onSwitchToLogin }: SignupModalPro
     setIsLoading(true);
     
     try {
-      // Check username
       const usernameExists = await checkUsernameExists(values.username);
       if (usernameExists) {
         toast({
@@ -93,7 +92,6 @@ export const SignupModal = ({ isOpen, onClose, onSwitchToLogin }: SignupModalPro
         return;
       }
 
-      // Check email
       const emailExists = await checkEmailExists(values.email);
       if (emailExists) {
         toast({
@@ -105,7 +103,6 @@ export const SignupModal = ({ isOpen, onClose, onSwitchToLogin }: SignupModalPro
         return;
       }
 
-      // Proceed with signup
       await signUp(values.email, values.password, values.username);
       toast({
         title: "Account Created",
@@ -131,7 +128,6 @@ export const SignupModal = ({ isOpen, onClose, onSwitchToLogin }: SignupModalPro
     const usernameResult = await form.trigger("username");
     
     if (emailResult && usernameResult) {
-      // Check username
       const usernameExists = await checkUsernameExists(usernameValue);
       if (usernameExists) {
         form.setError("username", { 
@@ -140,7 +136,6 @@ export const SignupModal = ({ isOpen, onClose, onSwitchToLogin }: SignupModalPro
         return;
       }
 
-      // Check email
       const emailExists = await checkEmailExists(emailValue);
       if (emailExists) {
         form.setError("email", { 
@@ -150,6 +145,7 @@ export const SignupModal = ({ isOpen, onClose, onSwitchToLogin }: SignupModalPro
       }
       
       setStep(2);
+      form.setValue("password", "");
     }
   };
 
