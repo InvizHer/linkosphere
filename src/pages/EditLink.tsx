@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -20,6 +21,11 @@ import {
   BarChart2,
   ExternalLink,
   Share2,
+  Pencil,
+  Key,
+  Image,
+  FileText,
+  Info,
 } from "lucide-react";
 import {
   Card,
@@ -27,6 +33,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter,
 } from "@/components/ui/card";
 import {
   Tabs,
@@ -52,6 +59,7 @@ import {
   Line,
 } from "recharts";
 import { format, subDays, startOfMonth, endOfMonth, subMonths, differenceInHours } from "date-fns";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 
 const EditLink = () => {
   const { user } = useAuth();
@@ -246,238 +254,364 @@ const EditLink = () => {
 
   return (
     <div className="container mx-auto px-4 py-6 space-y-6">
-      <div className="flex items-center justify-between sticky top-0 bg-background/80 backdrop-blur-sm z-10 py-2">
+      <motion.div 
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="flex items-center justify-between sticky top-0 bg-background/80 backdrop-blur-sm z-10 py-3 px-4 rounded-xl shadow-sm"
+      >
         <Button
           variant="ghost"
           onClick={() => navigate("/dashboard/manage")}
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 hover:bg-background/90"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to Links
         </Button>
         <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            onClick={() => window.open(`/view?token=${token}`, '_blank')}
-            className="flex items-center gap-2"
-          >
-            <ExternalLink className="h-4 w-4" />
-            <span className="hidden sm:inline">View</span>
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => {
-              navigator.clipboard.writeText(`${window.location.origin}/view?token=${token}`);
-              toast({
-                title: "Success",
-                description: "Link copied to clipboard",
-              });
-            }}
-            className="flex items-center gap-2"
-          >
-            <Share2 className="h-4 w-4" />
-            <span className="hidden sm:inline">Share</span>
-          </Button>
-          <Button
-            variant="destructive"
-            onClick={handleDelete}
-            className="flex items-center gap-2"
-          >
-            <Trash2 className="h-4 w-4" />
-            <span className="hidden sm:inline">Delete</span>
-          </Button>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  onClick={() => window.open(`/view?token=${token}`, '_blank')}
+                  className="flex items-center gap-2"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  <span className="hidden sm:inline">View</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Open link in new tab</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    navigator.clipboard.writeText(`${window.location.origin}/view?token=${token}`);
+                    toast({
+                      title: "Success",
+                      description: "Link copied to clipboard",
+                    });
+                  }}
+                  className="flex items-center gap-2"
+                >
+                  <Share2 className="h-4 w-4" />
+                  <span className="hidden sm:inline">Share</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Copy link to clipboard</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="destructive"
+                  onClick={handleDelete}
+                  className="flex items-center gap-2"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  <span className="hidden sm:inline">Delete</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Delete this link</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
-      </div>
+      </motion.div>
 
       <Tabs defaultValue="statistics" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-2 mb-4 mx-auto max-w-md">
           <TabsTrigger value="statistics" className="flex items-center gap-2">
             <BarChart2 className="h-4 w-4" />
             Statistics
           </TabsTrigger>
           <TabsTrigger value="settings" className="flex items-center gap-2">
-            <Lock className="h-4 w-4" />
-            Settings
+            <Pencil className="h-4 w-4" />
+            Edit Link
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="statistics" className="space-y-6">
+        <TabsContent value="statistics" className="space-y-6 animate-fade-in">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Views</CardTitle>
-                <Eye className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{stats.views}</div>
-                <p className="text-xs text-muted-foreground">All time views</p>
-              </CardContent>
-            </Card>
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.1 }}
+            >
+              <Card className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-all duration-300">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Total Views</CardTitle>
+                  <Eye className="h-4 w-4 text-blue-500" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{stats.views}</div>
+                  <p className="text-xs text-muted-foreground">All time views</p>
+                </CardContent>
+              </Card>
+            </motion.div>
 
-            <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Average Views</CardTitle>
-                <BarChart2 className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{getAverageViewsPerDay()}</div>
-                <p className="text-xs text-muted-foreground">Views per day</p>
-              </CardContent>
-            </Card>
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.2 }}
+            >
+              <Card className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-all duration-300">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Average Views</CardTitle>
+                  <BarChart2 className="h-4 w-4 text-green-500" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{getAverageViewsPerDay()}</div>
+                  <p className="text-xs text-muted-foreground">Views per day</p>
+                </CardContent>
+              </Card>
+            </motion.div>
 
-            <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Created</CardTitle>
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {new Date(stats.created_at).toLocaleDateString()}
-                </div>
-                <p className="text-xs text-muted-foreground">Creation date</p>
-              </CardContent>
-            </Card>
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.3 }}
+            >
+              <Card className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-all duration-300">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Created</CardTitle>
+                  <Calendar className="h-4 w-4 text-purple-500" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    {new Date(stats.created_at).toLocaleDateString()}
+                  </div>
+                  <p className="text-xs text-muted-foreground">Creation date</p>
+                </CardContent>
+              </Card>
+            </motion.div>
 
-            <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Updated</CardTitle>
-                <Clock className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {new Date(stats.updated_at).toLocaleDateString()}
-                </div>
-                <p className="text-xs text-muted-foreground">Last update</p>
-              </CardContent>
-            </Card>
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.4 }}
+            >
+              <Card className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-all duration-300">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Updated</CardTitle>
+                  <Clock className="h-4 w-4 text-orange-500" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    {new Date(stats.updated_at).toLocaleDateString()}
+                  </div>
+                  <p className="text-xs text-muted-foreground">Last update</p>
+                </CardContent>
+              </Card>
+            </motion.div>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
-            <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="text-lg">Weekly Views</CardTitle>
-                <CardDescription>Views over the last 7 days</CardDescription>
-              </CardHeader>
-              <CardContent className="h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={weeklyData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" />
-                    <YAxis />
-                    <RechartsTooltip />
-                    <Bar dataKey="views" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.5 }}
+            >
+              <Card className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-all duration-300">
+                <CardHeader>
+                  <CardTitle className="text-lg">Weekly Views</CardTitle>
+                  <CardDescription>Views over the last 7 days</CardDescription>
+                </CardHeader>
+                <CardContent className="h-[300px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={weeklyData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
+                      <XAxis dataKey="date" tick={{ fontSize: 12 }} />
+                      <YAxis tick={{ fontSize: 12 }} />
+                      <RechartsTooltip 
+                        contentStyle={{ 
+                          backgroundColor: "rgba(255, 255, 255, 0.9)",
+                          borderRadius: "8px",
+                          boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+                          border: "none"
+                        }}
+                      />
+                      <Bar dataKey="views" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+            </motion.div>
 
-            <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="text-lg">Monthly Views</CardTitle>
-                <CardDescription>Views over the last 6 months</CardDescription>
-              </CardHeader>
-              <CardContent className="h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={monthlyData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <RechartsTooltip />
-                    <Line type="monotone" dataKey="views" stroke="#3b82f6" strokeWidth={2} />
-                  </LineChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.6 }}
+            >
+              <Card className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-all duration-300">
+                <CardHeader>
+                  <CardTitle className="text-lg">Monthly Views</CardTitle>
+                  <CardDescription>Views over the last 6 months</CardDescription>
+                </CardHeader>
+                <CardContent className="h-[300px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={monthlyData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
+                      <XAxis dataKey="month" tick={{ fontSize: 12 }} />
+                      <YAxis tick={{ fontSize: 12 }} />
+                      <RechartsTooltip 
+                        contentStyle={{ 
+                          backgroundColor: "rgba(255, 255, 255, 0.9)",
+                          borderRadius: "8px",
+                          boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+                          border: "none"
+                        }}
+                      />
+                      <Line 
+                        type="monotone" 
+                        dataKey="views" 
+                        stroke="#3b82f6" 
+                        strokeWidth={2} 
+                        dot={{ fill: "#3b82f6", strokeWidth: 2, r: 4 }}
+                        activeDot={{ fill: "#1d4ed8", strokeWidth: 0, r: 6 }}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+            </motion.div>
           </div>
         </TabsContent>
 
-        <TabsContent value="settings" className="space-y-6">
-          <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
-            <CardHeader>
-              <CardTitle>Link Settings</CardTitle>
-              <CardDescription>Update your link's information</CardDescription>
+        <TabsContent value="settings" className="space-y-6 animate-fade-in">
+          <Card className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-all duration-300">
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center gap-2">
+                <LinkIcon className="h-5 w-5 text-blue-500" />
+                Link Settings
+              </CardTitle>
+              <CardDescription>Customize your shortened link's appearance and behavior</CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Name</Label>
-                  <Input
-                    id="name"
-                    value={formData.name}
-                    onChange={(e) =>
-                      setFormData({ ...formData, name: e.target.value })
-                    }
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="description">Description</Label>
-                  <Textarea
-                    id="description"
-                    value={formData.description}
-                    onChange={(e) =>
-                      setFormData({ ...formData, description: e.target.value })
-                    }
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="original_url">Original URL</Label>
-                  <Input
-                    id="original_url"
-                    value={formData.original_url}
-                    onChange={(e) =>
-                      setFormData({ ...formData, original_url: e.target.value })
-                    }
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="thumbnail_url">Thumbnail URL</Label>
-                  <Input
-                    id="thumbnail_url"
-                    value={formData.thumbnail_url}
-                    onChange={(e) =>
-                      setFormData({ ...formData, thumbnail_url: e.target.value })
-                    }
-                  />
-                </div>
-
                 <div className="space-y-4">
-                  <Label htmlFor="password">Password Protection</Label>
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <div className="text-sm font-medium">
-                        Enable Password Protection
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        Require a password to access this link
-                      </div>
-                    </div>
-                    <Switch
-                      id="show_password"
-                      checked={formData.show_password}
-                      onCheckedChange={(checked) =>
-                        setFormData({ ...formData, show_password: checked })
+                  <div className="space-y-2">
+                    <Label htmlFor="name" className="flex items-center gap-1.5">
+                      <Info className="h-4 w-4 text-blue-500" />
+                      Name
+                    </Label>
+                    <Input
+                      id="name"
+                      value={formData.name}
+                      onChange={(e) =>
+                        setFormData({ ...formData, name: e.target.value })
                       }
+                      className="border-gray-200 focus:border-blue-500 transition-colors"
+                      placeholder="Enter a name for your link"
+                      required
                     />
                   </div>
-                  {formData.show_password && (
-                    <Input
-                      id="password"
-                      type="password"
-                      value={formData.password}
-                      onChange={(e) =>
-                        setFormData({ ...formData, password: e.target.value })
-                      }
-                      placeholder="Enter password"
-                    />
-                  )}
-                </div>
 
-                <Button type="submit" className="w-full">
+                  <div className="space-y-2">
+                    <Label htmlFor="description" className="flex items-center gap-1.5">
+                      <FileText className="h-4 w-4 text-green-500" />
+                      Description
+                    </Label>
+                    <Textarea
+                      id="description"
+                      value={formData.description}
+                      onChange={(e) =>
+                        setFormData({ ...formData, description: e.target.value })
+                      }
+                      className="border-gray-200 focus:border-blue-500 transition-colors min-h-[100px]"
+                      placeholder="Add a description (optional)"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="original_url" className="flex items-center gap-1.5">
+                      <LinkIcon className="h-4 w-4 text-purple-500" />
+                      Original URL
+                    </Label>
+                    <Input
+                      id="original_url"
+                      value={formData.original_url}
+                      onChange={(e) =>
+                        setFormData({ ...formData, original_url: e.target.value })
+                      }
+                      className="border-gray-200 focus:border-blue-500 transition-colors"
+                      placeholder="https://example.com/very-long-url-that-needs-shortening"
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="thumbnail_url" className="flex items-center gap-1.5">
+                      <Image className="h-4 w-4 text-orange-500" />
+                      Thumbnail URL
+                    </Label>
+                    <Input
+                      id="thumbnail_url"
+                      value={formData.thumbnail_url}
+                      onChange={(e) =>
+                        setFormData({ ...formData, thumbnail_url: e.target.value })
+                      }
+                      className="border-gray-200 focus:border-blue-500 transition-colors"
+                      placeholder="https://example.com/image.jpg (optional)"
+                    />
+                  </div>
+
+                  <div className="space-y-4 pt-2">
+                    <Label htmlFor="password" className="flex items-center gap-1.5">
+                      <Key className="h-4 w-4 text-red-500" />
+                      Password Protection
+                    </Label>
+                    <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                      <div className="space-y-0.5">
+                        <div className="text-sm font-medium">
+                          Enable Password Protection
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          Require a password to access this link
+                        </div>
+                      </div>
+                      <Switch
+                        id="show_password"
+                        checked={formData.show_password}
+                        onCheckedChange={(checked) =>
+                          setFormData({ ...formData, show_password: checked })
+                        }
+                      />
+                    </div>
+                    {formData.show_password && (
+                      <div className="pt-2">
+                        <Input
+                          id="password"
+                          type="password"
+                          value={formData.password}
+                          onChange={(e) =>
+                            setFormData({ ...formData, password: e.target.value })
+                          }
+                          className="border-gray-200 focus:border-blue-500 transition-colors"
+                          placeholder="Enter password"
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+                
+                <Button 
+                  type="submit" 
+                  className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center gap-2 py-5"
+                >
+                  <Pencil className="h-4 w-4" />
                   Save Changes
                 </Button>
               </form>
