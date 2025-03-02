@@ -182,7 +182,7 @@ const CreateLink = () => {
   };
 
   return (
-    <div className="w-full max-w-5xl mx-auto pb-20 px-4 md:px-6">
+    <div className="w-full max-w-5xl mx-auto pb-20 md:px-6">
       <div className="grid md:grid-cols-3 gap-8">
         <div className="md:col-span-2">
           <motion.div
