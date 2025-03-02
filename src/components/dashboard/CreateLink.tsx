@@ -20,12 +20,22 @@ import {
   PartyPopper,
   ChevronDown,
   ChevronUp,
+  Share2,
+  Sparkles,
+  Lightbulb,
+  Shield,
+  Zap,
+  BookIcon,
+  BarChart,
+  Clock,
 } from "lucide-react";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
+  CardFooter,
+  CardDescription,
 } from "@/components/ui/card";
 import {
   Accordion,
@@ -136,20 +146,23 @@ const CreateLink = () => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="w-full max-w-2xl mx-auto space-y-8 mb-20 md:mb-0 px-4 sm:px-6"
+      className="w-full max-w-3xl mx-auto space-y-8 mb-20 md:mb-0 px-4 sm:px-6"
     >
-      <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200 dark:border-gray-700 shadow-lg overflow-hidden">
-        <CardHeader className="bg-gradient-to-r from-primary/5 to-accent/5 pb-4">
-          <CardTitle className="flex items-center gap-2 text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            <Link className="h-6 w-6" />
-            Create New Link
+      <Card className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border border-gray-100/50 dark:border-gray-700/50 shadow-xl overflow-hidden rounded-xl">
+        <CardHeader className="bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-pink-500/10 pb-6">
+          <CardTitle className="flex items-center gap-2 text-2xl sm:text-3xl font-bold bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+            <Sparkles className="h-6 w-6" />
+            Create Professional Link
           </CardTitle>
+          <CardDescription className="text-gray-500 dark:text-gray-400">
+            Create a branded, trackable link with custom options
+          </CardDescription>
         </CardHeader>
         <CardContent className="p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="name" className="flex items-center gap-2 text-base font-medium">
-                <FileText className="h-4 w-4 text-primary" />
+              <Label htmlFor="name" className="flex items-center gap-2 text-base font-medium text-gray-700 dark:text-gray-300">
+                <FileText className="h-4 w-4 text-indigo-500" />
                 Link Name
               </Label>
               <Input
@@ -159,14 +172,14 @@ const CreateLink = () => {
                   setFormData({ ...formData, name: e.target.value })
                 }
                 required
-                className="bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm border-gray-200 dark:border-gray-700 focus:border-primary"
+                className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-indigo-500/20 text-gray-900 dark:text-gray-100 shadow-sm"
                 placeholder="Enter a name for your link"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description" className="flex items-center gap-2 text-base font-medium">
-                <FileText className="h-4 w-4 text-primary" />
+              <Label htmlFor="description" className="flex items-center gap-2 text-base font-medium text-gray-700 dark:text-gray-300">
+                <FileText className="h-4 w-4 text-indigo-500" />
                 Description (Max 2 lines)
               </Label>
               <Textarea
@@ -175,15 +188,15 @@ const CreateLink = () => {
                 onChange={(e) =>
                   setFormData({ ...formData, description: e.target.value })
                 }
-                className="bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm border-gray-200 dark:border-gray-700 focus:border-primary min-h-[80px]"
+                className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-indigo-500/20 text-gray-900 dark:text-gray-100 shadow-sm min-h-[80px]"
                 rows={2}
                 placeholder="Briefly describe your link (optional)"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="original_url" className="flex items-center gap-2 text-base font-medium">
-                <Link className="h-4 w-4 text-primary" />
+              <Label htmlFor="original_url" className="flex items-center gap-2 text-base font-medium text-gray-700 dark:text-gray-300">
+                <Link className="h-4 w-4 text-indigo-500" />
                 Original URL
               </Label>
               <Input
@@ -194,25 +207,25 @@ const CreateLink = () => {
                   setFormData({ ...formData, original_url: e.target.value })
                 }
                 required
-                className="bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm border-gray-200 dark:border-gray-700 focus:border-primary"
+                className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-indigo-500/20 text-gray-900 dark:text-gray-100 shadow-sm"
                 placeholder="https://example.com"
               />
             </div>
 
-            <Accordion type="single" collapsible className="border rounded-lg">
+            <Accordion type="single" collapsible className="border rounded-lg shadow-sm bg-white dark:bg-gray-900/50">
               <AccordionItem value="advanced" className="border-none">
-                <AccordionTrigger className="px-4 py-2 text-base font-medium hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors rounded-lg">
+                <AccordionTrigger className="px-4 py-3 text-base font-medium hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors rounded-lg">
                   <div className="flex items-center gap-2">
-                    <ChevronDown className="h-4 w-4 text-primary shrink-0 transition-transform duration-200" />
+                    <ChevronDown className="h-4 w-4 text-indigo-500 shrink-0 transition-transform duration-200" />
                     <span>Advanced Options</span>
                   </div>
                 </AccordionTrigger>
                 <AccordionContent className="px-4 pb-4 pt-1 space-y-6">
                   <div className="space-y-4">
                     <div className="space-y-4">
-                      <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                      <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/60 rounded-lg shadow-sm">
                         <Label htmlFor="custom_thumbnail" className="flex items-center gap-2 cursor-pointer">
-                          <Image className="h-4 w-4 text-primary" />
+                          <Image className="h-4 w-4 text-indigo-500" />
                           <div>
                             <span className="font-medium">Custom Thumbnail</span>
                             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
@@ -224,11 +237,12 @@ const CreateLink = () => {
                           id="custom_thumbnail"
                           checked={customThumbnail}
                           onCheckedChange={setCustomThumbnail}
+                          className="data-[state=checked]:bg-indigo-500"
                         />
                       </div>
 
                       {customThumbnail && (
-                        <div className="space-y-3 p-4 border border-dashed border-gray-300 dark:border-gray-700 rounded-lg">
+                        <div className="space-y-3 p-4 border border-dashed border-indigo-200 dark:border-indigo-700/50 rounded-lg bg-indigo-50/50 dark:bg-indigo-900/20">
                           <Input
                             id="thumbnail_url"
                             type="url"
@@ -237,10 +251,10 @@ const CreateLink = () => {
                               setFormData({ ...formData, thumbnail_url: e.target.value })
                             }
                             placeholder="Enter thumbnail URL (e.g., https://example.com/image.jpg)"
-                            className="bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm border-gray-200 dark:border-gray-700 focus:border-primary"
+                            className="bg-white/80 dark:bg-gray-900/80 border-gray-200 dark:border-gray-700 focus:border-indigo-500"
                           />
                           {formData.thumbnail_url && (
-                            <div className="mt-2 relative aspect-video rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-900 border border-gray-200 dark:border-gray-700">
+                            <div className="mt-2 relative aspect-video rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-sm">
                               <img
                                 src={formData.thumbnail_url}
                                 alt="Thumbnail preview"
@@ -254,9 +268,9 @@ const CreateLink = () => {
                         </div>
                       )}
 
-                      <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                      <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/60 rounded-lg shadow-sm">
                         <Label htmlFor="password_protection" className="flex items-center gap-2 cursor-pointer">
-                          <Lock className="h-4 w-4 text-primary" />
+                          <Lock className="h-4 w-4 text-indigo-500" />
                           <div>
                             <span className="font-medium">Password Protection</span>
                             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
@@ -268,11 +282,12 @@ const CreateLink = () => {
                           id="password_protection"
                           checked={showPasswordProtection}
                           onCheckedChange={setShowPasswordProtection}
+                          className="data-[state=checked]:bg-indigo-500"
                         />
                       </div>
 
                       {showPasswordProtection && (
-                        <div className="space-y-4 p-4 border border-dashed border-gray-300 dark:border-gray-700 rounded-lg">
+                        <div className="space-y-4 p-4 border border-dashed border-indigo-200 dark:border-indigo-700/50 rounded-lg bg-indigo-50/50 dark:bg-indigo-900/20">
                           <Input
                             id="password"
                             type="password"
@@ -281,7 +296,7 @@ const CreateLink = () => {
                               setFormData({ ...formData, password: e.target.value })
                             }
                             placeholder="Enter a secure password"
-                            className="bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm border-gray-200 dark:border-gray-700 focus:border-primary"
+                            className="bg-white/80 dark:bg-gray-900/80 border-gray-200 dark:border-gray-700 focus:border-indigo-500"
                           />
                           <div className="flex items-center space-x-2 p-3 bg-gray-50 dark:bg-gray-800/80 rounded-lg">
                             <Switch
@@ -290,6 +305,7 @@ const CreateLink = () => {
                               onCheckedChange={(checked) =>
                                 setFormData({ ...formData, show_password: checked })
                               }
+                              className="data-[state=checked]:bg-indigo-500"
                             />
                             <div>
                               <Label htmlFor="show_password" className="cursor-pointer">Show password to visitors</Label>
@@ -308,22 +324,40 @@ const CreateLink = () => {
 
             <Button
               type="submit"
-              className="w-full bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity text-white font-medium py-2 h-12"
+              className="w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:opacity-90 transition-opacity text-white font-medium py-2 h-12 shadow-lg shadow-indigo-500/20 border-0"
             >
+              <Zap className="mr-2 h-5 w-5" />
               Create Link
             </Button>
           </form>
         </CardContent>
+        <CardFooter className="bg-gray-50 dark:bg-gray-800/30 border-t border-gray-100 dark:border-gray-700/50 px-6 py-4 flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
+          <div className="text-sm text-gray-500 dark:text-gray-400">
+            <span className="flex items-center gap-1 justify-center sm:justify-start">
+              <Shield className="h-4 w-4 text-green-500" /> Secure
+            </span>
+          </div>
+          <div className="text-sm text-gray-500 dark:text-gray-400">
+            <span className="flex items-center gap-1 justify-center sm:justify-start">
+              <Share2 className="h-4 w-4 text-blue-500" /> Shareable
+            </span>
+          </div>
+          <div className="text-sm text-gray-500 dark:text-gray-400">
+            <span className="flex items-center gap-1 justify-center sm:justify-start">
+              <BarChart className="h-4 w-4 text-purple-500" /> Trackable
+            </span>
+          </div>
+        </CardFooter>
       </Card>
 
-      {createdLink && (
+      {createdLink ? (
         <motion.div
           ref={createdLinkRef}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="p-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-lg border border-gray-200 dark:border-gray-700 shadow-lg"
+          className="p-6 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl border border-gray-100/50 dark:border-gray-700/50 shadow-xl"
         >
-          <div className="flex items-center gap-2 mb-4 text-primary">
+          <div className="flex items-center gap-2 mb-4 text-indigo-600 dark:text-indigo-400">
             <PartyPopper className="h-6 w-6" />
             <h3 className="text-xl font-semibold">Congratulations!</h3>
           </div>
@@ -338,7 +372,7 @@ const CreateLink = () => {
                   variant="outline"
                   size="sm"
                   onClick={copyToClipboard}
-                  className="flex items-center gap-1"
+                  className="flex items-center gap-1 border-indigo-200 dark:border-indigo-700 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/30"
                 >
                   <Copy className="h-4 w-4" />
                   Copy
@@ -347,7 +381,7 @@ const CreateLink = () => {
                   variant="outline"
                   size="sm"
                   onClick={() => window.open(createdLink, "_blank")}
-                  className="flex items-center gap-1"
+                  className="flex items-center gap-1 border-indigo-200 dark:border-indigo-700 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/30"
                 >
                   <ExternalLink className="h-4 w-4" />
                   Visit
@@ -357,11 +391,61 @@ const CreateLink = () => {
             <Input
               value={createdLink}
               readOnly
-              className="bg-white dark:bg-gray-800 font-mono text-sm"
+              className="bg-white dark:bg-gray-900 font-mono text-sm border-indigo-200 dark:border-indigo-700 shadow-inner"
             />
           </div>
         </motion.div>
-      )}
+      ) : null}
+
+      {/* Feature Cards Section */}
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12"
+      >
+        <Card className="bg-white/80 dark:bg-gray-800/80 shadow-md hover:shadow-lg transition-shadow border border-gray-100/50 dark:border-gray-700/50 rounded-xl overflow-hidden">
+          <CardHeader className="pb-2">
+            <div className="h-10 w-10 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center mb-2">
+              <Lightbulb className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+            </div>
+            <CardTitle className="text-lg font-semibold">Smart Analytics</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Track views, engagement, and more with our comprehensive analytics dashboard.
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-white/80 dark:bg-gray-800/80 shadow-md hover:shadow-lg transition-shadow border border-gray-100/50 dark:border-gray-700/50 rounded-xl overflow-hidden">
+          <CardHeader className="pb-2">
+            <div className="h-10 w-10 rounded-full bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center mb-2">
+              <Shield className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+            </div>
+            <CardTitle className="text-lg font-semibold">Enhanced Security</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Password protection and controlled access ensure your links remain secure.
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-white/80 dark:bg-gray-800/80 shadow-md hover:shadow-lg transition-shadow border border-gray-100/50 dark:border-gray-700/50 rounded-xl overflow-hidden">
+          <CardHeader className="pb-2">
+            <div className="h-10 w-10 rounded-full bg-pink-100 dark:bg-pink-900/50 flex items-center justify-center mb-2">
+              <BookIcon className="h-5 w-5 text-pink-600 dark:text-pink-400" />
+            </div>
+            <CardTitle className="text-lg font-semibold">Custom Branding</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Add thumbnails and custom descriptions to enhance your links' appearance.
+            </p>
+          </CardContent>
+        </Card>
+      </motion.div>
     </motion.div>
   );
 };
