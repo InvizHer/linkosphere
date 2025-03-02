@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -130,7 +129,7 @@ const Statistics = () => {
   }
 
   return (
-    <div className="space-y-6 container mx-auto px-0 sm:px-4 py-6 mb-20">
+    <div className="space-y-6 container mx-auto px-2 sm:px-4 py-6 mb-20">
       <Card className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border border-gray-100 dark:border-gray-700 shadow-lg">
         <CardHeader className="pb-3">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
