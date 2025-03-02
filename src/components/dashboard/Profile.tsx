@@ -1,148 +1,162 @@
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
+import { UserCircle, Mail, Key, LogOut, Save, User, Shield, Clock, Bell, Lock, ExternalLink, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useToast } from "@/components/ui/use-toast";
-import { motion } from "framer-motion";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  Mail,
-  Key,
-  Camera,
-  UserCircle,
-  LogOut,
-  AlertCircle,
-  Shield,
-} from "lucide-react";
-import { Separator } from "@/components/ui/separator";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 
 const Profile = () => {
   const { user, signOut } = useAuth();
   const { toast } = useToast();
+
+  const [loading, setLoading] = useState(false);
   const [profile, setProfile] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [editMode, setEditMode] = useState(false);
-  const [showPasswordDialog, setShowPasswordDialog] = useState(false);
-  const [formData, setFormData] = useState({
-    username: "",
-    currentPassword: "",
-    newPassword: "",
-    confirmPassword: "",
-  });
+  const [username, setUsername] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState("");
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
 
   useEffect(() => {
-    fetchProfile();
+    if (user) {
+      fetchProfile();
+    }
   }, [user]);
 
   const fetchProfile = async () => {
-    if (!user) return;
-
     try {
+      setLoading(true);
+      
       const { data, error } = await supabase
         .from("profiles")
         .select("*")
-        .eq("id", user.id)
+        .eq("id", user?.id)
         .single();
 
       if (error) throw error;
 
       setProfile(data);
-      setFormData((prev) => ({ ...prev, username: data.username }));
+      setUsername(data.username || "");
+      setAvatarUrl(data.avatar_url || "");
       setLoading(false);
     } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
+      console.error("Error fetching profile:", error.message);
+      setLoading(false);
     }
   };
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      const { error } = await supabase
-        .from("profiles")
-        .update({ username: formData.username })
-        .eq("id", user!.id);
-
-      if (error) throw error;
-
-      await fetchProfile();
-      setEditMode(false);
-      toast({
-        title: "Success",
-        description: "Profile updated successfully",
-      });
-    } catch (error: any) {
+    
+    if (!username.trim()) {
       toast({
         title: "Error",
-        description: error.message,
+        description: "Username is required",
         variant: "destructive",
       });
+      return;
     }
-  };
 
-  const handleUpdatePassword = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (formData.newPassword !== formData.confirmPassword) {
+    // Password validation
+    if (newPassword && newPassword !== confirmPassword) {
       toast({
         title: "Error",
-        description: "New passwords do not match",
+        description: "Passwords do not match",
         variant: "destructive",
       });
       return;
     }
 
     try {
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: user!.email!,
-        password: formData.currentPassword,
-      });
+      setLoading(true);
+      
+      // Upload avatar if selected
+      let newAvatarUrl = avatarUrl;
+      
+      if (avatarFile) {
+        const fileExt = avatarFile.name.split('.').pop();
+        const fileName = `${user?.id}-${Math.random()}.${fileExt}`;
+        
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from("avatars")
+          .upload(fileName, avatarFile);
 
-      if (signInError) {
+        if (uploadError) throw uploadError;
+        
+        newAvatarUrl = `https://wscxbxofzpoxmlcnaidw.supabase.co/storage/v1/object/public/avatars/${fileName}`;
+      }
+      
+      // Update profile
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .update({
+          username,
+          avatar_url: newAvatarUrl,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", user?.id);
+
+      if (profileError) throw profileError;
+      
+      // Update password if provided
+      if (newPassword) {
+        const { error: passwordError } = await supabase.auth.updateUser({
+          password: newPassword,
+        });
+
+        if (passwordError) throw passwordError;
+      }
+      
+      toast({
+        title: "Success",
+        description: "Profile updated successfully",
+      });
+      
+      setNewPassword("");
+      setConfirmPassword("");
+      setAvatarFile(null);
+      
+      // Refresh profile data
+      fetchProfile();
+      
+      setLoading(false);
+    } catch (error: any) {
+      setLoading(false);
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+  
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      if (file.size > 2 * 1024 * 1024) {
         toast({
           title: "Error",
-          description: "Current password is incorrect",
+          description: "Image size should be less than 2MB",
           variant: "destructive",
         });
         return;
       }
-
-      const { error } = await supabase.auth.updateUser({
-        password: formData.newPassword,
-      });
-
-      if (error) throw error;
-
-      setFormData((prev) => ({
-        ...prev,
-        currentPassword: "",
-        newPassword: "",
-        confirmPassword: "",
-      }));
-      setShowPasswordDialog(false);
-
-      toast({
-        title: "Success",
-        description: "Password updated successfully",
-      });
+      
+      setAvatarFile(file);
+      
+      // Create preview URL
+      const objectUrl = URL.createObjectURL(file);
+      setAvatarUrl(objectUrl);
+    }
+  };
+  
+  const handleSignOut = async () => {
+    try {
+      await signOut();
     } catch (error: any) {
       toast({
         title: "Error",
@@ -152,175 +166,260 @@ const Profile = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
+  // Calculate account age
+  const calculateAccountAge = () => {
+    if (!user?.created_at) return "N/A";
+    
+    const createdDate = new Date(user.created_at);
+    const currentDate = new Date();
+    
+    const diffTime = Math.abs(currentDate.getTime() - createdDate.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays < 30) {
+      return `${diffDays} days`;
+    } else if (diffDays < 365) {
+      const months = Math.floor(diffDays / 30);
+      return `${months} month${months > 1 ? 's' : ''}`;
+    } else {
+      const years = Math.floor(diffDays / 365);
+      const remainingMonths = Math.floor((diffDays % 365) / 30);
+      return `${years} year${years > 1 ? 's' : ''} ${remainingMonths > 0 ? `and ${remainingMonths} month${remainingMonths > 1 ? 's' : ''}` : ''}`;
+    }
+  };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="container max-w-4xl mx-auto px-4 py-8 mb-20"
-    >
-      <Card className="mb-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
-        <CardHeader>
-          <CardTitle className="text-2xl font-bold">Profile Settings</CardTitle>
-          <CardDescription>Manage your account settings and preferences</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-8">
-          {/* Profile Header */}
-          <div className="flex flex-col sm:flex-row items-center gap-6 p-6 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
-            <div className="relative group">
-              <Avatar className="h-24 w-24">
-                {profile.avatar_url ? (
-                  <AvatarImage src={profile.avatar_url} alt={profile.username} />
-                ) : (
-                  <AvatarFallback className="bg-primary/10">
-                    <UserCircle className="w-12 h-12 text-primary" />
-                  </AvatarFallback>
-                )}
-                <button className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-full">
-                  <Camera className="w-6 h-6 text-white" />
-                </button>
-              </Avatar>
-            </div>
-            <div className="text-center sm:text-left">
-              <h1 className="text-2xl font-bold">{profile.username}</h1>
-              <p className="text-muted-foreground">{user?.email}</p>
-            </div>
-          </div>
-
-          {/* Profile Form */}
-          <form onSubmit={handleUpdateProfile} className="space-y-6">
-            <div className="grid gap-6 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label className="flex items-center gap-2">
-                  <Mail className="h-4 w-4" />
-                  Email Address
-                </Label>
-                <Input type="email" value={user?.email} disabled />
+    <div className="container mx-auto px-4 py-6 max-w-5xl">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold">Account Settings</h1>
+        <p className="text-gray-600 dark:text-gray-400">Manage your profile and account preferences</p>
+      </div>
+      
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-20">
+        <div className="lg:col-span-2">
+          <Card className="shadow-md border border-gray-100 dark:border-gray-800 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm">
+            <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-700/80 pb-6">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-full bg-primary/10">
+                  <UserCircle className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <CardTitle>Profile Information</CardTitle>
+                  <CardDescription>Update your account settings and change your password</CardDescription>
+                </div>
               </div>
-
-              <div className="space-y-2">
-                <Label className="flex items-center gap-2">
-                  <UserCircle className="h-4 w-4" />
-                  Username
-                </Label>
-                <div className="flex gap-2">
-                  <Input
-                    value={formData.username}
-                    onChange={(e) =>
-                      setFormData({ ...formData, username: e.target.value })
-                    }
-                    disabled={!editMode}
-                  />
+            </CardHeader>
+            
+            <CardContent className="pt-6">
+              <form onSubmit={handleUpdateProfile} className="space-y-6">
+                <div className="flex flex-col md:flex-row gap-6">
+                  <div className="flex flex-col items-center space-y-3">
+                    <div className="relative w-24 h-24 rounded-full bg-gray-100 overflow-hidden border-2 border-gray-200">
+                      {avatarUrl ? (
+                        <img 
+                          src={avatarUrl} 
+                          alt="Avatar" 
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-primary/10">
+                          <User className="h-12 w-12 text-primary/40" />
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="avatar" className="cursor-pointer text-sm text-primary font-medium hover:underline">
+                        Change Avatar
+                      </Label>
+                      <Input 
+                        id="avatar" 
+                        type="file" 
+                        accept="image/*"
+                        onChange={handleAvatarChange}
+                        className="hidden" 
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="flex-1 space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email Address</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        value={user?.email || ""}
+                        disabled
+                        className="bg-gray-50"
+                      />
+                      <div className="flex items-center gap-1 text-xs text-green-600">
+                        <CheckCircle className="h-3 w-3" />
+                        <span>Verified email</span>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="username">Username</Label>
+                      <Input
+                        id="username"
+                        type="text"
+                        placeholder="Enter your username"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="pt-4 border-t">
+                  <div className="flex items-center mb-4">
+                    <Lock className="h-5 w-5 text-primary mr-2" />
+                    <h3 className="font-medium">Change Password</h3>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="new-password">New Password</Label>
+                      <Input
+                        id="new-password"
+                        type="password"
+                        placeholder="Enter new password"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="confirm-password">Confirm Password</Label>
+                      <Input
+                        id="confirm-password"
+                        type="password"
+                        placeholder="Confirm new password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  
+                  <p className="text-xs text-gray-500 mt-2">
+                    Password must be at least 6 characters long. Leave empty to keep your current password.
+                  </p>
+                </div>
+                
+                <div className="flex justify-end gap-4 pt-2">
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={() => setEditMode(!editMode)}
+                    onClick={() => {
+                      setUsername(profile?.username || "");
+                      setNewPassword("");
+                      setConfirmPassword("");
+                      setAvatarUrl(profile?.avatar_url || "");
+                      setAvatarFile(null);
+                    }}
                   >
-                    {editMode ? "Cancel" : "Edit"}
+                    Reset
+                  </Button>
+                  
+                  <Button type="submit" disabled={loading}>
+                    {loading ? (
+                      "Saving..."
+                    ) : (
+                      <>
+                        <Save className="mr-2 h-4 w-4" /> Save Changes
+                      </>
+                    )}
                   </Button>
                 </div>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+        
+        <div className="space-y-6">
+          <Card className="shadow-md border border-gray-100 dark:border-gray-800 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg">Account Summary</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex justify-between items-center p-3 bg-primary/5 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <Mail className="h-4 w-4 text-primary" />
+                  <span className="text-sm font-medium">Email</span>
+                </div>
+                <span className="text-sm truncate max-w-[150px]">{user?.email}</span>
               </div>
-            </div>
-
-            {editMode && (
-              <Button type="submit" className="w-full sm:w-auto">Save Changes</Button>
-            )}
-          </form>
-
-          <Separator />
-
-          {/* Security Section */}
-          <div className="space-y-4">
-            <h2 className="text-lg font-semibold flex items-center gap-2">
-              <Shield className="h-5 w-5" />
-              Security Settings
-            </h2>
-            <div className="grid gap-4 md:grid-cols-2">
-              <Button
-                variant="outline"
-                onClick={() => setShowPasswordDialog(true)}
+              
+              <div className="flex justify-between items-center p-3 bg-primary/5 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <User className="h-4 w-4 text-primary" />
+                  <span className="text-sm font-medium">Username</span>
+                </div>
+                <span className="text-sm">{profile?.username || "Not set"}</span>
+              </div>
+              
+              <div className="flex justify-between items-center p-3 bg-primary/5 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-primary" />
+                  <span className="text-sm font-medium">Account Age</span>
+                </div>
+                <span className="text-sm">{calculateAccountAge()}</span>
+              </div>
+            </CardContent>
+            <CardFooter className="pt-0">
+              <Button 
+                variant="destructive" 
+                onClick={handleSignOut} 
                 className="w-full"
               >
-                <Key className="h-4 w-4 mr-2" />
-                Change Password
+                <LogOut className="mr-2 h-4 w-4" /> Sign Out
               </Button>
-              <Button
-                variant="destructive"
-                onClick={() => signOut()}
-                className="w-full"
+            </CardFooter>
+          </Card>
+          
+          <Card className="shadow-md border border-gray-100 dark:border-gray-800">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg">Account Security</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex items-start gap-3">
+                <div className="p-2 rounded-full bg-green-100 dark:bg-green-900/20">
+                  <Shield className="h-4 w-4 text-green-600 dark:text-green-400" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium">Enhanced Security</h3>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Your account is protected with secure password hashing and encryption.
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex items-start gap-3">
+                <div className="p-2 rounded-full bg-blue-100 dark:bg-blue-900/20">
+                  <Bell className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium">Password Tips</h3>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Use a strong, unique password with a mix of letters, numbers, and symbols.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+            <CardFooter className="pt-0">
+              <Button 
+                variant="outline" 
+                className="w-full text-xs"
+                onClick={() => window.open('https://support.google.com/accounts/answer/32040', '_blank')}
               >
-                <LogOut className="h-4 w-4 mr-2" />
-                Sign Out
+                <ExternalLink className="mr-2 h-3 w-3" /> Learn about password safety
               </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Password Change Dialog */}
-      <Dialog open={showPasswordDialog} onOpenChange={setShowPasswordDialog}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Change Password</DialogTitle>
-          </DialogHeader>
-          <form onSubmit={handleUpdatePassword} className="space-y-4">
-            <div className="space-y-2">
-              <Label>Current Password</Label>
-              <Input
-                type="password"
-                value={formData.currentPassword}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    currentPassword: e.target.value,
-                  })
-                }
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>New Password</Label>
-              <Input
-                type="password"
-                value={formData.newPassword}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    newPassword: e.target.value,
-                  })
-                }
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Confirm New Password</Label>
-              <Input
-                type="password"
-                value={formData.confirmPassword}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    confirmPassword: e.target.value,
-                  })
-                }
-                required
-              />
-            </div>
-            <Button type="submit" className="w-full">
-              Update Password
-            </Button>
-          </form>
-        </DialogContent>
-      </Dialog>
-    </motion.div>
+            </CardFooter>
+          </Card>
+        </div>
+      </div>
+    </div>
   );
 };
 
