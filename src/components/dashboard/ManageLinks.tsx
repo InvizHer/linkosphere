@@ -1,10 +1,10 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useIsMobile } from "@/hooks/use-mobile";
 import {
   Table,
   TableBody,
@@ -38,6 +38,7 @@ const ManageLinks = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const [links, setLinks] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState<"views" | "created_at">("created_at");
@@ -47,7 +48,10 @@ const ManageLinks = () => {
 
   useEffect(() => {
     fetchLinks();
-  }, [sortBy]);
+    if (isMobile) {
+      setViewMode("grid");
+    }
+  }, [sortBy, isMobile]);
 
   const fetchLinks = async () => {
     try {
@@ -98,7 +102,7 @@ const ManageLinks = () => {
   }
 
   return (
-    <div className="space-y-6 container mx-auto px-4 py-6 mb-20">
+    <div className="space-y-6 container mx-auto px-2 sm:px-4 py-6 mb-20">
       <Card className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border border-gray-100 dark:border-gray-700 shadow-lg">
         <CardHeader className="pb-4">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -137,7 +141,7 @@ const ManageLinks = () => {
             </div>
           </div>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-6 px-2 sm:px-6">
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
@@ -250,7 +254,7 @@ const ManageLinks = () => {
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 gap-3">
               {paginatedLinks.map((link) => (
                 <motion.div
                   key={link.id}
@@ -259,20 +263,20 @@ const ManageLinks = () => {
                   transition={{ duration: 0.3 }}
                   className="bg-white dark:bg-gray-800/80 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm hover:shadow-md transition-shadow"
                 >
-                  <div className="p-4">
+                  <div className="p-3">
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex items-center gap-2">
-                        <div className="bg-primary/10 p-2 rounded-full">
-                          <LinkIcon className="h-4 w-4 text-primary" />
+                        <div className="bg-primary/10 p-1.5 rounded-full">
+                          <LinkIcon className="h-3.5 w-3.5 text-primary" />
                         </div>
-                        <h3 className="font-medium truncate max-w-[150px]">{link.name}</h3>
+                        <h3 className="font-medium truncate max-w-[100px] xs:max-w-[120px] sm:max-w-[150px]">{link.name}</h3>
                       </div>
                       <div className="flex items-center gap-1">
-                        <Eye className="h-4 w-4 text-gray-500" />
-                        <span className="text-sm text-gray-500">{link.views}</span>
+                        <Eye className="h-3.5 w-3.5 text-gray-500" />
+                        <span className="text-xs text-gray-500">{link.views}</span>
                       </div>
                     </div>
-                    <div className="text-sm text-gray-500 mb-4 flex items-center gap-1">
+                    <div className="text-xs text-gray-500 mb-3 flex items-center gap-1">
                       <Calendar className="h-3 w-3" />
                       {new Date(link.created_at).toLocaleDateString()}
                     </div>
@@ -285,28 +289,28 @@ const ManageLinks = () => {
                           variant="ghost"
                           size="icon"
                           onClick={() => navigate(`/dashboard/edit?token=${link.token}`)}
-                          className="h-8 w-8 hover:bg-primary/10"
+                          className="h-7 w-7 hover:bg-primary/10"
                           title="Edit"
                         >
-                          <Edit2 className="h-3.5 w-3.5" />
+                          <Edit2 className="h-3 w-3" />
                         </Button>
                         <Button
                           variant="ghost"
                           size="icon"
                           onClick={() => window.open(`/view?token=${link.token}`, '_blank')}
-                          className="h-8 w-8 hover:bg-primary/10"
+                          className="h-7 w-7 hover:bg-primary/10"
                           title="Open"
                         >
-                          <ExternalLink className="h-3.5 w-3.5" />
+                          <ExternalLink className="h-3 w-3" />
                         </Button>
                         <Button
                           variant="ghost"
                           size="icon"
                           onClick={() => copyLinkToClipboard(link)}
-                          className="h-8 w-8 hover:bg-primary/10"
+                          className="h-7 w-7 hover:bg-primary/10"
                           title="Copy"
                         >
-                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
                         </Button>
                       </div>
                     </div>
@@ -327,7 +331,7 @@ const ManageLinks = () => {
                     />
                   </PaginationItem>
                   {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                    <PaginationItem key={page}>
+                    <PaginationItem key={page} className="hidden sm:block">
                       <Button
                         variant={currentPage === page ? "default" : "outline"}
                         size="sm"
@@ -338,6 +342,9 @@ const ManageLinks = () => {
                       </Button>
                     </PaginationItem>
                   ))}
+                  <PaginationItem className="sm:hidden">
+                    <span className="text-sm">{currentPage} / {totalPages}</span>
+                  </PaginationItem>
                   <PaginationItem>
                     <PaginationNext
                       onClick={() =>

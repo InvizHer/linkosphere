@@ -1,3 +1,4 @@
+
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -135,20 +136,20 @@ const CreateLink = () => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="max-w-2xl mx-auto space-y-8 mb-20 md:mb-0"
+      className="w-full max-w-2xl mx-auto space-y-8 mb-20 md:mb-0 px-4 sm:px-6"
     >
-      <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-gray-200 dark:border-gray-700">
-        <CardHeader>
+      <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200 dark:border-gray-700 shadow-lg overflow-hidden">
+        <CardHeader className="bg-gradient-to-r from-primary/5 to-accent/5 pb-4">
           <CardTitle className="flex items-center gap-2 text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
             <Link className="h-6 w-6" />
             Create New Link
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="name" className="flex items-center gap-2">
-                <FileText className="h-4 w-4" />
+              <Label htmlFor="name" className="flex items-center gap-2 text-base font-medium">
+                <FileText className="h-4 w-4 text-primary" />
                 Link Name
               </Label>
               <Input
@@ -159,12 +160,13 @@ const CreateLink = () => {
                 }
                 required
                 className="bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm border-gray-200 dark:border-gray-700 focus:border-primary"
+                placeholder="Enter a name for your link"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description" className="flex items-center gap-2">
-                <FileText className="h-4 w-4" />
+              <Label htmlFor="description" className="flex items-center gap-2 text-base font-medium">
+                <FileText className="h-4 w-4 text-primary" />
                 Description (Max 2 lines)
               </Label>
               <Textarea
@@ -173,14 +175,15 @@ const CreateLink = () => {
                 onChange={(e) =>
                   setFormData({ ...formData, description: e.target.value })
                 }
-                className="bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm border-gray-200 dark:border-gray-700 focus:border-primary"
+                className="bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm border-gray-200 dark:border-gray-700 focus:border-primary min-h-[80px]"
                 rows={2}
+                placeholder="Briefly describe your link (optional)"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="original_url" className="flex items-center gap-2">
-                <Link className="h-4 w-4" />
+              <Label htmlFor="original_url" className="flex items-center gap-2 text-base font-medium">
+                <Link className="h-4 w-4 text-primary" />
                 Original URL
               </Label>
               <Input
@@ -192,21 +195,30 @@ const CreateLink = () => {
                 }
                 required
                 className="bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm border-gray-200 dark:border-gray-700 focus:border-primary"
+                placeholder="https://example.com"
               />
             </div>
 
-            <Accordion type="single" collapsible>
-              <AccordionItem value="advanced">
-                <AccordionTrigger className="text-sm font-medium">
-                  Advanced Options
+            <Accordion type="single" collapsible className="border rounded-lg">
+              <AccordionItem value="advanced" className="border-none">
+                <AccordionTrigger className="px-4 py-2 text-base font-medium hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <ChevronDown className="h-4 w-4 text-primary shrink-0 transition-transform duration-200" />
+                    <span>Advanced Options</span>
+                  </div>
                 </AccordionTrigger>
-                <AccordionContent className="space-y-4">
+                <AccordionContent className="px-4 pb-4 pt-1 space-y-6">
                   <div className="space-y-4">
                     <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <Label htmlFor="custom_thumbnail" className="flex items-center gap-2">
-                          <Image className="h-4 w-4" />
-                          Custom Thumbnail
+                      <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                        <Label htmlFor="custom_thumbnail" className="flex items-center gap-2 cursor-pointer">
+                          <Image className="h-4 w-4 text-primary" />
+                          <div>
+                            <span className="font-medium">Custom Thumbnail</span>
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                              Make your link more visually appealing
+                            </p>
+                          </div>
                         </Label>
                         <Switch
                           id="custom_thumbnail"
@@ -214,13 +226,9 @@ const CreateLink = () => {
                           onCheckedChange={setCustomThumbnail}
                         />
                       </div>
-                      
-                      <div className="text-sm text-gray-500 dark:text-gray-400">
-                        A thumbnail image makes your link more visually appealing. Use a direct image URL (ending in .jpg, .png, etc.)
-                      </div>
 
                       {customThumbnail && (
-                        <div className="space-y-2">
+                        <div className="space-y-3 p-4 border border-dashed border-gray-300 dark:border-gray-700 rounded-lg">
                           <Input
                             id="thumbnail_url"
                             type="url"
@@ -232,7 +240,7 @@ const CreateLink = () => {
                             className="bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm border-gray-200 dark:border-gray-700 focus:border-primary"
                           />
                           {formData.thumbnail_url && (
-                            <div className="mt-2 relative aspect-video rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-900">
+                            <div className="mt-2 relative aspect-video rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-900 border border-gray-200 dark:border-gray-700">
                               <img
                                 src={formData.thumbnail_url}
                                 alt="Thumbnail preview"
@@ -246,10 +254,15 @@ const CreateLink = () => {
                         </div>
                       )}
 
-                      <div className="flex items-center justify-between">
-                        <Label htmlFor="password_protection" className="flex items-center gap-2">
-                          <Lock className="h-4 w-4" />
-                          Password Protection
+                      <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                        <Label htmlFor="password_protection" className="flex items-center gap-2 cursor-pointer">
+                          <Lock className="h-4 w-4 text-primary" />
+                          <div>
+                            <span className="font-medium">Password Protection</span>
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                              Restrict access to your link
+                            </p>
+                          </div>
                         </Label>
                         <Switch
                           id="password_protection"
@@ -258,12 +271,8 @@ const CreateLink = () => {
                         />
                       </div>
 
-                      <div className="text-sm text-gray-500 dark:text-gray-400">
-                        Add a password to restrict access to your link. Only users with the password can view the content.
-                      </div>
-
                       {showPasswordProtection && (
-                        <div className="space-y-4">
+                        <div className="space-y-4 p-4 border border-dashed border-gray-300 dark:border-gray-700 rounded-lg">
                           <Input
                             id="password"
                             type="password"
@@ -274,7 +283,7 @@ const CreateLink = () => {
                             placeholder="Enter a secure password"
                             className="bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm border-gray-200 dark:border-gray-700 focus:border-primary"
                           />
-                          <div className="flex items-center space-x-2">
+                          <div className="flex items-center space-x-2 p-3 bg-gray-50 dark:bg-gray-800/80 rounded-lg">
                             <Switch
                               id="show_password"
                               checked={formData.show_password}
@@ -283,9 +292,9 @@ const CreateLink = () => {
                               }
                             />
                             <div>
-                              <Label htmlFor="show_password">Show password to visitors</Label>
+                              <Label htmlFor="show_password" className="cursor-pointer">Show password to visitors</Label>
                               <p className="text-sm text-gray-500 dark:text-gray-400">
-                                Enable this to display the password on the link page
+                                Display the password on the link page
                               </p>
                             </div>
                           </div>
@@ -299,7 +308,7 @@ const CreateLink = () => {
 
             <Button
               type="submit"
-              className="w-full bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity"
+              className="w-full bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity text-white font-medium py-2 h-12"
             >
               Create Link
             </Button>
@@ -312,7 +321,7 @@ const CreateLink = () => {
           ref={createdLinkRef}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="p-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-lg border border-gray-200 dark:border-gray-700"
+          className="p-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-lg border border-gray-200 dark:border-gray-700 shadow-lg"
         >
           <div className="flex items-center gap-2 mb-4 text-primary">
             <PartyPopper className="h-6 w-6" />
