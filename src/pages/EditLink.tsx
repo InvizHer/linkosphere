@@ -4,15 +4,17 @@ import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/components/ui/use-toast";
-import { Link as LinkIcon, Save, Trash2, ArrowLeft, Eye, Calendar, Clock, ExternalLink, Shield, ChevronRight, Copy } from "lucide-react";
+import { Link as LinkIcon, Save, Trash2, ArrowLeft, Eye, Calendar, Clock, ExternalLink, Shield, ChevronRight, Copy, PieChart, BarChart, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { BarChart as RechartsBarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const EditLink = () => {
+  // Extract the id parameter from the URL
   const { id } = useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -27,17 +29,27 @@ const EditLink = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (user) {
+    if (user && id) {
       fetchLink();
       fetchLinkStats();
+    } else if (!id) {
+      setError("Link ID is missing. Please go back and try again.");
+      setLoading(false);
     }
   }, [user, id]);
 
   const fetchLink = async () => {
     try {
       setLoading(true);
+      setError(null);
+      
+      if (!id) {
+        throw new Error("Link ID is missing");
+      }
+      
       const { data, error } = await supabase
         .from("links")
         .select("*")
@@ -54,17 +66,23 @@ const EditLink = () => {
       setShowPassword(data.show_password || false);
       setLoading(false);
     } catch (error: any) {
+      console.error("Error fetching link:", error.message);
+      setError(error.message);
       toast({
         title: "Error",
         description: error.message,
         variant: "destructive",
       });
-      navigate("/dashboard/manage");
+      setLoading(false);
     }
   };
 
   const fetchLinkStats = async () => {
     try {
+      if (!id) {
+        return;
+      }
+      
       // Get view timestamps from link_views table
       const { data: viewsData, error: viewsError } = await supabase
         .from("link_views")
@@ -210,6 +228,23 @@ const EditLink = () => {
           <Skeleton className="h-36 w-full" />
           <Skeleton className="h-64 w-full" />
         </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        <Alert variant="destructive" className="mb-4">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+        <Button
+          variant="outline"
+          onClick={() => navigate("/dashboard/manage")}
+          className="mt-4"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" /> Back to Link Management
+        </Button>
       </div>
     );
   }

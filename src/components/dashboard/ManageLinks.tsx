@@ -93,6 +93,10 @@ const ManageLinks = () => {
     });
   };
 
+  const handleEditLink = (link: any) => {
+    navigate(`/dashboard/edit/${link.id}`);
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -221,7 +225,7 @@ const ManageLinks = () => {
                             <Button
                               variant="ghost"
                               size="icon"
-                              onClick={() => navigate(`/dashboard/edit?token=${link.token}`)}
+                              onClick={() => handleEditLink(link)}
                               className="hover:bg-primary/10"
                               title="Edit"
                             >
@@ -288,7 +292,7 @@ const ManageLinks = () => {
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => navigate(`/dashboard/edit?token=${link.token}`)}
+                          onClick={() => handleEditLink(link)}
                           className="h-7 w-7 hover:bg-primary/10"
                           title="Edit"
                         >
