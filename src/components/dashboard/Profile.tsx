@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -54,17 +55,31 @@ const Profile = () => {
     try {
       setLoading(true);
       
+      if (!user?.id) {
+        console.log("No user ID available");
+        setLoading(false);
+        return;
+      }
+      
       const { data, error } = await supabase
         .from("profiles")
         .select("*")
         .eq("id", user?.id)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching profile:", error.message);
+        // If profile doesn't exist, create it
+        if (error.code === "PGRST116") {
+          await createDefaultProfile();
+          return;
+        }
+        throw error;
+      }
 
       setProfile(data);
-      setUsername(data.username || "");
-      setAvatarUrl(data.avatar_url || "");
+      setUsername(data?.username || "");
+      setAvatarUrl(data?.avatar_url || "");
       setLoading(false);
     } catch (error: any) {
       console.error("Error fetching profile:", error.message);
@@ -72,8 +87,37 @@ const Profile = () => {
     }
   };
   
+  const createDefaultProfile = async () => {
+    try {
+      if (!user?.id) return;
+      
+      const defaultUsername = user.email?.split('@')[0] || "user";
+      
+      const { data, error } = await supabase
+        .from("profiles")
+        .insert({
+          id: user.id,
+          username: defaultUsername,
+          updated_at: new Date().toISOString()
+        })
+        .select()
+        .single();
+        
+      if (error) throw error;
+      
+      setProfile(data);
+      setUsername(data.username || "");
+      setLoading(false);
+    } catch (error: any) {
+      console.error("Error creating default profile:", error.message);
+      setLoading(false);
+    }
+  };
+  
   const fetchUserStats = async () => {
     try {
+      if (!user?.id) return;
+      
       // Get links count
       const { data: linksData, error: linksError } = await supabase
         .from("links")
@@ -177,7 +221,6 @@ const Profile = () => {
       // Refresh profile data
       fetchProfile();
       
-      setLoading(false);
     } catch (error: any) {
       setLoading(false);
       toast({
