@@ -1,3 +1,4 @@
+
 import { BrowserRouter as Router } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { Toaster } from "@/components/ui/toaster";
@@ -7,7 +8,6 @@ import Dashboard from "@/pages/Dashboard";
 import Index from "@/pages/Index";
 import NotFound from "@/pages/NotFound";
 import ViewLink from "@/pages/ViewLink";
-import EditLink from "@/pages/EditLink";
 import { Routes, Route } from "react-router-dom";
 
 const queryClient = new QueryClient();
@@ -22,7 +22,6 @@ function App() {
               <Route path="/" element={<Index />} />
               <Route path="/dashboard/*" element={<Dashboard />} />
               <Route path="/view" element={<ViewLink />} />
-              <Route path="/dashboard/edit" element={<EditLink />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
             <Toaster />

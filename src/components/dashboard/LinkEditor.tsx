@@ -55,7 +55,7 @@ const LinkEditor = () => {
   useEffect(() => {
     fetchLink();
     fetchLinkStats();
-  }, [linkId]);
+  }, [linkId, user?.id]);
 
   const fetchLink = async () => {
     if (!linkId) {
@@ -68,6 +68,11 @@ const LinkEditor = () => {
       return;
     }
 
+    if (!user?.id) {
+      // Wait for user to be loaded
+      return;
+    }
+
     try {
       setLoading(true);
       
@@ -76,7 +81,7 @@ const LinkEditor = () => {
         .from("links")
         .select("*")
         .eq("id", linkId)
-        .eq("user_id", user?.id)
+        .eq("user_id", user.id)
         .maybeSingle();
 
       if (error) throw error;
@@ -113,7 +118,7 @@ const LinkEditor = () => {
   };
 
   const fetchLinkStats = async () => {
-    if (!linkId) return;
+    if (!linkId || !user?.id) return;
     
     try {
       const { data, error } = await supabase
