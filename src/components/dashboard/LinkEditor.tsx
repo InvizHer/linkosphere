@@ -53,10 +53,8 @@ const LinkEditor = () => {
   const [thumbnailUrl, setThumbnailUrl] = useState("");
 
   useEffect(() => {
-    if (user?.id) {
-      fetchLink();
-      fetchLinkStats();
-    }
+    fetchLink();
+    fetchLinkStats();
   }, [linkId, user?.id]);
 
   const fetchLink = async () => {

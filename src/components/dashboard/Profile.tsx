@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -55,31 +54,17 @@ const Profile = () => {
     try {
       setLoading(true);
       
-      if (!user?.id) {
-        console.log("No user ID available");
-        setLoading(false);
-        return;
-      }
-      
       const { data, error } = await supabase
         .from("profiles")
         .select("*")
         .eq("id", user?.id)
         .single();
 
-      if (error) {
-        console.error("Error fetching profile:", error.message);
-        // If profile doesn't exist, create it
-        if (error.code === "PGRST116") {
-          await createDefaultProfile();
-          return;
-        }
-        throw error;
-      }
+      if (error) throw error;
 
       setProfile(data);
-      setUsername(data?.username || "");
-      setAvatarUrl(data?.avatar_url || "");
+      setUsername(data.username || "");
+      setAvatarUrl(data.avatar_url || "");
       setLoading(false);
     } catch (error: any) {
       console.error("Error fetching profile:", error.message);
@@ -87,37 +72,8 @@ const Profile = () => {
     }
   };
   
-  const createDefaultProfile = async () => {
-    try {
-      if (!user?.id) return;
-      
-      const defaultUsername = user.email?.split('@')[0] || "user";
-      
-      const { data, error } = await supabase
-        .from("profiles")
-        .insert({
-          id: user.id,
-          username: defaultUsername,
-          updated_at: new Date().toISOString()
-        })
-        .select()
-        .single();
-        
-      if (error) throw error;
-      
-      setProfile(data);
-      setUsername(data.username || "");
-      setLoading(false);
-    } catch (error: any) {
-      console.error("Error creating default profile:", error.message);
-      setLoading(false);
-    }
-  };
-  
   const fetchUserStats = async () => {
     try {
-      if (!user?.id) return;
-      
       // Get links count
       const { data: linksData, error: linksError } = await supabase
         .from("links")
@@ -221,6 +177,7 @@ const Profile = () => {
       // Refresh profile data
       fetchProfile();
       
+      setLoading(false);
     } catch (error: any) {
       setLoading(false);
       toast({
@@ -389,186 +346,184 @@ const Profile = () => {
             </CardHeader>
             
             <CardContent className="pt-5">
-              <Tabs defaultValue="profile" value={activeTab} className="w-full" onValueChange={setActiveTab}>
-                <TabsContent value="profile" className="mt-0">
-                  <form onSubmit={handleUpdateProfile} className="space-y-5">
-                    <div className="flex items-center justify-center p-2 mb-4">
-                      <div className="flex flex-col items-center space-y-3">
-                        <div className="relative group">
-                          <div className="w-28 h-28 rounded-full overflow-hidden border-2 border-gray-200 dark:border-gray-700 shadow-md bg-gray-50 dark:bg-gray-800">
-                            {avatarUrl ? (
-                              <img 
-                                src={avatarUrl} 
-                                alt="Avatar" 
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center bg-primary/5">
-                                <User className="h-12 w-12 text-primary/40" />
-                              </div>
-                            )}
-                          </div>
-                          <Label 
-                            htmlFor="avatar"
-                            className="absolute bottom-0 right-0 bg-primary text-white p-2 rounded-full cursor-pointer shadow-md hover:bg-primary/90 transition-colors"
-                          >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-pencil"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
-                          </Label>
-                          <Input 
-                            id="avatar" 
-                            type="file" 
-                            accept="image/*"
-                            onChange={handleAvatarChange}
-                            className="hidden" 
-                          />
+              <TabsContent value="profile" className="mt-0">
+                <form onSubmit={handleUpdateProfile} className="space-y-5">
+                  <div className="flex items-center justify-center p-2 mb-4">
+                    <div className="flex flex-col items-center space-y-3">
+                      <div className="relative group">
+                        <div className="w-28 h-28 rounded-full overflow-hidden border-2 border-gray-200 dark:border-gray-700 shadow-md bg-gray-50 dark:bg-gray-800">
+                          {avatarUrl ? (
+                            <img 
+                              src={avatarUrl} 
+                              alt="Avatar" 
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-primary/5">
+                              <User className="h-12 w-12 text-primary/40" />
+                            </div>
+                          )}
                         </div>
-                        
-                        <div className="text-center">
-                          <h3 className="font-medium text-lg">{profile?.username || user?.email?.split('@')[0]}</h3>
-                          <p className="text-sm text-gray-500">{user?.email}</p>
-                        </div>
+                        <Label 
+                          htmlFor="avatar"
+                          className="absolute bottom-0 right-0 bg-primary text-white p-2 rounded-full cursor-pointer shadow-md hover:bg-primary/90 transition-colors"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-pencil"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+                        </Label>
+                        <Input 
+                          id="avatar" 
+                          type="file" 
+                          accept="image/*"
+                          onChange={handleAvatarChange}
+                          className="hidden" 
+                        />
+                      </div>
+                      
+                      <div className="text-center">
+                        <h3 className="font-medium text-lg">{profile?.username || user?.email?.split('@')[0]}</h3>
+                        <p className="text-sm text-gray-500">{user?.email}</p>
                       </div>
                     </div>
-                    
-                    <div className="space-y-4 pt-2">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="email" className="text-sm font-medium">Email Address</Label>
-                          <div className="relative">
-                            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
-                            <Input
-                              id="email"
-                              type="email"
-                              value={user?.email || ""}
-                              disabled
-                              className="pl-10 bg-gray-50 dark:bg-gray-800"
-                            />
-                          </div>
-                          <div className="flex items-center gap-1 text-xs text-green-600 mt-1">
-                            <CheckCircle className="h-3 w-3" />
-                            <span>Verified email</span>
-                          </div>
+                  </div>
+                  
+                  <div className="space-y-4 pt-2">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="email" className="text-sm font-medium">Email Address</Label>
+                        <div className="relative">
+                          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+                          <Input
+                            id="email"
+                            type="email"
+                            value={user?.email || ""}
+                            disabled
+                            className="pl-10 bg-gray-50 dark:bg-gray-800"
+                          />
                         </div>
-                        
-                        <div className="space-y-2">
-                          <Label htmlFor="username" className="text-sm font-medium">Username</Label>
-                          <div className="relative">
-                            <AtSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
-                            <Input
-                              id="username"
-                              type="text"
-                              placeholder="Enter your username"
-                              value={username}
-                              onChange={(e) => setUsername(e.target.value)}
-                              className="pl-10"
-                              required
-                            />
-                          </div>
+                        <div className="flex items-center gap-1 text-xs text-green-600 mt-1">
+                          <CheckCircle className="h-3 w-3" />
+                          <span>Verified email</span>
                         </div>
                       </div>
                       
-                      <div className="pt-3">
-                        <Button type="submit" disabled={loading} className="w-full md:w-auto">
-                          {loading ? (
-                            "Saving..."
-                          ) : (
-                            <>
-                              <Save className="mr-2 h-4 w-4" /> Save Profile
-                            </>
-                          )}
-                        </Button>
-                      </div>
-                    </div>
-                  </form>
-                </TabsContent>
-                
-                <TabsContent value="security" className="mt-0">
-                  <form onSubmit={handleUpdatePassword} className="space-y-5">
-                    <div className="flex items-center gap-2 mb-4">
-                      <div className="p-2 rounded-full bg-blue-100 dark:bg-blue-900/20">
-                        <Lock className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                      </div>
-                      <h3 className="font-medium">Change Password</h3>
-                    </div>
-                    
-                    {passwordError && (
-                      <Alert variant="destructive" className="mb-4">
-                        <AlertDescription>{passwordError}</AlertDescription>
-                      </Alert>
-                    )}
-                    
-                    <div className="space-y-4">
                       <div className="space-y-2">
-                        <Label htmlFor="current-password" className="text-sm font-medium">Current Password</Label>
+                        <Label htmlFor="username" className="text-sm font-medium">Username</Label>
                         <div className="relative">
-                          <Key className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+                          <AtSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
                           <Input
-                            id="current-password"
+                            id="username"
+                            type="text"
+                            placeholder="Enter your username"
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
+                            className="pl-10"
+                            required
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="pt-3">
+                      <Button type="submit" disabled={loading} className="w-full md:w-auto">
+                        {loading ? (
+                          "Saving..."
+                        ) : (
+                          <>
+                            <Save className="mr-2 h-4 w-4" /> Save Profile
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+                </form>
+              </TabsContent>
+              
+              <TabsContent value="security" className="mt-0">
+                <form onSubmit={handleUpdatePassword} className="space-y-5">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="p-2 rounded-full bg-blue-100 dark:bg-blue-900/20">
+                      <Lock className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <h3 className="font-medium">Change Password</h3>
+                  </div>
+                  
+                  {passwordError && (
+                    <Alert variant="destructive" className="mb-4">
+                      <AlertDescription>{passwordError}</AlertDescription>
+                    </Alert>
+                  )}
+                  
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="current-password" className="text-sm font-medium">Current Password</Label>
+                      <div className="relative">
+                        <Key className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+                        <Input
+                          id="current-password"
+                          type="password"
+                          placeholder="Enter your current password"
+                          value={oldPassword}
+                          onChange={(e) => setOldPassword(e.target.value)}
+                          className="pl-10"
+                          required
+                        />
+                      </div>
+                    </div>
+                    
+                    <Separator className="my-2" />
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="new-password" className="text-sm font-medium">New Password</Label>
+                        <div className="relative">
+                          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+                          <Input
+                            id="new-password"
                             type="password"
-                            placeholder="Enter your current password"
-                            value={oldPassword}
-                            onChange={(e) => setOldPassword(e.target.value)}
+                            placeholder="Enter new password"
+                            value={newPassword}
+                            onChange={(e) => setNewPassword(e.target.value)}
                             className="pl-10"
                             required
                           />
                         </div>
                       </div>
                       
-                      <Separator className="my-2" />
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="new-password" className="text-sm font-medium">New Password</Label>
-                          <div className="relative">
-                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
-                            <Input
-                              id="new-password"
-                              type="password"
-                              placeholder="Enter new password"
-                              value={newPassword}
-                              onChange={(e) => setNewPassword(e.target.value)}
-                              className="pl-10"
-                              required
-                            />
-                          </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="confirm-password" className="text-sm font-medium">Confirm Password</Label>
+                        <div className="relative">
+                          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+                          <Input
+                            id="confirm-password"
+                            type="password"
+                            placeholder="Confirm new password"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            className="pl-10"
+                            required
+                          />
                         </div>
-                        
-                        <div className="space-y-2">
-                          <Label htmlFor="confirm-password" className="text-sm font-medium">Confirm Password</Label>
-                          <div className="relative">
-                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
-                            <Input
-                              id="confirm-password"
-                              type="password"
-                              placeholder="Confirm new password"
-                              value={confirmPassword}
-                              onChange={(e) => setConfirmPassword(e.target.value)}
-                              className="pl-10"
-                              required
-                            />
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <p className="text-xs text-gray-500 mt-1">
-                        Password must be at least 6 characters long.
-                      </p>
-                      
-                      <div className="pt-2">
-                        <Button type="submit" disabled={loading || verifyingPassword} className="w-full md:w-auto">
-                          {loading || verifyingPassword ? (
-                            "Updating..."
-                          ) : (
-                            <>
-                              <Shield className="mr-2 h-4 w-4" /> Update Password
-                            </>
-                          )}
-                        </Button>
                       </div>
                     </div>
-                  </form>
-                </TabsContent>
-              </Tabs>
+                    
+                    <p className="text-xs text-gray-500 mt-1">
+                      Password must be at least 6 characters long.
+                    </p>
+                    
+                    <div className="pt-2">
+                      <Button type="submit" disabled={loading || verifyingPassword} className="w-full md:w-auto">
+                        {loading || verifyingPassword ? (
+                          "Updating..."
+                        ) : (
+                          <>
+                            <Shield className="mr-2 h-4 w-4" /> Update Password
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+                </form>
+              </TabsContent>
             </CardContent>
           </Card>
         </div>

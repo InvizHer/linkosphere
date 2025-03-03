@@ -1,6 +1,6 @@
 
 import { useNavigate, useLocation } from "react-router-dom";
-import { PlusCircle, List, BarChart2, Home } from "lucide-react";
+import { PlusCircle, List, BarChart2, Home, UserCircle } from "lucide-react";
 import { motion } from "framer-motion";
 
 export const MobileFooter = () => {
@@ -13,6 +13,7 @@ export const MobileFooter = () => {
     { id: "create", label: "Create", icon: PlusCircle },
     { id: "manage", label: "Links", icon: List },
     { id: "stats", label: "Stats", icon: BarChart2 },
+    { id: "profile", label: "Profile", icon: UserCircle },
   ];
 
   return (
@@ -21,7 +22,7 @@ export const MobileFooter = () => {
       animate={{ opacity: 1, y: 0 }}
       className="fixed bottom-0 left-0 right-0 md:hidden bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl border-t border-gray-200 dark:border-gray-800 shadow-lg z-50"
     >
-      <nav className="grid grid-cols-4 p-1">
+      <nav className="grid grid-cols-5 p-1">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = currentPath === tab.id;
