@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,7 +13,7 @@ import {
   Eye,
   Calendar,
   Heart,
-  LinkIcon,
+  Link as LinkIcon,
   Facebook,
   Twitter,
   MessageCircle,
@@ -60,24 +59,32 @@ const ViewLink = () => {
         return;
       }
 
-      const { data, error } = await supabase
-        .from("links")
-        .select("*")
-        .eq("token", token)
-        .single();
+      try {
+        const { data, error } = await supabase
+          .from("links")
+          .select("*")
+          .eq("token", token)
+          .maybeSingle();
 
-      if (error) {
+        if (error) throw error;
+        
+        if (!data) {
+          setError("Link not found");
+          setLoading(false);
+          return;
+        }
+
+        setLink(data);
+        setLoading(false);
+
+        // Record view if not password protected or already verified
+        if (!data.password || isVerified) {
+          await recordView(data.id);
+        }
+      } catch (err) {
+        console.error("Error fetching link:", err);
         setError("Link not found");
         setLoading(false);
-        return;
-      }
-
-      setLink(data);
-      setLoading(false);
-
-      // Record view if not password protected or already verified
-      if (!data.password || isVerified) {
-        await recordView(data.id);
       }
     };
 
@@ -86,15 +93,27 @@ const ViewLink = () => {
 
   const recordView = async (linkId: string) => {
     try {
+      console.log("Recording view for link:", linkId);
+      
       // Insert view record
-      await supabase.from("link_views").insert({
+      const { error: viewError } = await supabase.from("link_views").insert({
         link_id: linkId,
         ip_address: "anonymous", // You could implement IP tracking if needed
         user_agent: navigator.userAgent,
       });
 
+      if (viewError) {
+        console.error("Error inserting view record:", viewError);
+      }
+
       // Increment the views counter
-      await supabase.rpc("increment_link_views", { link_id: linkId });
+      const { error: incrementError } = await supabase.rpc("increment_link_views", { 
+        link_id: linkId 
+      });
+
+      if (incrementError) {
+        console.error("Error incrementing views:", incrementError);
+      }
     } catch (error) {
       console.error("Error recording view:", error);
     }
