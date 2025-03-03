@@ -65,16 +65,30 @@ const ViewLink = () => {
     if (viewCounted) return; // Prevent multiple view counts
 
     try {
+      console.log("Recording view for link ID:", linkId);
+      
       // Try to use the RPC function first (preferred method)
       const { error: rpcError } = await supabase.rpc('increment_link_views', { link_id: linkId });
-
+      
       // If RPC fails, fall back to direct update
       if (rpcError) {
         console.log("RPC failed, using direct update:", rpcError);
         
+        // First get the current view count
+        const { data: linkData, error: fetchError } = await supabase
+          .from("links")
+          .select("views")
+          .eq("id", linkId)
+          .single();
+          
+        if (fetchError) throw fetchError;
+        
+        const currentViews = linkData?.views || 0;
+        
+        // Then update with incremented value
         const { error: updateError } = await supabase
           .from("links")
-          .update({ views: (link?.views || 0) + 1 })
+          .update({ views: currentViews + 1 })
           .eq("id", linkId);
           
         if (updateError) throw updateError;
@@ -92,6 +106,7 @@ const ViewLink = () => {
         console.error("Error recording view stat:", viewError);
       }
       
+      console.log("View recorded successfully");
       setViewCounted(true);
     } catch (error: any) {
       console.error("Error recording view:", error);
