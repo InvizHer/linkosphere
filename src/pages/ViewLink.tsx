@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -49,6 +50,7 @@ const ViewLink = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isVerified, setIsVerified] = useState(false);
+  const [viewRecorded, setViewRecorded] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -92,9 +94,31 @@ const ViewLink = () => {
   }, [token, isVerified]);
 
   const recordView = async (linkId: string) => {
+    // Skip if view has already been recorded
+    if (viewRecorded) return;
+
     try {
       console.log("Recording view for link:", linkId);
       
+      // First try to use the RPC function
+      const { error: rpcError } = await supabase.rpc("increment_link_views", { 
+        link_id: linkId 
+      });
+
+      if (rpcError) {
+        console.error("Error using RPC for view increment, falling back to direct update:", rpcError);
+        
+        // Fallback: Update the views counter directly if RPC fails
+        const { error: updateError } = await supabase
+          .from("links")
+          .update({ views: (link.views || 0) + 1 })
+          .eq("id", linkId);
+          
+        if (updateError) {
+          console.error("Error updating views directly:", updateError);
+        }
+      }
+
       // Insert view record
       const { error: viewError } = await supabase.from("link_views").insert({
         link_id: linkId,
@@ -104,15 +128,15 @@ const ViewLink = () => {
 
       if (viewError) {
         console.error("Error inserting view record:", viewError);
-      }
-
-      // Increment the views counter
-      const { error: incrementError } = await supabase.rpc("increment_link_views", { 
-        link_id: linkId 
-      });
-
-      if (incrementError) {
-        console.error("Error incrementing views:", incrementError);
+      } else {
+        // Mark that we've recorded the view to prevent duplicates
+        setViewRecorded(true);
+        
+        // Update local state to show the incremented view count immediately
+        setLink(prev => ({
+          ...prev,
+          views: (prev.views || 0) + 1
+        }));
       }
     } catch (error) {
       console.error("Error recording view:", error);
