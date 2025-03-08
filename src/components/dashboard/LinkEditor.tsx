@@ -8,7 +8,6 @@ import {
   Card, 
   CardContent, 
   CardDescription, 
-  CardFooter, 
   CardHeader, 
   CardTitle 
 } from "@/components/ui/card";
@@ -51,6 +50,7 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 // Define form schema
 const linkFormSchema = z.object({
@@ -69,6 +69,7 @@ const LinkEditor = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
 
   const [link, setLink] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -287,24 +288,24 @@ const LinkEditor = () => {
     <div className="container mx-auto px-4 py-6 max-w-5xl mb-20">
       {/* Header with Back Button */}
       <div className="mb-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => navigate("/dashboard/manage")}
-            className="text-gray-500 hover:text-primary"
+            className="text-gray-500 hover:text-primary w-fit"
           >
             <ArrowLeft className="h-4 w-4 mr-1" /> Back to Manage Links
           </Button>
           
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Badge variant="outline" className="flex items-center gap-1 text-xs">
               <Calendar className="h-3 w-3" /> 
-              Created: {format(new Date(link?.created_at), 'MMM dd, yyyy')}
+              {link?.created_at ? format(new Date(link.created_at), 'MMM dd, yyyy') : 'N/A'}
             </Badge>
             <Badge variant="outline" className="flex items-center gap-1 text-xs">
               <Clock className="h-3 w-3" /> 
-              Updated: {format(new Date(link?.updated_at), 'MMM dd, yyyy')}
+              {link?.updated_at ? format(new Date(link.updated_at), 'MMM dd, yyyy') : 'N/A'}
             </Badge>
           </div>
         </div>
@@ -314,14 +315,14 @@ const LinkEditor = () => {
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
             {link?.name}
           </h1>
-          <div className="flex items-center flex-wrap gap-2 text-sm text-gray-500 mt-2">
+          <div className="flex flex-wrap items-center gap-2 text-sm text-gray-500 mt-2">
             <div 
-              className="group flex items-center gap-1.5 bg-primary/10 px-3 py-1 rounded-full cursor-pointer"
+              className="group flex items-center gap-1.5 bg-primary/10 px-3 py-1 rounded-full cursor-pointer max-w-full"
               onClick={copyLinkToClipboard}
             >
-              <Link className="h-3.5 w-3.5 text-primary" />
-              <span className="font-mono text-primary">{window.location.origin}/view?token={link?.token}</span>
-              <Copy className="h-3.5 w-3.5 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+              <Link className="h-3.5 w-3.5 text-primary flex-shrink-0" />
+              <span className="font-mono text-primary truncate">{window.location.origin}/view?token={link?.token}</span>
+              <Copy className="h-3.5 w-3.5 text-primary opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
             </div>
             <Badge variant="secondary" className="flex items-center gap-1">
               <Eye className="h-3.5 w-3.5" /> {link?.views || 0} views
@@ -335,18 +336,18 @@ const LinkEditor = () => {
         <div className="lg:col-span-2">
           <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid grid-cols-2 w-full mb-6">
-              <TabsTrigger value="details">
-                <FileText className="h-4 w-4 mr-2" /> Link Details
+              <TabsTrigger value="details" className="text-xs sm:text-sm">
+                <FileText className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" /> Link Details
               </TabsTrigger>
-              <TabsTrigger value="analytics">
-                <BarChart2 className="h-4 w-4 mr-2" /> Analytics
+              <TabsTrigger value="analytics" className="text-xs sm:text-sm">
+                <BarChart2 className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" /> Analytics
               </TabsTrigger>
             </TabsList>
             
             <TabsContent value="details">
               <Card className="shadow-md border border-gray-100 dark:border-gray-800">
-                <CardHeader>
-                  <CardTitle className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                <CardHeader className="p-4 sm:p-6">
+                  <CardTitle className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100">
                     Edit Link Details
                   </CardTitle>
                   <CardDescription>
@@ -354,9 +355,9 @@ const LinkEditor = () => {
                   </CardDescription>
                 </CardHeader>
                 
-                <CardContent>
+                <CardContent className="p-4 sm:p-6 pt-0">
                   <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
                       <div className="grid md:grid-cols-2 gap-4">
                         <FormField
                           control={form.control}
@@ -374,25 +375,27 @@ const LinkEditor = () => {
                         
                         <div className="space-y-2">
                           <Label htmlFor="token">Short Link Token</Label>
-                          <div className="flex items-center gap-2">
-                            <div className="bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400 px-3 py-2 rounded-l-md border border-r-0 border-gray-200 dark:border-gray-700">
-                              {window.location.origin}/view?token=
-                            </div>
+                          <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                            {!isMobile ? (
+                              <div className="bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400 px-3 py-2 rounded-l-md border border-r-0 border-gray-200 dark:border-gray-700 text-xs sm:text-sm truncate max-w-[120px] sm:max-w-none">
+                                {window.location.origin}/view?token=
+                              </div>
+                            ) : null}
                             <Input
                               id="token"
                               value={link?.token || ""}
                               readOnly
-                              className="rounded-l-none font-mono bg-gray-50 dark:bg-gray-800"
+                              className={`${!isMobile ? "rounded-l-none" : ""} font-mono bg-gray-50 dark:bg-gray-800 text-xs sm:text-sm flex-grow`}
                             />
                             <Button
                               type="button"
                               variant="outline"
                               size="icon"
                               onClick={copyLinkToClipboard}
-                              className="flex-shrink-0"
+                              className="flex-shrink-0 h-9 w-9"
                               title="Copy link"
                             >
-                              <Copy className="h-4 w-4" />
+                              <Copy className="h-3 w-3 sm:h-4 sm:w-4" />
                             </Button>
                           </div>
                         </div>
@@ -406,11 +409,11 @@ const LinkEditor = () => {
                             <FormLabel>Original URL</FormLabel>
                             <div className="flex items-center gap-2">
                               <div className="relative flex-grow">
-                                <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+                                <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-3 w-3 sm:h-4 sm:w-4 text-gray-500" />
                                 <FormControl>
                                   <Input
                                     placeholder="https://example.com/your-long-url"
-                                    className="pl-10"
+                                    className="pl-8 sm:pl-10 text-xs sm:text-sm"
                                     {...field}
                                   />
                                 </FormControl>
@@ -420,10 +423,10 @@ const LinkEditor = () => {
                                 variant="outline"
                                 size="icon"
                                 onClick={openOriginalUrl}
-                                className="flex-shrink-0"
+                                className="flex-shrink-0 h-9 w-9"
                                 title="Open original URL"
                               >
-                                <ExternalLink className="h-4 w-4" />
+                                <ExternalLink className="h-3 w-3 sm:h-4 sm:w-4" />
                               </Button>
                             </div>
                             <FormMessage />
@@ -440,7 +443,7 @@ const LinkEditor = () => {
                             <FormControl>
                               <Textarea
                                 placeholder="Describe what this link is for..."
-                                className="resize-none"
+                                className="resize-none text-xs sm:text-sm"
                                 rows={3}
                                 {...field}
                               />
@@ -458,17 +461,17 @@ const LinkEditor = () => {
                             <FormLabel>Thumbnail URL (Optional)</FormLabel>
                             <div className="flex items-center gap-2">
                               <div className="relative flex-grow">
-                                <Image className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+                                <Image className="absolute left-3 top-1/2 -translate-y-1/2 h-3 w-3 sm:h-4 sm:w-4 text-gray-500" />
                                 <FormControl>
                                   <Input
                                     placeholder="https://example.com/image.jpg"
-                                    className="pl-10"
+                                    className="pl-8 sm:pl-10 text-xs sm:text-sm"
                                     {...field}
                                   />
                                 </FormControl>
                               </div>
                               {field.value && (
-                                <div className="h-10 w-10 rounded overflow-hidden flex-shrink-0 border border-gray-200 dark:border-gray-700">
+                                <div className="h-9 w-9 rounded overflow-hidden flex-shrink-0 border border-gray-200 dark:border-gray-700">
                                   <img
                                     src={field.value}
                                     alt="Thumbnail"
@@ -484,8 +487,8 @@ const LinkEditor = () => {
                       />
                       
                       <div className="space-y-4 pt-4 border-t border-gray-100 dark:border-gray-800">
-                        <h3 className="font-medium flex items-center gap-2">
-                          <Lock className="h-4 w-4 text-gray-500" />
+                        <h3 className="font-medium flex items-center gap-2 text-sm">
+                          <Lock className="h-3 w-3 sm:h-4 sm:w-4 text-gray-500" />
                           Password Protection
                         </h3>
                         
@@ -499,10 +502,11 @@ const LinkEditor = () => {
                                 <Input
                                   type="text"
                                   placeholder="Leave empty for no password"
+                                  className="text-xs sm:text-sm"
                                   {...field}
                                 />
                               </FormControl>
-                              <FormDescription>
+                              <FormDescription className="text-xs">
                                 Add a password to restrict access to your link
                               </FormDescription>
                               <FormMessage />
@@ -514,7 +518,7 @@ const LinkEditor = () => {
                           control={form.control}
                           name="show_password"
                           render={({ field }) => (
-                            <FormItem className="flex items-center space-x-2">
+                            <FormItem className="flex items-start sm:items-center space-x-2 sm:space-x-3">
                               <FormControl>
                                 <Switch
                                   checked={field.value}
@@ -522,8 +526,8 @@ const LinkEditor = () => {
                                 />
                               </FormControl>
                               <div className="space-y-0.5">
-                                <FormLabel>Show password to visitors</FormLabel>
-                                <FormDescription>
+                                <FormLabel className="text-sm">Show password to visitors</FormLabel>
+                                <FormDescription className="text-xs">
                                   Display the password on the link page
                                 </FormDescription>
                               </div>
@@ -532,7 +536,7 @@ const LinkEditor = () => {
                         />
                       </div>
                       
-                      <div className="flex justify-between pt-4">
+                      <div className="flex flex-col-reverse sm:flex-row sm:justify-between pt-4 gap-3">
                         <Button
                           type="button"
                           variant="outline"
@@ -540,7 +544,7 @@ const LinkEditor = () => {
                           onClick={handleDelete}
                           disabled={deleting}
                         >
-                          <Trash2 className="h-4 w-4 mr-2" />
+                          <Trash2 className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
                           {deleting ? "Deleting..." : "Delete Link"}
                         </Button>
                         
@@ -549,7 +553,7 @@ const LinkEditor = () => {
                             "Saving..."
                           ) : (
                             <>
-                              <Save className="h-4 w-4 mr-2" />
+                              <Save className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
                               Save Changes
                             </>
                           )}
@@ -563,49 +567,51 @@ const LinkEditor = () => {
             
             <TabsContent value="analytics">
               <Card className="shadow-md border border-gray-100 dark:border-gray-800">
-                <CardHeader>
-                  <CardTitle className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                <CardHeader className="p-4 sm:p-6">
+                  <CardTitle className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100">
                     Link Statistics
                   </CardTitle>
                   <CardDescription>
                     View performance metrics for this link
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+                <CardContent className="p-4 sm:p-6 pt-0">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
                     <Card className="bg-primary/5 border-primary/10">
                       <CardContent className="p-4 text-center">
                         <p className="text-xs uppercase text-gray-500 dark:text-gray-400 mb-1">Total Views</p>
-                        <p className="text-3xl font-bold text-primary">{link?.views || 0}</p>
+                        <p className="text-2xl sm:text-3xl font-bold text-primary">{link?.views || 0}</p>
                       </CardContent>
                     </Card>
                     <Card className="bg-primary/5 border-primary/10">
                       <CardContent className="p-4 text-center">
                         <p className="text-xs uppercase text-gray-500 dark:text-gray-400 mb-1">Unique Visits</p>
-                        <p className="text-3xl font-bold text-primary">{stats.length}</p>
+                        <p className="text-2xl sm:text-3xl font-bold text-primary">{stats.length}</p>
                       </CardContent>
                     </Card>
-                    <Card className="bg-primary/5 border-primary/10 col-span-2 md:col-span-1">
+                    <Card className="bg-primary/5 border-primary/10">
                       <CardContent className="p-4 text-center">
                         <p className="text-xs uppercase text-gray-500 dark:text-gray-400 mb-1">Created</p>
-                        <p className="text-lg font-semibold text-primary">{format(new Date(link?.created_at), 'MMM dd, yyyy')}</p>
+                        <p className="text-lg font-semibold text-primary">
+                          {link?.created_at ? format(new Date(link.created_at), 'MMM dd, yyyy') : 'N/A'}
+                        </p>
                       </CardContent>
                     </Card>
                   </div>
                   
                   <div className="space-y-4">
                     <h3 className="text-sm font-medium flex items-center gap-1.5">
-                      <Clock className="h-4 w-4 text-gray-500" />
+                      <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-gray-500" />
                       Recent Activity
                     </h3>
                     {stats.length === 0 ? (
-                      <div className="text-center py-10 text-gray-500 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-                        <Eye className="h-10 w-10 mx-auto mb-2 opacity-30" />
-                        <p className="text-lg font-medium">No views recorded yet</p>
-                        <p className="text-sm mt-1">Views will appear here once your link is visited</p>
+                      <div className="text-center py-6 sm:py-10 text-gray-500 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                        <Eye className="h-8 w-8 sm:h-10 sm:w-10 mx-auto mb-2 opacity-30" />
+                        <p className="text-base sm:text-lg font-medium">No views recorded yet</p>
+                        <p className="text-xs sm:text-sm mt-1">Views will appear here once your link is visited</p>
                       </div>
                     ) : (
-                      <div className="space-y-2 max-h-96 overflow-y-auto pr-2">
+                      <div className="space-y-2 max-h-60 sm:max-h-96 overflow-y-auto pr-2">
                         <AnimatePresence>
                           {stats.slice(0, 20).map((view, index) => (
                             <motion.div
@@ -613,22 +619,24 @@ const LinkEditor = () => {
                               initial={{ opacity: 0, y: 10 }}
                               animate={{ opacity: 1, y: 0 }}
                               transition={{ delay: index * 0.03 }}
-                              className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg"
+                              className="bg-gray-50 dark:bg-gray-800 p-2 sm:p-3 rounded-lg"
                             >
-                              <div className="flex justify-between items-center">
+                              <div className="flex justify-between items-center flex-wrap sm:flex-nowrap gap-2">
                                 <div className="flex items-center gap-2">
-                                  <div className="h-8 w-8 bg-primary/10 rounded-full flex items-center justify-center">
-                                    <Eye className="h-4 w-4 text-primary" />
+                                  <div className="h-7 w-7 sm:h-8 sm:w-8 bg-primary/10 rounded-full flex items-center justify-center">
+                                    <Eye className="h-3 w-3 sm:h-4 sm:w-4 text-primary" />
                                   </div>
                                   <div>
-                                    <div className="font-medium">View</div>
-                                    <div className="text-xs text-gray-500">
+                                    <div className="font-medium text-xs sm:text-sm">View</div>
+                                    <div className="text-[10px] sm:text-xs text-gray-500">
                                       {view.user_agent?.split(' ')[0] || "Unknown browser"}
                                     </div>
                                   </div>
                                 </div>
-                                <div className="text-xs text-gray-500">
-                                  {format(new Date(view.viewed_at), 'MMM dd, yyyy HH:mm')}
+                                <div className="text-[10px] sm:text-xs text-gray-500 w-full sm:w-auto text-right">
+                                  {view.viewed_at 
+                                    ? format(new Date(view.viewed_at), 'MMM dd, yyyy HH:mm') 
+                                    : 'Unknown date'}
                                 </div>
                               </div>
                             </motion.div>
@@ -644,36 +652,36 @@ const LinkEditor = () => {
         </div>
         
         <div>
-          <Card className="shadow-md border border-gray-100 dark:border-gray-800 sticky top-4">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+          <Card className="shadow-md border border-gray-100 dark:border-gray-800 lg:sticky lg:top-4">
+            <CardHeader className="p-4 sm:p-6">
+              <CardTitle className="flex items-center gap-2 text-lg">
                 <Tag className="h-4 w-4" /> Quick Actions
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 p-4 sm:p-6 pt-0">
               <Button 
-                className="w-full"
+                className="w-full text-xs sm:text-sm"
                 variant="outline"
                 onClick={copyLinkToClipboard}
               >
-                <Copy className="h-4 w-4 mr-2" />
+                <Copy className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                 Copy Shortened Link
               </Button>
               
               <Button
-                className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white hover:from-indigo-600 hover:to-purple-600"
+                className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white hover:from-indigo-600 hover:to-purple-600 text-xs sm:text-sm"
                 onClick={openOriginalUrl}
               >
-                <ExternalLink className="h-4 w-4 mr-2" />
+                <ExternalLink className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                 Open Original URL
               </Button>
               
               <div className="pt-4 border-t border-gray-100 dark:border-gray-800">
-                <h3 className="text-sm font-medium mb-2">Link Preview</h3>
-                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+                <h3 className="text-xs sm:text-sm font-medium mb-2">Link Preview</h3>
+                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 sm:p-4">
                   <div className="flex items-center gap-3 mb-2">
                     {link?.thumbnail_url ? (
-                      <div className="h-10 w-10 rounded-md overflow-hidden bg-white">
+                      <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-md overflow-hidden bg-white">
                         <img 
                           src={link.thumbnail_url} 
                           alt={link.name}
@@ -682,17 +690,19 @@ const LinkEditor = () => {
                         />
                       </div>
                     ) : (
-                      <div className="h-10 w-10 rounded-md bg-primary/20 flex items-center justify-center">
-                        <Link className="h-5 w-5 text-primary" />
+                      <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-md bg-primary/20 flex items-center justify-center">
+                        <Link className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                       </div>
                     )}
-                    <div>
-                      <div className="font-medium line-clamp-1">{link?.name}</div>
-                      <div className="text-xs text-gray-500">{window.location.origin}/view?token={link?.token}</div>
+                    <div className="overflow-hidden">
+                      <div className="font-medium line-clamp-1 text-xs sm:text-sm">{link?.name}</div>
+                      <div className="text-[10px] sm:text-xs text-gray-500 truncate">
+                        {window.location.origin}/view?token={link?.token}
+                      </div>
                     </div>
                   </div>
                   {link?.description && (
-                    <div className="text-xs text-gray-500 line-clamp-3 mt-2 pl-2 border-l-2 border-primary/30">
+                    <div className="text-[10px] sm:text-xs text-gray-500 line-clamp-3 mt-2 pl-2 border-l-2 border-primary/30">
                       {link.description}
                     </div>
                   )}
@@ -701,13 +711,13 @@ const LinkEditor = () => {
               
               {link?.password && (
                 <div className="pt-4 border-t border-gray-100 dark:border-gray-800">
-                  <h3 className="text-sm font-medium mb-2 flex items-center gap-1.5">
-                    <Lock className="h-4 w-4 text-amber-500" />
+                  <h3 className="text-xs sm:text-sm font-medium mb-2 flex items-center gap-1.5">
+                    <Lock className="h-3 w-3 sm:h-4 sm:w-4 text-amber-500" />
                     Password Protected
                   </h3>
-                  <div className="bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-300 p-3 rounded-lg text-sm">
+                  <div className="bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-300 p-2 sm:p-3 rounded-lg text-[10px] sm:text-xs">
                     This link is protected with a password:
-                    <code className="font-mono bg-white dark:bg-gray-800 px-1.5 py-0.5 rounded ml-1 text-xs">
+                    <code className="font-mono bg-white dark:bg-gray-800 px-1.5 py-0.5 rounded ml-1 text-[10px] sm:text-xs">
                       {link?.password}
                     </code>
                   </div>

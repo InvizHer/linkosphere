@@ -10,11 +10,13 @@ import Statistics from "@/components/dashboard/Statistics";
 import Profile from "@/components/dashboard/Profile";
 import LinkEditor from "@/components/dashboard/LinkEditor";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const Dashboard = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (!loading && !user) {
@@ -24,12 +26,12 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className="container mx-auto p-8">
+      <div className="container mx-auto p-4 sm:p-8">
         <div className="space-y-4">
           <Skeleton className="h-12 w-48" />
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Skeleton className="h-48" />
-            <Skeleton className="h-48 md:col-span-2" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+            <Skeleton className="h-40 sm:h-48" />
+            <Skeleton className="h-40 sm:h-48 md:col-span-2" />
           </div>
         </div>
       </div>
