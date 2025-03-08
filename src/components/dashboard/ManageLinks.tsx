@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -31,6 +32,7 @@ import {
 import { motion } from "framer-motion";
 import { Edit2, ExternalLink, Link as LinkIcon, Search, SlidersHorizontal, Eye, Calendar, Trash2 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -45,6 +47,7 @@ const ManageLinks = () => {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [viewMode, setViewMode] = useState<"grid" | "list">("list");
+  const [selectedLinkIds, setSelectedLinkIds] = useState<string[]>([]);
 
   useEffect(() => {
     fetchLinks();
@@ -97,6 +100,43 @@ const ManageLinks = () => {
     navigate(`/dashboard/edit/${link.id}`);
   };
 
+  const toggleLinkSelection = (linkId: string) => {
+    setSelectedLinkIds(prev => 
+      prev.includes(linkId) 
+        ? prev.filter(id => id !== linkId)
+        : [...prev, linkId]
+    );
+  };
+
+  const handleDeleteSelected = async () => {
+    if (selectedLinkIds.length === 0) return;
+    
+    if (confirm(`Are you sure you want to delete ${selectedLinkIds.length} selected links?`)) {
+      try {
+        const { error } = await supabase
+          .from("links")
+          .delete()
+          .in("id", selectedLinkIds);
+
+        if (error) throw error;
+
+        toast({
+          title: "Links Deleted",
+          description: `Successfully deleted ${selectedLinkIds.length} links`,
+        });
+        
+        setSelectedLinkIds([]);
+        fetchLinks();
+      } catch (error: any) {
+        toast({
+          title: "Error",
+          description: error.message,
+          variant: "destructive",
+        });
+      }
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -111,7 +151,7 @@ const ManageLinks = () => {
         <CardHeader className="pb-4">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-              <CardTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              <CardTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                 Manage Links
               </CardTitle>
               <CardDescription className="text-gray-500 dark:text-gray-400">
@@ -122,7 +162,7 @@ const ManageLinks = () => {
               <Button 
                 variant="outline" 
                 size="sm"
-                className={`${viewMode === 'list' ? 'bg-primary text-white' : ''}`}
+                className={`${viewMode === 'list' ? 'bg-blue-600 text-white' : ''}`}
                 onClick={() => setViewMode('list')}
               >
                 <LinkIcon className="h-4 w-4 mr-1" />
@@ -131,7 +171,7 @@ const ManageLinks = () => {
               <Button 
                 variant="outline" 
                 size="sm"
-                className={`${viewMode === 'grid' ? 'bg-primary text-white' : ''}`}
+                className={`${viewMode === 'grid' ? 'bg-blue-600 text-white' : ''}`}
                 onClick={() => setViewMode('grid')}
               >
                 <div className="grid grid-cols-2 gap-0.5 h-4 w-4 mr-1">
@@ -169,6 +209,23 @@ const ManageLinks = () => {
             </div>
           </div>
 
+          {selectedLinkIds.length > 0 && (
+            <div className="flex items-center justify-between bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-100 dark:border-blue-800">
+              <div className="text-sm">
+                <span className="font-medium">{selectedLinkIds.length}</span> links selected
+              </div>
+              <Button 
+                size="sm" 
+                variant="destructive"
+                onClick={handleDeleteSelected}
+                className="flex items-center gap-1"
+              >
+                <Trash2 className="h-4 w-4" />
+                Delete Selected
+              </Button>
+            </div>
+          )}
+
           {paginatedLinks.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
               <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-full mb-4">
@@ -188,6 +245,20 @@ const ManageLinks = () => {
                 <Table>
                   <TableHeader>
                     <TableRow>
+                      <TableHead className="w-10">
+                        <input
+                          type="checkbox"
+                          className="h-4 w-4 rounded border-gray-300"
+                          checked={selectedLinkIds.length === paginatedLinks.length}
+                          onChange={() => {
+                            if (selectedLinkIds.length === paginatedLinks.length) {
+                              setSelectedLinkIds([]);
+                            } else {
+                              setSelectedLinkIds(paginatedLinks.map(link => link.id));
+                            }
+                          }}
+                        />
+                      </TableHead>
                       <TableHead>Name</TableHead>
                       <TableHead className="hidden sm:table-cell">Views</TableHead>
                       <TableHead className="hidden sm:table-cell">Created</TableHead>
@@ -200,12 +271,26 @@ const ManageLinks = () => {
                         key={link.id}
                         className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                       >
+                        <TableCell className="w-10">
+                          <input
+                            type="checkbox"
+                            className="h-4 w-4 rounded border-gray-300"
+                            checked={selectedLinkIds.includes(link.id)}
+                            onChange={() => toggleLinkSelection(link.id)}
+                          />
+                        </TableCell>
                         <TableCell className="font-medium">
                           <div className="flex items-center gap-2">
-                            <LinkIcon className="h-4 w-4 text-primary" />
+                            <LinkIcon className="h-4 w-4 text-blue-600" />
                             <span className="truncate max-w-[150px] sm:max-w-[200px]">
                               {link.name}
                             </span>
+                            {link.password && (
+                              <Badge variant="outline" className="h-5 text-xs">
+                                <Lock className="h-3 w-3 mr-1" />
+                                Protected
+                              </Badge>
+                            )}
                           </div>
                         </TableCell>
                         <TableCell className="hidden sm:table-cell">
@@ -226,7 +311,7 @@ const ManageLinks = () => {
                               variant="ghost"
                               size="icon"
                               onClick={() => handleEditLink(link)}
-                              className="hover:bg-primary/10"
+                              className="hover:bg-blue-50 dark:hover:bg-blue-900/20"
                               title="Edit"
                             >
                               <Edit2 className="h-4 w-4" />
@@ -235,7 +320,7 @@ const ManageLinks = () => {
                               variant="ghost"
                               size="icon"
                               onClick={() => window.open(`/view?token=${link.token}`, '_blank')}
-                              className="hover:bg-primary/10"
+                              className="hover:bg-blue-50 dark:hover:bg-blue-900/20"
                               title="Open"
                             >
                               <ExternalLink className="h-4 w-4" />
@@ -244,7 +329,7 @@ const ManageLinks = () => {
                               variant="ghost"
                               size="icon"
                               onClick={() => copyLinkToClipboard(link)}
-                              className="hover:bg-primary/10"
+                              className="hover:bg-blue-50 dark:hover:bg-blue-900/20"
                               title="Copy"
                             >
                               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
@@ -269,9 +354,15 @@ const ManageLinks = () => {
                 >
                   <div className="p-3">
                     <div className="flex items-start justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <div className="bg-primary/10 p-1.5 rounded-full">
-                          <LinkIcon className="h-3.5 w-3.5 text-primary" />
+                      <div className="flex items-center gap-2 flex-1 min-w-0">
+                        <input
+                          type="checkbox"
+                          className="h-4 w-4 rounded border-gray-300"
+                          checked={selectedLinkIds.includes(link.id)}
+                          onChange={() => toggleLinkSelection(link.id)}
+                        />
+                        <div className="bg-blue-100 dark:bg-blue-900/30 p-1.5 rounded-full">
+                          <LinkIcon className="h-3.5 w-3.5 text-blue-600" />
                         </div>
                         <h3 className="font-medium truncate max-w-[100px] xs:max-w-[120px] sm:max-w-[150px]">{link.name}</h3>
                       </div>
@@ -280,12 +371,20 @@ const ManageLinks = () => {
                         <span className="text-xs text-gray-500">{link.views}</span>
                       </div>
                     </div>
-                    <div className="text-xs text-gray-500 mb-3 flex items-center gap-1">
-                      <Calendar className="h-3 w-3" />
-                      {new Date(link.created_at).toLocaleDateString()}
+                    <div className="text-xs text-gray-500 mb-3 flex items-center justify-between">
+                      <div className="flex items-center gap-1">
+                        <Calendar className="h-3 w-3" />
+                        {new Date(link.created_at).toLocaleDateString()}
+                      </div>
+                      {link.password && (
+                        <Badge variant="outline" className="h-5 text-xs py-0">
+                          <Lock className="h-2.5 w-2.5 mr-1" />
+                          Protected
+                        </Badge>
+                      )}
                     </div>
                     <div className="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-700">
-                      <div className="text-xs text-gray-500">
+                      <div className="text-xs text-gray-500 truncate max-w-[100px]">
                         /{link.token}
                       </div>
                       <div className="flex gap-1">
@@ -293,7 +392,7 @@ const ManageLinks = () => {
                           variant="ghost"
                           size="icon"
                           onClick={() => handleEditLink(link)}
-                          className="h-7 w-7 hover:bg-primary/10"
+                          className="h-7 w-7 hover:bg-blue-50 dark:hover:bg-blue-900/20"
                           title="Edit"
                         >
                           <Edit2 className="h-3 w-3" />
@@ -302,7 +401,7 @@ const ManageLinks = () => {
                           variant="ghost"
                           size="icon"
                           onClick={() => window.open(`/view?token=${link.token}`, '_blank')}
-                          className="h-7 w-7 hover:bg-primary/10"
+                          className="h-7 w-7 hover:bg-blue-50 dark:hover:bg-blue-900/20"
                           title="Open"
                         >
                           <ExternalLink className="h-3 w-3" />
@@ -311,7 +410,7 @@ const ManageLinks = () => {
                           variant="ghost"
                           size="icon"
                           onClick={() => copyLinkToClipboard(link)}
-                          className="h-7 w-7 hover:bg-primary/10"
+                          className="h-7 w-7 hover:bg-blue-50 dark:hover:bg-blue-900/20"
                           title="Copy"
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
@@ -340,7 +439,7 @@ const ManageLinks = () => {
                         variant={currentPage === page ? "default" : "outline"}
                         size="sm"
                         onClick={() => setCurrentPage(page)}
-                        className={currentPage === page ? "bg-primary" : ""}
+                        className={currentPage === page ? "bg-blue-600" : ""}
                       >
                         {page}
                       </Button>
