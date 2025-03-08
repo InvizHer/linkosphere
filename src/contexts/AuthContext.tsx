@@ -46,14 +46,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         email,
         password,
         options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
           data: {
             username,
           },
         },
       });
       if (error) throw error;
-      
-      toast.success("Account created successfully!");
     } catch (error: any) {
       console.error("Error during signup:", error.message);
       throw error;
@@ -67,7 +66,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         password,
       });
       if (error) throw error;
-      navigate("/dashboard");
+      navigate("/dashboard"); // Changed from "/dashboard/create" to "/dashboard"
     } catch (error: any) {
       console.error("Error during sign in:", error.message);
       throw error;

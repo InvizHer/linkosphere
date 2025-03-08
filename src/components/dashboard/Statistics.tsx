@@ -12,7 +12,7 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
 import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
-import { Link, Users, Eye, Info, Globe, MousePointer, Clock } from "lucide-react";
+import { Link, Users, Eye, Info } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const Statistics = () => {
@@ -28,8 +28,6 @@ const Statistics = () => {
   });
   const [topLinks, setTopLinks] = useState<any[]>([]);
   const [timeframe, setTimeframe] = useState<"7days" | "30days" | "alltime">("30days");
-  const [browserData, setBrowserData] = useState<any[]>([]);
-  const [geoData, setGeoData] = useState<any[]>([]);
 
   useEffect(() => {
     if (user) {
@@ -65,26 +63,6 @@ const Statistics = () => {
       // Get top performing links
       const sortedLinks = [...(links || [])].sort((a, b) => b.views - a.views).slice(0, 5);
       setTopLinks(sortedLinks);
-
-      // Sample browser data (in a real app, this would come from the database)
-      const sampleBrowsers = [
-        { name: "Chrome", value: Math.floor(Math.random() * 65) + 30 },
-        { name: "Firefox", value: Math.floor(Math.random() * 20) + 10 },
-        { name: "Safari", value: Math.floor(Math.random() * 20) + 5 },
-        { name: "Edge", value: Math.floor(Math.random() * 10) + 2 },
-        { name: "Other", value: Math.floor(Math.random() * 5) + 1 },
-      ];
-      setBrowserData(sampleBrowsers);
-
-      // Sample geo data (in a real app, this would come from the database)
-      const sampleGeo = [
-        { name: "United States", value: Math.floor(Math.random() * 40) + 20 },
-        { name: "Europe", value: Math.floor(Math.random() * 30) + 15 },
-        { name: "Asia", value: Math.floor(Math.random() * 20) + 10 },
-        { name: "South America", value: Math.floor(Math.random() * 10) + 5 },
-        { name: "Other", value: Math.floor(Math.random() * 10) + 3 },
-      ];
-      setGeoData(sampleGeo);
 
       setLoading(false);
     } catch (error: any) {
@@ -277,126 +255,56 @@ const Statistics = () => {
             </CardContent>
           </Card>
 
-          {/* Browser Data Section */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-            <Card className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm border border-gray-100 dark:border-gray-700">
-              <CardHeader className="pb-2 p-4 sm:p-6">
-                <CardTitle className="text-base sm:text-lg font-medium flex items-center gap-2">
-                  <MousePointer className="h-4 w-4" />
-                  Browser Usage
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-4 sm:p-6 pt-0">
-                <div className="h-56 sm:h-64">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={browserData}
-                        cx="50%"
-                        cy="50%"
-                        labelLine={false}
-                        outerRadius={isMobile ? "70%" : "65%"}
-                        innerRadius={isMobile ? "40%" : "45%"}
-                        fill="#8884d8"
-                        dataKey="value"
-                        label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                      >
-                        {browserData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                        ))}
-                      </Pie>
-                      <Tooltip
-                        contentStyle={{
-                          backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                          borderRadius: '6px',
-                          border: '1px solid #e2e8f0',
-                          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                          fontSize: isMobile ? '12px' : '14px',
-                        }}
-                        formatter={(value: any) => [`${value} visits`, 'Visits']}
-                      />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Geographical Data Section */}
-            <Card className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm border border-gray-100 dark:border-gray-700">
-              <CardHeader className="pb-2 p-4 sm:p-6">
-                <CardTitle className="text-base sm:text-lg font-medium flex items-center gap-2">
-                  <Globe className="h-4 w-4" />
-                  Geographical Distribution
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-4 sm:p-6 pt-0">
-                <div className="h-56 sm:h-64">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart
-                      data={geoData}
-                      layout="vertical"
-                      margin={{
-                        top: 5,
-                        right: isMobile ? 10 : 30,
-                        left: isMobile ? 80 : 100,
-                        bottom: 5,
-                      }}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} />
-                      <XAxis type="number" tick={{fontSize: isMobile ? 10 : 12}} />
-                      <YAxis 
-                        dataKey="name" 
-                        type="category" 
-                        tick={{fontSize: isMobile ? 10 : 12}}
-                        width={isMobile ? 70 : 90}
-                      />
-                      <Tooltip
-                        contentStyle={{
-                          backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                          borderRadius: '6px',
-                          border: '1px solid #e2e8f0',
-                          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                          fontSize: isMobile ? '12px' : '14px',
-                        }}
-                        formatter={(value: any) => [`${value} visits`, 'Visits']}
-                      />
-                      <Bar dataKey="value" fill="#2563eb" radius={[0, 4, 4, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Recent Activity Timeline */}
           <Card className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm border border-gray-100 dark:border-gray-700">
             <CardHeader className="pb-2 p-4 sm:p-6">
-              <CardTitle className="text-base sm:text-lg font-medium flex items-center gap-2">
-                <Clock className="h-4 w-4" />
-                Recent Link Activity
-              </CardTitle>
+              <CardTitle className="text-base sm:text-lg font-medium">Link Performance</CardTitle>
             </CardHeader>
-            <CardContent className="p-4 sm:p-6 pt-0">
+            <CardContent className="px-1 sm:px-4 p-0 pb-4">
               {topLinks.length > 0 ? (
-                <div className="space-y-4">
-                  {topLinks.slice(0, 3).map((link, index) => (
-                    <div key={link.id} className="relative pl-6 pb-4">
-                      <div className="absolute left-0 top-0 h-full w-px bg-gray-200 dark:bg-gray-700"></div>
-                      <div className="absolute left-[-4px] top-1 h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                        <div className="h-2 w-2 rounded-full bg-primary"></div>
-                      </div>
-                      <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3">
-                        <div className="font-medium">{link.name}</div>
-                        <div className="text-sm text-gray-500">
-                          {`${Math.floor(Math.random() * 10) + 1} visits in the past ${Math.floor(Math.random() * 3) + 1} hours`}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                <div className="overflow-x-auto">
+                  <div className="h-56 sm:h-64 py-2">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart
+                        data={topLinks}
+                        margin={{
+                          top: 5,
+                          right: 20,
+                          left: isMobile ? 0 : 20,
+                          bottom: 5,
+                        }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                        <XAxis 
+                          dataKey="name" 
+                          tick={{fontSize: isMobile ? 10 : 12}}
+                          tickFormatter={(value) => value.length > 10 ? value.substr(0, 10) + '...' : value}
+                          height={60}
+                          interval={0}
+                          angle={-45}
+                          textAnchor="end"
+                        />
+                        <YAxis 
+                          tick={{fontSize: isMobile ? 10 : 12}}
+                          tickFormatter={(value) => value === 0 ? '0' : value}
+                        />
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                            borderRadius: '6px',
+                            border: '1px solid #e2e8f0',
+                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                            fontSize: isMobile ? '12px' : '14px',
+                          }}
+                          formatter={(value: any) => [`${value} views`, 'Views']}
+                        />
+                        <Bar dataKey="views" name="Views" fill="#2563eb" radius={[4, 4, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
                 </div>
               ) : (
-                <div className="py-8 text-center">
-                  <p className="text-gray-500">No recent activity</p>
+                <div className="py-12 text-center">
+                  <p className="text-gray-500">No link data available yet</p>
                 </div>
               )}
             </CardContent>

@@ -80,12 +80,12 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-950 dark:to-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white dark:from-gray-950 dark:to-gray-900">
       {/* Navigation */}
       <motion.nav 
         className={`fixed top-0 left-0 right-0 z-50 ${
-          scrolled ? 'bg-white/90 dark:bg-gray-900/90 shadow-md backdrop-blur-sm' : 'bg-transparent'
-        } transition-all duration-300`}
+          scrolled ? 'bg-white/90 dark:bg-gray-900/90 shadow-md' : 'bg-transparent'
+        } transition-all duration-300 backdrop-blur-sm`}
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
@@ -95,9 +95,9 @@ const Index = () => {
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent flex items-center"
+              className="text-2xl font-bold bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent flex items-center"
             >
-              <Link className="w-6 h-6 mr-2 stroke-blue-600" />
+              <Link className="w-6 h-6 mr-2 stroke-indigo-500" />
               Lincly
             </motion.div>
             <div className="flex items-center gap-4">
@@ -108,7 +108,7 @@ const Index = () => {
                 </Button>
                 <Button 
                   onClick={handleShowSignup}
-                  className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 hover:opacity-90 text-white"
+                  className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:opacity-90 text-white"
                 >
                   Get Started
                 </Button>
@@ -131,13 +131,13 @@ const Index = () => {
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.5 }}
           >
-            <span className="px-4 py-1.5 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full text-sm font-medium">
+            <span className="px-4 py-1.5 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-full text-sm font-medium">
               Link Management Reimagined
             </span>
           </motion.div>
           
           <motion.h1 
-            className="text-4xl sm:text-5xl lg:text-6xl font-extrabold mb-6 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent leading-tight"
+            className="text-4xl sm:text-5xl lg:text-6xl font-extrabold mb-6 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent leading-tight"
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.1 }}
@@ -163,7 +163,7 @@ const Index = () => {
           >
             <Button
               size="lg"
-              className="w-full bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 hover:opacity-90 text-white"
+              className="w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:opacity-90 text-white"
               onClick={handleShowSignup}
             >
               Get Started
@@ -187,7 +187,7 @@ const Index = () => {
           >
             <Button
               size="lg"
-              className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 hover:opacity-90 text-white px-8 py-6 text-lg rounded-full flex items-center gap-2 group"
+              className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:opacity-90 text-white px-8 py-6 text-lg rounded-full flex items-center gap-2 group"
               onClick={handleShowSignup}
             >
               Get Started
@@ -204,12 +204,12 @@ const Index = () => {
           </motion.div>
         </motion.div>
 
-        {/* Feature Cards Grid */}
+        {/* Feature Cards */}
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-24"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-24"
         >
           {features.map((feature, index) => {
             const Icon = feature.icon;
@@ -217,7 +217,7 @@ const Index = () => {
               <motion.div
                 key={index}
                 whileHover={{ scale: 1.02, y: -5 }}
-                className="glass bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden"
+                className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 * index }}
@@ -237,90 +237,30 @@ const Index = () => {
           })}
         </motion.div>
         
-        {/* How It Works Section */}
-        <motion.div 
-          className="mt-24"
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8 }}
-        >
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">How It Works</h2>
-            <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">Three simple steps to elevate your link management game</p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              { 
-                title: "Create", 
-                description: "Generate short, branded links in seconds", 
-                icon: "✨",
-                color: "bg-blue-100 dark:bg-blue-900/30 text-blue-600"
-              },
-              { 
-                title: "Share", 
-                description: "Distribute your links across platforms", 
-                icon: "🔗",
-                color: "bg-purple-100 dark:bg-purple-900/30 text-purple-600"
-              },
-              { 
-                title: "Analyze", 
-                description: "Track performance with detailed analytics", 
-                icon: "📊",
-                color: "bg-pink-100 dark:bg-pink-900/30 text-pink-600"
-              }
-            ].map((step, i) => (
-              <div key={i} className="flex flex-col items-center text-center glass bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700">
-                <div className={`w-16 h-16 ${step.color} rounded-full flex items-center justify-center text-2xl mb-4`}>
-                  {step.icon}
-                </div>
-                <h3 className="text-xl font-bold mb-2">{step.title}</h3>
-                <p className="text-gray-600 dark:text-gray-400">{step.description}</p>
-              </div>
-            ))}
-          </div>
-        </motion.div>
-        
         {/* Testimonial Section */}
         <motion.div 
-          className="mt-24 glass bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-2xl p-8 md:p-12 border border-gray-100 dark:border-gray-700 shadow-xl"
+          className="mt-24 bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 dark:from-indigo-950/20 dark:via-purple-950/20 dark:to-pink-950/20 rounded-2xl p-8 md:p-12"
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8 }}
         >
           <div className="text-center mb-10">
-            <h2 className="text-3xl font-bold mb-2 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Trusted by Marketers Worldwide</h2>
+            <h2 className="text-3xl font-bold mb-2">Trusted by Marketers Worldwide</h2>
             <p className="text-gray-600 dark:text-gray-400">See what our customers say about Lincly</p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              {
-                name: "Sarah Johnson",
-                role: "Marketing Director",
-                text: "Lincly has transformed how we share content. The analytics are invaluable for understanding our audience."
-              },
-              {
-                name: "David Chen",
-                role: "Social Media Manager",
-                text: "The password protection feature gives us confidence when sharing sensitive information with our clients."
-              },
-              {
-                name: "Emily Rodriguez",
-                role: "E-commerce Specialist",
-                text: "We've seen a 40% increase in click-through rates since using Lincly's branded links in our campaigns."
-              }
-            ].map((testimonial, i) => (
-              <div key={i} className="bg-white dark:bg-gray-800/80 p-6 rounded-xl shadow-md border border-gray-50 dark:border-gray-700">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
                 <div className="flex items-center mb-4">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-300 to-purple-300 dark:from-blue-600 dark:to-purple-600"></div>
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-r from-indigo-300 to-purple-300 dark:from-indigo-600 dark:to-purple-600"></div>
                   <div className="ml-4">
-                    <h4 className="font-semibold">{testimonial.name}</h4>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">{testimonial.role}</p>
+                    <h4 className="font-semibold">Jane Smith</h4>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Marketing Director</p>
                   </div>
                 </div>
                 <p className="text-gray-600 dark:text-gray-300">
-                  "{testimonial.text}"
+                  "Lincly has transformed how we share content. The analytics are invaluable for understanding our audience."
                 </p>
               </div>
             ))}
@@ -330,7 +270,7 @@ const Index = () => {
 
       {/* CTA Section */}
       <motion.div 
-        className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 py-16"
+        className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 py-16"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1 }}
@@ -340,7 +280,7 @@ const Index = () => {
           <Button 
             size="lg" 
             onClick={handleShowSignup}
-            className="bg-white text-blue-600 hover:bg-gray-100 px-8 py-6 text-lg rounded-full shadow-lg"
+            className="bg-white text-indigo-600 hover:bg-gray-100 px-8 py-6 text-lg rounded-full"
           >
             Get Started Now
           </Button>
