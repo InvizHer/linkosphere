@@ -4,12 +4,14 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import { motion } from "framer-motion";
 import { 
   Card, 
   CardContent, 
   CardDescription, 
   CardHeader, 
-  CardTitle 
+  CardTitle,
+  CardFooter
 } from "@/components/ui/card";
 import { 
   Link,
@@ -26,7 +28,11 @@ import {
   FileText,
   Tag,
   Clock,
-  BarChart2
+  BarChart2,
+  Shield,
+  ChevronRight,
+  Info,
+  Check
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,7 +41,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { motion, AnimatePresence } from "framer-motion";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { AnimatePresence } from "framer-motion";
 import {
   Form,
   FormControl,
@@ -48,7 +56,6 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -287,7 +294,11 @@ const LinkEditor = () => {
   return (
     <div className="container mx-auto px-4 py-6 max-w-5xl mb-20">
       {/* Header with Back Button */}
-      <div className="mb-6">
+      <motion.div 
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mb-6"
+      >
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <Button
             variant="ghost"
@@ -329,25 +340,35 @@ const LinkEditor = () => {
             </Badge>
           </div>
         </div>
-      </div>
+      </motion.div>
       
       {/* Main Content with Tabs */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="lg:col-span-2"
+        >
           <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid grid-cols-2 w-full mb-6">
-              <TabsTrigger value="details" className="text-xs sm:text-sm">
-                <FileText className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" /> Link Details
+              <TabsTrigger value="details" className="text-xs sm:text-sm flex items-center gap-1">
+                <FileText className="h-3 w-3 sm:h-4 sm:w-4" /> 
+                <span className="hidden sm:inline">Link Details</span>
+                <span className="sm:hidden">Details</span>
               </TabsTrigger>
-              <TabsTrigger value="analytics" className="text-xs sm:text-sm">
-                <BarChart2 className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" /> Analytics
+              <TabsTrigger value="analytics" className="text-xs sm:text-sm flex items-center gap-1">
+                <BarChart2 className="h-3 w-3 sm:h-4 sm:w-4" /> 
+                <span className="hidden sm:inline">Analytics</span>
+                <span className="sm:hidden">Stats</span>
               </TabsTrigger>
             </TabsList>
             
             <TabsContent value="details">
-              <Card className="shadow-md border border-gray-100 dark:border-gray-800">
-                <CardHeader className="p-4 sm:p-6">
-                  <CardTitle className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100">
+              <Card className="shadow-md border">
+                <CardHeader className="p-4 sm:p-6 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-800">
+                  <CardTitle className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                    <FileText className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                     Edit Link Details
                   </CardTitle>
                   <CardDescription>
@@ -355,7 +376,7 @@ const LinkEditor = () => {
                   </CardDescription>
                 </CardHeader>
                 
-                <CardContent className="p-4 sm:p-6 pt-0">
+                <CardContent className="p-4 sm:p-6 pt-5">
                   <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
                       <div className="grid md:grid-cols-2 gap-4">
@@ -364,7 +385,7 @@ const LinkEditor = () => {
                           name="name"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Link Name</FormLabel>
+                              <FormLabel className="font-medium">Link Name</FormLabel>
                               <FormControl>
                                 <Input placeholder="My Awesome Link" {...field} />
                               </FormControl>
@@ -374,7 +395,7 @@ const LinkEditor = () => {
                         />
                         
                         <div className="space-y-2">
-                          <Label htmlFor="token">Short Link Token</Label>
+                          <Label htmlFor="token" className="font-medium">Short Link Token</Label>
                           <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
                             {!isMobile ? (
                               <div className="bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400 px-3 py-2 rounded-l-md border border-r-0 border-gray-200 dark:border-gray-700 text-xs sm:text-sm truncate max-w-[120px] sm:max-w-none">
@@ -406,7 +427,7 @@ const LinkEditor = () => {
                         name="original_url"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Original URL</FormLabel>
+                            <FormLabel className="font-medium">Original URL</FormLabel>
                             <div className="flex items-center gap-2">
                               <div className="relative flex-grow">
                                 <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-3 w-3 sm:h-4 sm:w-4 text-gray-500" />
@@ -439,7 +460,7 @@ const LinkEditor = () => {
                         name="description"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Description (Optional)</FormLabel>
+                            <FormLabel className="font-medium">Description (Optional)</FormLabel>
                             <FormControl>
                               <Textarea
                                 placeholder="Describe what this link is for..."
@@ -458,7 +479,7 @@ const LinkEditor = () => {
                         name="thumbnail_url"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Thumbnail URL (Optional)</FormLabel>
+                            <FormLabel className="font-medium">Thumbnail URL (Optional)</FormLabel>
                             <div className="flex items-center gap-2">
                               <div className="relative flex-grow">
                                 <Image className="absolute left-3 top-1/2 -translate-y-1/2 h-3 w-3 sm:h-4 sm:w-4 text-gray-500" />
@@ -488,7 +509,7 @@ const LinkEditor = () => {
                       
                       <div className="space-y-4 pt-4 border-t border-gray-100 dark:border-gray-800">
                         <h3 className="font-medium flex items-center gap-2 text-sm">
-                          <Lock className="h-3 w-3 sm:h-4 sm:w-4 text-gray-500" />
+                          <Shield className="h-4 w-4 text-primary" />
                           Password Protection
                         </h3>
                         
@@ -497,7 +518,7 @@ const LinkEditor = () => {
                           name="password"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Password (Optional)</FormLabel>
+                              <FormLabel className="font-medium">Password (Optional)</FormLabel>
                               <FormControl>
                                 <Input
                                   type="text"
@@ -548,12 +569,12 @@ const LinkEditor = () => {
                           {deleting ? "Deleting..." : "Delete Link"}
                         </Button>
                         
-                        <Button type="submit" disabled={saving}>
+                        <Button type="submit" disabled={saving} className="gap-2">
                           {saving ? (
                             "Saving..."
                           ) : (
                             <>
-                              <Save className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
+                              <Save className="h-3 w-3 sm:h-4 sm:w-4" />
                               Save Changes
                             </>
                           )}
@@ -566,52 +587,52 @@ const LinkEditor = () => {
             </TabsContent>
             
             <TabsContent value="analytics">
-              <Card className="shadow-md border border-gray-100 dark:border-gray-800">
-                <CardHeader className="p-4 sm:p-6">
-                  <CardTitle className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100">
+              <Card className="shadow-md border">
+                <CardHeader className="p-4 sm:p-6 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-800">
+                  <CardTitle className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                    <BarChart2 className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                     Link Statistics
                   </CardTitle>
                   <CardDescription>
                     View performance metrics for this link
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="p-4 sm:p-6 pt-0">
+                <CardContent className="p-4 sm:p-6 pt-5">
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-                    <Card className="bg-primary/5 border-primary/10">
-                      <CardContent className="p-4 text-center">
-                        <p className="text-xs uppercase text-gray-500 dark:text-gray-400 mb-1">Total Views</p>
-                        <p className="text-2xl sm:text-3xl font-bold text-primary">{link?.views || 0}</p>
-                      </CardContent>
-                    </Card>
-                    <Card className="bg-primary/5 border-primary/10">
-                      <CardContent className="p-4 text-center">
-                        <p className="text-xs uppercase text-gray-500 dark:text-gray-400 mb-1">Unique Visits</p>
-                        <p className="text-2xl sm:text-3xl font-bold text-primary">{stats.length}</p>
-                      </CardContent>
-                    </Card>
-                    <Card className="bg-primary/5 border-primary/10">
-                      <CardContent className="p-4 text-center">
-                        <p className="text-xs uppercase text-gray-500 dark:text-gray-400 mb-1">Created</p>
-                        <p className="text-lg font-semibold text-primary">
-                          {link?.created_at ? format(new Date(link.created_at), 'MMM dd, yyyy') : 'N/A'}
-                        </p>
-                      </CardContent>
-                    </Card>
+                    <StatCard
+                      title="Total Views"
+                      value={link?.views || 0}
+                      icon={<Eye className="h-5 w-5 text-blue-500" />}
+                      bgColor="bg-blue-50 dark:bg-blue-900/20"
+                    />
+                    <StatCard
+                      title="Unique Visits"
+                      value={stats.length}
+                      icon={<Users className="h-5 w-5 text-emerald-500" />}
+                      bgColor="bg-emerald-50 dark:bg-emerald-900/20"
+                    />
+                    <StatCard
+                      title="Created On"
+                      value={link?.created_at ? format(new Date(link.created_at), 'MMM dd, yyyy') : 'N/A'}
+                      icon={<Calendar className="h-5 w-5 text-purple-500" />}
+                      bgColor="bg-purple-50 dark:bg-purple-900/20"
+                      isText
+                    />
                   </div>
                   
                   <div className="space-y-4">
                     <h3 className="text-sm font-medium flex items-center gap-1.5">
-                      <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-gray-500" />
+                      <Clock className="h-4 w-4 text-primary" />
                       Recent Activity
                     </h3>
                     {stats.length === 0 ? (
-                      <div className="text-center py-6 sm:py-10 text-gray-500 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-                        <Eye className="h-8 w-8 sm:h-10 sm:w-10 mx-auto mb-2 opacity-30" />
-                        <p className="text-base sm:text-lg font-medium">No views recorded yet</p>
-                        <p className="text-xs sm:text-sm mt-1">Views will appear here once your link is visited</p>
+                      <div className="text-center py-8 text-gray-500 bg-gray-50/50 dark:bg-gray-800/30 rounded-lg border border-dashed">
+                        <Eye className="h-10 w-10 mx-auto mb-2 opacity-30" />
+                        <p className="text-base font-medium">No views recorded yet</p>
+                        <p className="text-xs mt-1">Views will appear here once your link is visited</p>
                       </div>
                     ) : (
-                      <div className="space-y-2 max-h-60 sm:max-h-96 overflow-y-auto pr-2">
+                      <div className="space-y-2 max-h-[500px] overflow-y-auto pr-2 rounded-lg border p-1">
                         <AnimatePresence>
                           {stats.slice(0, 20).map((view, index) => (
                             <motion.div
@@ -619,15 +640,15 @@ const LinkEditor = () => {
                               initial={{ opacity: 0, y: 10 }}
                               animate={{ opacity: 1, y: 0 }}
                               transition={{ delay: index * 0.03 }}
-                              className="bg-gray-50 dark:bg-gray-800 p-2 sm:p-3 rounded-lg"
+                              className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                             >
                               <div className="flex justify-between items-center flex-wrap sm:flex-nowrap gap-2">
-                                <div className="flex items-center gap-2">
-                                  <div className="h-7 w-7 sm:h-8 sm:w-8 bg-primary/10 rounded-full flex items-center justify-center">
-                                    <Eye className="h-3 w-3 sm:h-4 sm:w-4 text-primary" />
+                                <div className="flex items-center gap-3">
+                                  <div className="h-8 w-8 bg-primary/10 rounded-full flex items-center justify-center">
+                                    <Eye className="h-4 w-4 text-primary" />
                                   </div>
                                   <div>
-                                    <div className="font-medium text-xs sm:text-sm">View</div>
+                                    <div className="font-medium text-xs sm:text-sm">Link View</div>
                                     <div className="text-[10px] sm:text-xs text-gray-500">
                                       {view.user_agent?.split(' ')[0] || "Unknown browser"}
                                     </div>
@@ -649,39 +670,48 @@ const LinkEditor = () => {
               </Card>
             </TabsContent>
           </Tabs>
-        </div>
+        </motion.div>
         
-        <div>
-          <Card className="shadow-md border border-gray-100 dark:border-gray-800 lg:sticky lg:top-4">
-            <CardHeader className="p-4 sm:p-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <Card className="shadow-md border lg:sticky lg:top-4">
+            <CardHeader className="p-4 sm:p-6 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-800">
               <CardTitle className="flex items-center gap-2 text-lg">
-                <Tag className="h-4 w-4" /> Quick Actions
+                <Tag className="h-4 w-4 text-primary" /> Quick Actions
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4 p-4 sm:p-6 pt-0">
+            <CardContent className="space-y-4 p-4 sm:p-6 pt-5">
               <Button 
-                className="w-full text-xs sm:text-sm"
+                className="w-full text-xs sm:text-sm justify-start"
                 variant="outline"
                 onClick={copyLinkToClipboard}
               >
-                <Copy className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                <Copy className="h-4 w-4 mr-2" />
                 Copy Shortened Link
               </Button>
               
               <Button
-                className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white hover:from-indigo-600 hover:to-purple-600 text-xs sm:text-sm"
+                className="w-full bg-gradient-to-r from-primary to-primary/80 text-white hover:from-primary/90 hover:to-primary/70 text-xs sm:text-sm justify-start"
                 onClick={openOriginalUrl}
               >
-                <ExternalLink className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                <ExternalLink className="h-4 w-4 mr-2" />
                 Open Original URL
               </Button>
               
-              <div className="pt-4 border-t border-gray-100 dark:border-gray-800">
-                <h3 className="text-xs sm:text-sm font-medium mb-2">Link Preview</h3>
-                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 sm:p-4">
-                  <div className="flex items-center gap-3 mb-2">
+              <Separator className="my-2" />
+              
+              <div className="pt-2">
+                <h3 className="text-sm font-medium mb-3 flex items-center gap-1.5">
+                  <Info className="h-4 w-4 text-primary" />
+                  Link Preview
+                </h3>
+                <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 border">
+                  <div className="flex items-center gap-3 mb-3">
                     {link?.thumbnail_url ? (
-                      <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-md overflow-hidden bg-white">
+                      <div className="h-10 w-10 rounded-md overflow-hidden bg-white flex-shrink-0 border">
                         <img 
                           src={link.thumbnail_url} 
                           alt={link.name}
@@ -690,19 +720,19 @@ const LinkEditor = () => {
                         />
                       </div>
                     ) : (
-                      <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-md bg-primary/20 flex items-center justify-center">
-                        <Link className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+                      <div className="h-10 w-10 rounded-md bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <Link className="h-5 w-5 text-primary" />
                       </div>
                     )}
-                    <div className="overflow-hidden">
-                      <div className="font-medium line-clamp-1 text-xs sm:text-sm">{link?.name}</div>
-                      <div className="text-[10px] sm:text-xs text-gray-500 truncate">
+                    <div className="overflow-hidden flex-grow">
+                      <div className="font-medium line-clamp-1">{link?.name}</div>
+                      <div className="text-xs text-muted-foreground truncate">
                         {window.location.origin}/view?token={link?.token}
                       </div>
                     </div>
                   </div>
                   {link?.description && (
-                    <div className="text-[10px] sm:text-xs text-gray-500 line-clamp-3 mt-2 pl-2 border-l-2 border-primary/30">
+                    <div className="text-xs text-gray-600 dark:text-gray-400 line-clamp-3 mt-2 pl-3 border-l-2 border-primary/30">
                       {link.description}
                     </div>
                   )}
@@ -710,25 +740,70 @@ const LinkEditor = () => {
               </div>
               
               {link?.password && (
-                <div className="pt-4 border-t border-gray-100 dark:border-gray-800">
-                  <h3 className="text-xs sm:text-sm font-medium mb-2 flex items-center gap-1.5">
-                    <Lock className="h-3 w-3 sm:h-4 sm:w-4 text-amber-500" />
-                    Password Protected
+                <div className="pt-2">
+                  <h3 className="text-sm font-medium mb-3 flex items-center gap-1.5">
+                    <Lock className="h-4 w-4 text-amber-500" />
+                    Password Protection
                   </h3>
-                  <div className="bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-300 p-2 sm:p-3 rounded-lg text-[10px] sm:text-xs">
-                    This link is protected with a password:
-                    <code className="font-mono bg-white dark:bg-gray-800 px-1.5 py-0.5 rounded ml-1 text-[10px] sm:text-xs">
-                      {link?.password}
-                    </code>
+                  <div className="bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-300 p-3 rounded-lg text-xs border border-amber-200 dark:border-amber-800">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Shield className="h-4 w-4" />
+                      <span className="font-medium">This link is protected</span>
+                    </div>
+                    <p>Password: <code className="font-mono bg-white/80 dark:bg-gray-800/80 px-1.5 py-0.5 rounded mx-1 text-xs">{link?.password}</code></p>
+                    {link?.show_password && (
+                      <div className="flex items-center gap-1 mt-2 text-green-600 dark:text-green-400">
+                        <Check className="h-3 w-3" />
+                        <span>Password is visible to visitors</span>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
             </CardContent>
+            <CardFooter className="px-4 sm:px-6 py-4 sm:py-4">
+              <Button 
+                asChild 
+                variant="outline" 
+                className="w-full justify-between text-sm"
+              >
+                <Link to="/dashboard/manage">
+                  <span className="flex items-center">
+                    <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
+                    Back to Manage Links
+                  </span>
+                  <ChevronRight className="h-4 w-4" />
+                </Link>
+              </Button>
+            </CardFooter>
           </Card>
-        </div>
+        </motion.div>
       </div>
     </div>
   );
 };
+
+// Stat card component
+interface StatCardProps {
+  title: string;
+  value: number | string;
+  icon: React.ReactNode;
+  bgColor: string;
+  isText?: boolean;
+}
+
+const StatCard = ({ title, value, icon, bgColor, isText = false }: StatCardProps) => (
+  <Card className="overflow-hidden">
+    <CardContent className="p-4 text-center">
+      <div className={`w-12 h-12 mx-auto rounded-full ${bgColor} flex items-center justify-center mb-3`}>
+        {icon}
+      </div>
+      <p className="text-xs uppercase text-gray-500 dark:text-gray-400 mb-1">{title}</p>
+      <p className={`${isText ? "text-base sm:text-lg" : "text-2xl sm:text-3xl"} font-bold`}>
+        {isText ? value : typeof value === "number" ? value.toLocaleString() : value}
+      </p>
+    </CardContent>
+  </Card>
+);
 
 export default LinkEditor;
