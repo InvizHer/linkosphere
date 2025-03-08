@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -30,7 +29,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { motion } from "framer-motion";
-import { Edit2, ExternalLink, Link as LinkIcon, Search, SlidersHorizontal, Eye, Calendar, Trash2 } from "lucide-react";
+import { Edit2, ExternalLink, Link as LinkIcon, Search, SlidersHorizontal, Eye, Calendar, Trash2, LockIcon } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 
@@ -287,7 +286,7 @@ const ManageLinks = () => {
                             </span>
                             {link.password && (
                               <Badge variant="outline" className="h-5 text-xs">
-                                <Lock className="h-3 w-3 mr-1" />
+                                <LockIcon className="h-3 w-3 mr-1" />
                                 Protected
                               </Badge>
                             )}
@@ -378,7 +377,7 @@ const ManageLinks = () => {
                       </div>
                       {link.password && (
                         <Badge variant="outline" className="h-5 text-xs py-0">
-                          <Lock className="h-2.5 w-2.5 mr-1" />
+                          <LockIcon className="h-2.5 w-2.5 mr-1" />
                           Protected
                         </Badge>
                       )}
