@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -79,10 +78,8 @@ const ViewLink = () => {
         setLink(data);
         setLoading(false);
 
-        // Record view if not password protected or already verified
-        if (!data.password || isVerified) {
-          await recordView(data.id);
-        }
+        // Record view regardless of password protection
+        await recordView(data.id);
       } catch (err) {
         console.error("Error fetching link:", err);
         setError("Link not found");
@@ -91,7 +88,7 @@ const ViewLink = () => {
     };
 
     fetchLink();
-  }, [token, isVerified]);
+  }, [token]);
 
   const recordView = async (linkId: string) => {
     // Skip if view has already been recorded
@@ -111,7 +108,7 @@ const ViewLink = () => {
         // Fallback: Update the views counter directly if RPC fails
         const { error: updateError } = await supabase
           .from("links")
-          .update({ views: (link.views || 0) + 1 })
+          .update({ views: (link?.views || 0) + 1 })
           .eq("id", linkId);
           
         if (updateError) {
@@ -135,7 +132,7 @@ const ViewLink = () => {
         // Update local state to show the incremented view count immediately
         setLink(prev => ({
           ...prev,
-          views: (prev.views || 0) + 1
+          views: (prev?.views || 0) + 1
         }));
       }
     } catch (error) {
