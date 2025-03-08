@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -29,7 +30,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { motion } from "framer-motion";
-import { Edit2, ExternalLink, Link as LinkIcon, Search, SlidersHorizontal, Eye, Calendar, Trash2 } from "lucide-react";
+import { Edit2, ExternalLink, Link as LinkIcon, Search, SlidersHorizontal, Eye, Calendar, Trash2, LockIcon, UnlockIcon, CopyIcon, Pencil } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const ITEMS_PER_PAGE = 10;
@@ -202,7 +203,11 @@ const ManageLinks = () => {
                       >
                         <TableCell className="font-medium">
                           <div className="flex items-center gap-2">
-                            <LinkIcon className="h-4 w-4 text-primary" />
+                            {link.password ? (
+                              <LockIcon className="h-4 w-4 text-primary" />
+                            ) : (
+                              <UnlockIcon className="h-4 w-4 text-primary" />
+                            )}
                             <span className="truncate max-w-[150px] sm:max-w-[200px]">
                               {link.name}
                             </span>
@@ -229,7 +234,7 @@ const ManageLinks = () => {
                               className="hover:bg-primary/10"
                               title="Edit"
                             >
-                              <Edit2 className="h-4 w-4" />
+                              <Pencil className="h-4 w-4" />
                             </Button>
                             <Button
                               variant="ghost"
@@ -247,7 +252,7 @@ const ManageLinks = () => {
                               className="hover:bg-primary/10"
                               title="Copy"
                             >
-                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                              <CopyIcon className="h-4 w-4" />
                             </Button>
                           </div>
                         </TableCell>
@@ -258,63 +263,71 @@ const ManageLinks = () => {
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {paginatedLinks.map((link) => (
                 <motion.div
                   key={link.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3 }}
-                  className="bg-white dark:bg-gray-800/80 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+                  className="group bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm hover:shadow-md transition-all"
                 >
-                  <div className="p-3">
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <div className="bg-primary/10 p-1.5 rounded-full">
-                          <LinkIcon className="h-3.5 w-3.5 text-primary" />
-                        </div>
-                        <h3 className="font-medium truncate max-w-[100px] xs:max-w-[120px] sm:max-w-[150px]">{link.name}</h3>
+                  <div className={`h-1 ${link.password ? "bg-purple-500" : "bg-green-500"}`}></div>
+                  <div className="p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="bg-muted/50 p-2 rounded-md">
+                        {link.password ? (
+                          <LockIcon className="h-4 w-4 text-purple-500" />
+                        ) : (
+                          <UnlockIcon className="h-4 w-4 text-green-500" />
+                        )}
                       </div>
-                      <div className="flex items-center gap-1">
-                        <Eye className="h-3.5 w-3.5 text-gray-500" />
-                        <span className="text-xs text-gray-500">{link.views}</span>
+                      <div className="flex items-center text-xs text-gray-500">
+                        <Eye className="h-3.5 w-3.5 mr-1" />
+                        <span>{link.views || 0}</span>
                       </div>
                     </div>
-                    <div className="text-xs text-gray-500 mb-3 flex items-center gap-1">
-                      <Calendar className="h-3 w-3" />
-                      {new Date(link.created_at).toLocaleDateString()}
+                    
+                    <h3 className="font-medium line-clamp-1 mb-1" title={link.name}>
+                      {link.name}
+                    </h3>
+                    
+                    <div className="flex items-center text-xs text-gray-500 mb-3">
+                      <Calendar className="h-3 w-3 mr-1 flex-shrink-0" />
+                      <span>{new Date(link.created_at).toLocaleDateString()}</span>
                     </div>
-                    <div className="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-700">
-                      <div className="text-xs text-gray-500">
-                        /{link.token}
-                      </div>
-                      <div className="flex gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleEditLink(link)}
-                          className="h-7 w-7 hover:bg-primary/10"
-                          title="Edit"
-                        >
-                          <Edit2 className="h-3 w-3" />
-                        </Button>
+                    
+                    <div className="text-xs bg-muted/30 rounded px-2 py-1 truncate mb-3" title={`/${link.token}`}>
+                      /{link.token}
+                    </div>
+                    
+                    <div className="flex justify-between items-center pt-2 border-t border-gray-100 dark:border-gray-700">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleEditLink(link)}
+                        className="h-8 px-2 text-xs hover:bg-primary/10 hover:text-primary"
+                      >
+                        <Pencil className="h-3 w-3 mr-1" />
+                        Edit
+                      </Button>
+                      
+                      <div className="flex space-x-1">
                         <Button
                           variant="ghost"
                           size="icon"
                           onClick={() => window.open(`/view?token=${link.token}`, '_blank')}
-                          className="h-7 w-7 hover:bg-primary/10"
-                          title="Open"
+                          className="h-7 w-7 hover:bg-primary/10 hover:text-primary"
                         >
-                          <ExternalLink className="h-3 w-3" />
+                          <ExternalLink className="h-3.5 w-3.5" />
                         </Button>
                         <Button
                           variant="ghost"
                           size="icon"
                           onClick={() => copyLinkToClipboard(link)}
-                          className="h-7 w-7 hover:bg-primary/10"
-                          title="Copy"
+                          className="h-7 w-7 hover:bg-primary/10 hover:text-primary"
                         >
-                          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                          <CopyIcon className="h-3.5 w-3.5" />
                         </Button>
                       </div>
                     </div>

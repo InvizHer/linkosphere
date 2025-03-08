@@ -30,6 +30,11 @@ import {
   Sparkles,
   BarChart2,
   Calendar,
+  Pencil,
+  ExternalLink,
+  Globe,
+  Zap,
+  Bookmark
 } from "lucide-react";
 
 const DashboardHome = () => {
@@ -267,7 +272,7 @@ const DashboardHome = () => {
         </Tabs>
       </motion.div>
 
-      {/* Activity Card */}
+      {/* Quick Tips Card - Replacing Activity Summary */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -276,35 +281,28 @@ const DashboardHome = () => {
         <Card className="overflow-hidden border shadow-sm">
           <CardHeader className="border-b bg-muted/50 pb-3">
             <CardTitle className="flex items-center text-base">
-              <Activity className="mr-2 h-4 w-4 text-primary" />
-              Activity Summary
+              <Zap className="mr-2 h-4 w-4 text-primary" />
+              Quick Tips & Resources
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
             <div className="grid gap-6 md:grid-cols-3">
-              <div className="flex flex-col items-center justify-center rounded-lg border bg-card p-4 text-center shadow-sm">
-                <Calendar className="mb-2 h-5 w-5 text-muted-foreground" />
-                <p className="text-sm font-medium">Last 7 Days</p>
-                <h4 className="text-2xl font-bold">{stats.totalViews}</h4>
-                <p className="text-xs text-muted-foreground">Total views</p>
+              <div className="flex flex-col items-center justify-center rounded-lg border bg-card p-4 text-center shadow-sm hover:bg-muted/50 transition-colors">
+                <Globe className="mb-2 h-5 w-5 text-primary" />
+                <p className="text-sm font-medium">Link Optimization</p>
+                <p className="text-xs text-muted-foreground mt-2">Add descriptive names to your links for better recognition</p>
               </div>
               
-              <div className="flex flex-col items-center justify-center rounded-lg border bg-card p-4 text-center shadow-sm">
-                <TrendingUp className="mb-2 h-5 w-5 text-muted-foreground" />
-                <p className="text-sm font-medium">Conversion</p>
-                <h4 className="text-2xl font-bold">
-                  {stats.totalLinks > 0 
-                    ? `${Math.round((stats.totalViews / stats.totalLinks) * 10) / 10}` 
-                    : "0"}
-                </h4>
-                <p className="text-xs text-muted-foreground">Avg views per link</p>
+              <div className="flex flex-col items-center justify-center rounded-lg border bg-card p-4 text-center shadow-sm hover:bg-muted/50 transition-colors">
+                <Bookmark className="mb-2 h-5 w-5 text-primary" />
+                <p className="text-sm font-medium">Protect Sensitive Content</p>
+                <p className="text-xs text-muted-foreground mt-2">Use password protection for links with sensitive information</p>
               </div>
               
-              <div className="flex flex-col items-center justify-center rounded-lg border bg-card p-4 text-center shadow-sm">
-                <Users className="mb-2 h-5 w-5 text-muted-foreground" />
-                <p className="text-sm font-medium">User Growth</p>
-                <h4 className="text-2xl font-bold">+1</h4>
-                <p className="text-xs text-muted-foreground">New account</p>
+              <div className="flex flex-col items-center justify-center rounded-lg border bg-card p-4 text-center shadow-sm hover:bg-muted/50 transition-colors">
+                <TrendingUp className="mb-2 h-5 w-5 text-primary" />
+                <p className="text-sm font-medium">Track Performance</p>
+                <p className="text-xs text-muted-foreground mt-2">Check your statistics page regularly to monitor link engagement</p>
               </div>
             </div>
           </CardContent>
@@ -372,11 +370,21 @@ const LinksTable = ({ links, emptyMessage }: { links: any[], emptyMessage: strin
                     asChild
                     className="h-8 w-8"
                   >
+                    <Link to={`/dashboard/edit/${link.id}`}>
+                      <Pencil className="h-4 w-4" />
+                    </Link>
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    asChild
+                    className="h-8 w-8"
+                  >
                     <Link
                       to={`/view?token=${link.token}`}
                       target="_blank"
                     >
-                      <Share2 className="h-4 w-4" />
+                      <ExternalLink className="h-4 w-4" />
                     </Link>
                   </Button>
                 </TableCell>

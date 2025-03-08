@@ -9,10 +9,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
 import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
-import { Link, Users, Eye, Info } from "lucide-react";
+import { Link, Users, Eye, Info, Calendar, Globe, Chrome, Firefox, Safari, AlertCircle } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const Statistics = () => {
@@ -27,13 +26,30 @@ const Statistics = () => {
     averageViewsPerLink: 0,
   });
   const [topLinks, setTopLinks] = useState<any[]>([]);
-  const [timeframe, setTimeframe] = useState<"7days" | "30days" | "alltime">("30days");
+  const [browserData, setBrowserData] = useState<any[]>([]);
+  const [geoData, setGeoData] = useState<any[]>([]);
+  
+  // Sample browser and geo data that would normally come from your database
+  const sampleBrowserData = [
+    { name: "Chrome", value: 65 },
+    { name: "Firefox", value: 15 },
+    { name: "Safari", value: 12 },
+    { name: "Edge", value: 8 }
+  ];
+
+  const sampleGeoData = [
+    { name: "United States", value: 45 },
+    { name: "United Kingdom", value: 20 },
+    { name: "Germany", value: 15 },
+    { name: "Canada", value: 10 },
+    { name: "Other", value: 10 }
+  ];
 
   useEffect(() => {
     if (user) {
       fetchStatistics();
     }
-  }, [user, timeframe]);
+  }, [user]);
 
   const fetchStatistics = async () => {
     try {
@@ -64,6 +80,10 @@ const Statistics = () => {
       const sortedLinks = [...(links || [])].sort((a, b) => b.views - a.views).slice(0, 5);
       setTopLinks(sortedLinks);
 
+      // For demonstration, use sample data - in a real implementation, you would fetch this from your database
+      setBrowserData(sampleBrowserData);
+      setGeoData(sampleGeoData);
+
       setLoading(false);
     } catch (error: any) {
       toast({
@@ -76,6 +96,19 @@ const Statistics = () => {
   };
 
   const COLORS = ['#2563eb', '#8b5cf6', '#ec4899', '#10b981', '#f97316'];
+
+  const getBrowserIcon = (browserName: string) => {
+    switch (browserName.toLowerCase()) {
+      case 'chrome':
+        return <Chrome className="h-4 w-4" style={{ color: COLORS[0] }} />;
+      case 'firefox':
+        return <Firefox className="h-4 w-4" style={{ color: COLORS[1] }} />;
+      case 'safari':
+        return <Safari className="h-4 w-4" style={{ color: COLORS[2] }} />;
+      default:
+        return <Globe className="h-4 w-4" style={{ color: COLORS[3] }} />;
+    }
+  };
 
   if (loading) {
     return (
@@ -98,18 +131,6 @@ const Statistics = () => {
                 Track your link performance
               </CardDescription>
             </div>
-            <Tabs 
-              defaultValue="30days"
-              value={timeframe}
-              onValueChange={(value) => setTimeframe(value as "7days" | "30days" | "alltime")}
-              className="w-full md:w-auto"
-            >
-              <TabsList className="grid w-full grid-cols-3 md:w-[300px]">
-                <TabsTrigger value="7days" className="text-xs sm:text-sm">7 Days</TabsTrigger>
-                <TabsTrigger value="30days" className="text-xs sm:text-sm">30 Days</TabsTrigger>
-                <TabsTrigger value="alltime" className="text-xs sm:text-sm">All Time</TabsTrigger>
-              </TabsList>
-            </Tabs>
           </div>
         </CardHeader>
         <CardContent className="space-y-4 sm:space-y-6 px-2 sm:px-6">
@@ -257,35 +278,98 @@ const Statistics = () => {
 
           <Card className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm border border-gray-100 dark:border-gray-700">
             <CardHeader className="pb-2 p-4 sm:p-6">
-              <CardTitle className="text-base sm:text-lg font-medium">Link Performance</CardTitle>
+              <CardTitle className="text-base sm:text-lg font-medium">Browser Analytics</CardTitle>
+            </CardHeader>
+            <CardContent className="p-4 sm:p-6 pt-0">
+              {topLinks.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                  <div className="h-56 sm:h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={browserData}
+                          cx="50%"
+                          cy="50%"
+                          labelLine={false}
+                          outerRadius={isMobile ? "70%" : "65%"}
+                          fill="#8884d8"
+                          dataKey="value"
+                          label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                        >
+                          {browserData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                            borderRadius: '6px',
+                            border: '1px solid #e2e8f0',
+                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                            fontSize: isMobile ? '12px' : '14px',
+                          }}
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                  
+                  <div>
+                    <div className="border-b border-gray-100 dark:border-gray-700 pb-2 mb-3">
+                      <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">Browser Distribution</h3>
+                    </div>
+                    <div className="space-y-3 sm:space-y-4">
+                      {browserData.map((browser, index) => (
+                        <div key={index} className="flex items-center gap-3 p-2 sm:p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                          <div className="h-8 w-8 rounded-full flex items-center justify-center" style={{ backgroundColor: COLORS[index % COLORS.length] + '30' }}>
+                            {getBrowserIcon(browser.name)}
+                          </div>
+                          <div className="flex-grow">
+                            <div className="font-medium text-sm">{browser.name}</div>
+                          </div>
+                          <div className="text-sm font-semibold">
+                            {browser.value}%
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="py-12 text-center">
+                  <AlertCircle className="h-10 w-10 mx-auto mb-3 text-gray-300" />
+                  <p className="text-gray-500 mb-1">Browser analytics not available</p>
+                  <p className="text-sm text-gray-400">We need more data to show browser statistics</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm border border-gray-100 dark:border-gray-700">
+            <CardHeader className="pb-2 p-4 sm:p-6">
+              <CardTitle className="text-base sm:text-lg font-medium">Geographic Distribution</CardTitle>
             </CardHeader>
             <CardContent className="px-1 sm:px-4 p-0 pb-4">
               {topLinks.length > 0 ? (
-                <div className="overflow-x-auto">
-                  <div className="h-56 sm:h-64 py-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 p-4">
+                  <div className="h-56 sm:h-64">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart
-                        data={topLinks}
+                        layout="vertical"
+                        data={geoData}
                         margin={{
                           top: 5,
-                          right: 20,
-                          left: isMobile ? 0 : 20,
+                          right: 30,
+                          left: isMobile ? 70 : 100,
                           bottom: 5,
                         }}
                       >
-                        <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                        <XAxis 
-                          dataKey="name" 
-                          tick={{fontSize: isMobile ? 10 : 12}}
-                          tickFormatter={(value) => value.length > 10 ? value.substr(0, 10) + '...' : value}
-                          height={60}
-                          interval={0}
-                          angle={-45}
-                          textAnchor="end"
-                        />
+                        <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+                        <XAxis type="number" />
                         <YAxis 
-                          tick={{fontSize: isMobile ? 10 : 12}}
-                          tickFormatter={(value) => value === 0 ? '0' : value}
+                          dataKey="name" 
+                          type="category" 
+                          tick={{ fontSize: isMobile ? 10 : 12 }} 
+                          width={isMobile ? 70 : 100}
                         />
                         <Tooltip
                           contentStyle={{
@@ -295,16 +379,38 @@ const Statistics = () => {
                             boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
                             fontSize: isMobile ? '12px' : '14px',
                           }}
-                          formatter={(value: any) => [`${value} views`, 'Views']}
                         />
-                        <Bar dataKey="views" name="Views" fill="#2563eb" radius={[4, 4, 0, 0]} />
+                        <Bar dataKey="value" fill="#2563eb" radius={[0, 4, 4, 0]} />
                       </BarChart>
                     </ResponsiveContainer>
+                  </div>
+
+                  <div>
+                    <div className="border-b border-gray-100 dark:border-gray-700 pb-2 mb-3">
+                      <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">Country Breakdown</h3>
+                    </div>
+                    <div className="space-y-3 sm:space-y-4">
+                      {geoData.map((geo, index) => (
+                        <div key={index} className="flex items-center gap-3 p-2 sm:p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                          <div className="h-8 w-8 rounded-full flex items-center justify-center" style={{ backgroundColor: COLORS[index % COLORS.length] + '30' }}>
+                            <Globe className="h-4 w-4" style={{ color: COLORS[index % COLORS.length] }} />
+                          </div>
+                          <div className="flex-grow">
+                            <div className="font-medium text-sm">{geo.name}</div>
+                          </div>
+                          <div className="text-sm font-semibold">
+                            {geo.value}%
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               ) : (
                 <div className="py-12 text-center">
-                  <p className="text-gray-500">No link data available yet</p>
+                  <Globe className="h-10 w-10 mx-auto mb-3 text-gray-300" />
+                  <p className="text-gray-500 mb-1">Geographic data not available</p>
+                  <p className="text-sm text-gray-400">We need more data to show location statistics</p>
                 </div>
               )}
             </CardContent>
