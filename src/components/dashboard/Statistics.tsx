@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
-import { Link, Users, Eye, Info, Calendar, Globe, Chrome, Firefox, Safari, AlertCircle } from "lucide-react";
+import { Link, Users, Eye, Info, Calendar, Globe, Chrome, Monitor, Laptop, AlertCircle } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const Statistics = () => {
@@ -102,9 +102,9 @@ const Statistics = () => {
       case 'chrome':
         return <Chrome className="h-4 w-4" style={{ color: COLORS[0] }} />;
       case 'firefox':
-        return <Firefox className="h-4 w-4" style={{ color: COLORS[1] }} />;
+        return <Monitor className="h-4 w-4" style={{ color: COLORS[1] }} />;
       case 'safari':
-        return <Safari className="h-4 w-4" style={{ color: COLORS[2] }} />;
+        return <Laptop className="h-4 w-4" style={{ color: COLORS[2] }} />;
       default:
         return <Globe className="h-4 w-4" style={{ color: COLORS[3] }} />;
     }
