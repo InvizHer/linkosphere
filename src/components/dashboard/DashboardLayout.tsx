@@ -10,7 +10,7 @@ interface DashboardLayoutProps {
 
 export const DashboardLayout = ({ children, activeTab }: DashboardLayoutProps) => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-900 dark:to-indigo-950">
+    <div className="min-h-screen bg-gradient-to-br from-sky-50 via-white to-blue-50 dark:from-slate-900 dark:via-slate-900 dark:to-blue-950">
       <Header />
       
       <main className="container mx-auto px-4 pt-20 pb-24">
