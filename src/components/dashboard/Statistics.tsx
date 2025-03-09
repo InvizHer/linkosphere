@@ -12,7 +12,7 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
 import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
-import { Link, Users, Eye, Info, ArrowUpRight } from "lucide-react";
+import { Link, Users, Eye, Info } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const Statistics = () => {
@@ -75,26 +75,26 @@ const Statistics = () => {
     }
   };
 
-  const COLORS = ['#0ea5e9', '#38bdf8', '#7dd3fc', '#bae6fd', '#e0f2fe'];
+  const COLORS = ['#2563eb', '#8b5cf6', '#ec4899', '#10b981', '#f97316'];
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-sky-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
       </div>
     );
   }
 
   return (
     <div className="space-y-4 sm:space-y-6 container mx-auto px-2 sm:px-4 py-4 sm:py-6 mb-20">
-      <Card className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border border-gray-100 dark:border-gray-700 shadow-lg rounded-xl overflow-hidden">
-        <CardHeader className="pb-2 sm:pb-3 p-4 sm:p-6 bg-gradient-to-r from-sky-600 to-blue-500">
+      <Card className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border border-gray-100 dark:border-gray-700 shadow-lg">
+        <CardHeader className="pb-2 sm:pb-3 p-4 sm:p-6">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-              <CardTitle className="text-xl sm:text-2xl font-bold text-white">
+              <CardTitle className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                 Analytics Dashboard
               </CardTitle>
-              <CardDescription className="text-sky-100">
+              <CardDescription className="text-gray-500 dark:text-gray-400">
                 Track your link performance
               </CardDescription>
             </div>
@@ -104,17 +104,17 @@ const Statistics = () => {
               onValueChange={(value) => setTimeframe(value as "7days" | "30days" | "alltime")}
               className="w-full md:w-auto"
             >
-              <TabsList className="grid w-full grid-cols-3 md:w-[300px] bg-sky-700/50">
-                <TabsTrigger value="7days" className="text-xs sm:text-sm data-[state=active]:bg-white/20">7 Days</TabsTrigger>
-                <TabsTrigger value="30days" className="text-xs sm:text-sm data-[state=active]:bg-white/20">30 Days</TabsTrigger>
-                <TabsTrigger value="alltime" className="text-xs sm:text-sm data-[state=active]:bg-white/20">All Time</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-3 md:w-[300px]">
+                <TabsTrigger value="7days" className="text-xs sm:text-sm">7 Days</TabsTrigger>
+                <TabsTrigger value="30days" className="text-xs sm:text-sm">30 Days</TabsTrigger>
+                <TabsTrigger value="alltime" className="text-xs sm:text-sm">All Time</TabsTrigger>
               </TabsList>
             </Tabs>
           </div>
         </CardHeader>
-        <CardContent className="space-y-4 sm:space-y-6 px-2 sm:px-6 pt-6">
+        <CardContent className="space-y-4 sm:space-y-6 px-2 sm:px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
-            <Card className="stats-card border-none">
+            <Card className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
               <CardContent className="p-3 sm:p-4">
                 <div className="flex justify-between items-start">
                   <div>
@@ -124,14 +124,14 @@ const Statistics = () => {
                       All your links
                     </div>
                   </div>
-                  <div className="bg-sky-500/10 p-2 sm:p-3 rounded-full">
-                    <Eye className="h-4 w-4 sm:h-5 sm:w-5 text-sky-600" />
+                  <div className="bg-primary/10 p-2 sm:p-3 rounded-full">
+                    <Eye className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="stats-card border-none">
+            <Card className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
               <CardContent className="p-3 sm:p-4">
                 <div className="flex justify-between items-start">
                   <div>
@@ -141,14 +141,14 @@ const Statistics = () => {
                       Created by you
                     </div>
                   </div>
-                  <div className="bg-sky-500/10 p-2 sm:p-3 rounded-full">
-                    <Link className="h-4 w-4 sm:h-5 sm:w-5 text-sky-600" />
+                  <div className="bg-primary/10 p-2 sm:p-3 rounded-full">
+                    <Link className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="stats-card border-none">
+            <Card className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
               <CardContent className="p-3 sm:p-4">
                 <div className="flex justify-between items-start">
                   <div>
@@ -158,14 +158,14 @@ const Statistics = () => {
                       {Math.round((stats.activeLinks / stats.totalLinks) * 100) || 0}% of total
                     </div>
                   </div>
-                  <div className="bg-sky-500/10 p-2 sm:p-3 rounded-full">
-                    <Link className="h-4 w-4 sm:h-5 sm:w-5 text-sky-600" />
+                  <div className="bg-primary/10 p-2 sm:p-3 rounded-full">
+                    <Link className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="stats-card border-none">
+            <Card className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
               <CardContent className="p-3 sm:p-4">
                 <div className="flex justify-between items-start">
                   <div>
@@ -175,20 +175,17 @@ const Statistics = () => {
                       Per link
                     </div>
                   </div>
-                  <div className="bg-sky-500/10 p-2 sm:p-3 rounded-full">
-                    <Users className="h-4 w-4 sm:h-5 sm:w-5 text-sky-600" />
+                  <div className="bg-primary/10 p-2 sm:p-3 rounded-full">
+                    <Users className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                   </div>
                 </div>
               </CardContent>
             </Card>
           </div>
 
-          <Card className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm border border-gray-100 dark:border-gray-700 rounded-xl">
+          <Card className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm border border-gray-100 dark:border-gray-700">
             <CardHeader className="pb-2 p-4 sm:p-6">
-              <CardTitle className="text-base sm:text-lg font-medium flex items-center">
-                Top Performing Links
-                <ArrowUpRight className="ml-2 h-4 w-4 text-sky-600" />
-              </CardTitle>
+              <CardTitle className="text-base sm:text-lg font-medium">Top Performing Links</CardTitle>
             </CardHeader>
             <CardContent className="p-4 sm:p-6 pt-0">
               {topLinks.length > 0 ? (
@@ -214,7 +211,7 @@ const Statistics = () => {
                         <Tooltip
                           contentStyle={{
                             backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                            borderRadius: '8px',
+                            borderRadius: '6px',
                             border: '1px solid #e2e8f0',
                             boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
                             fontSize: isMobile ? '12px' : '14px',
@@ -231,7 +228,7 @@ const Statistics = () => {
                     </div>
                     <div className="space-y-3 sm:space-y-4">
                       {topLinks.map((link, index) => (
-                        <div key={link.id} className="flex items-center gap-3 p-2 sm:p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors">
+                        <div key={link.id} className="flex items-center gap-3 p-2 sm:p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
                           <div className="h-8 w-8 rounded-full flex items-center justify-center" style={{ backgroundColor: COLORS[index % COLORS.length] + '30' }}>
                             <Eye className="h-4 w-4" style={{ color: COLORS[index % COLORS.length] }} />
                           </div>
@@ -258,7 +255,7 @@ const Statistics = () => {
             </CardContent>
           </Card>
 
-          <Card className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm border border-gray-100 dark:border-gray-700 rounded-xl">
+          <Card className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm border border-gray-100 dark:border-gray-700">
             <CardHeader className="pb-2 p-4 sm:p-6">
               <CardTitle className="text-base sm:text-lg font-medium">Link Performance</CardTitle>
             </CardHeader>
@@ -293,14 +290,14 @@ const Statistics = () => {
                         <Tooltip
                           contentStyle={{
                             backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                            borderRadius: '8px',
+                            borderRadius: '6px',
                             border: '1px solid #e2e8f0',
                             boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
                             fontSize: isMobile ? '12px' : '14px',
                           }}
                           formatter={(value: any) => [`${value} views`, 'Views']}
                         />
-                        <Bar dataKey="views" name="Views" fill="#0ea5e9" radius={[4, 4, 0, 0]} />
+                        <Bar dataKey="views" name="Views" fill="#2563eb" radius={[4, 4, 0, 0]} />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>

@@ -11,7 +11,6 @@ import Profile from "@/components/dashboard/Profile";
 import LinkEditor from "@/components/dashboard/LinkEditor";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { motion } from "framer-motion";
 
 const Dashboard = () => {
   const { user, loading } = useAuth();
@@ -27,14 +26,13 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className="container mx-auto p-6 sm:p-8">
-        <div className="space-y-6 max-w-6xl mx-auto">
+      <div className="container mx-auto p-4 sm:p-8">
+        <div className="space-y-4">
           <Skeleton className="h-12 w-48" />
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Skeleton className="h-40 sm:h-48 rounded-xl" />
-            <Skeleton className="h-40 sm:h-48 rounded-xl md:col-span-2" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+            <Skeleton className="h-40 sm:h-48" />
+            <Skeleton className="h-40 sm:h-48 md:col-span-2" />
           </div>
-          <Skeleton className="h-64 sm:h-72 rounded-xl" />
         </div>
       </div>
     );
@@ -50,82 +48,15 @@ const Dashboard = () => {
     return path;
   };
 
-  // Define animations for route transitions
-  const pageVariants = {
-    initial: { opacity: 0, y: 20 },
-    animate: { opacity: 1, y: 0 },
-    exit: { opacity: 0, y: -20 }
-  };
-
   return (
     <DashboardLayout activeTab={getActiveTab()}>
       <Routes>
-        <Route index element={
-          <motion.div
-            initial="initial"
-            animate="animate"
-            exit="exit"
-            variants={pageVariants}
-            transition={{ duration: 0.3 }}
-          >
-            <DashboardHome />
-          </motion.div>
-        } />
-        <Route path="create" element={
-          <motion.div
-            initial="initial"
-            animate="animate"
-            exit="exit"
-            variants={pageVariants}
-            transition={{ duration: 0.3 }}
-          >
-            <CreateLink />
-          </motion.div>
-        } />
-        <Route path="manage" element={
-          <motion.div
-            initial="initial"
-            animate="animate"
-            exit="exit"
-            variants={pageVariants}
-            transition={{ duration: 0.3 }}
-          >
-            <ManageLinks />
-          </motion.div>
-        } />
-        <Route path="stats" element={
-          <motion.div
-            initial="initial"
-            animate="animate"
-            exit="exit"
-            variants={pageVariants}
-            transition={{ duration: 0.3 }}
-          >
-            <Statistics />
-          </motion.div>
-        } />
-        <Route path="profile" element={
-          <motion.div
-            initial="initial"
-            animate="animate"
-            exit="exit"
-            variants={pageVariants}
-            transition={{ duration: 0.3 }}
-          >
-            <Profile />
-          </motion.div>
-        } />
-        <Route path="edit/:linkId" element={
-          <motion.div
-            initial="initial"
-            animate="animate"
-            exit="exit"
-            variants={pageVariants}
-            transition={{ duration: 0.3 }}
-          >
-            <LinkEditor />
-          </motion.div>
-        } />
+        <Route index element={<DashboardHome />} />
+        <Route path="create" element={<CreateLink />} />
+        <Route path="manage" element={<ManageLinks />} />
+        <Route path="stats" element={<Statistics />} />
+        <Route path="profile" element={<Profile />} />
+        <Route path="edit/:linkId" element={<LinkEditor />} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </DashboardLayout>

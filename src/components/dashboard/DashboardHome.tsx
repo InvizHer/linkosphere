@@ -121,17 +121,17 @@ const DashboardHome = () => {
   };
 
   const statCards = [
-    { title: "Total Links", icon: LinkIcon, value: stats.totalLinks, color: "bg-sky-500" },
-    { title: "Total Views", icon: Eye, value: stats.totalViews, color: "bg-blue-500" },
-    { title: "Private Links", icon: Lock, value: stats.privateLinks, color: "bg-sky-600" },
-    { title: "Public Links", icon: Unlock, value: stats.publicLinks, color: "bg-blue-600" },
+    { title: "Total Links", icon: LinkIcon, value: stats.totalLinks, color: "bg-blue-500" },
+    { title: "Total Views", icon: Eye, value: stats.totalViews, color: "bg-green-500" },
+    { title: "Private Links", icon: Lock, value: stats.privateLinks, color: "bg-purple-500" },
+    { title: "Public Links", icon: Unlock, value: stats.publicLinks, color: "bg-amber-500" },
   ];
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="flex flex-col items-center gap-4">
-          <div className="h-12 w-12 rounded-full border-4 border-sky-600 border-t-transparent animate-spin"></div>
+          <div className="h-12 w-12 rounded-full border-4 border-primary border-t-transparent animate-spin"></div>
           <p className="text-muted-foreground">Loading dashboard...</p>
         </div>
       </div>
@@ -145,7 +145,7 @@ const DashboardHome = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="relative overflow-hidden rounded-xl bg-gradient-to-r from-sky-600 to-blue-500 text-white shadow-lg"
+        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/80 via-primary/70 to-primary/80 text-white shadow-xl"
       >
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-white/10 to-transparent"></div>
         <div className="absolute -right-10 -top-10 h-56 w-56 rounded-full bg-white/10 blur-3xl"></div>
@@ -202,14 +202,12 @@ const DashboardHome = () => {
         className="grid grid-cols-2 gap-4 md:grid-cols-4"
       >
         {statCards.map((stat, index) => (
-          <Card key={stat.title} className="overflow-hidden border-none shadow-md rounded-xl hover-card">
+          <Card key={stat.title} className="overflow-hidden border-none shadow-md">
             <div className={`h-1 ${stat.color}`}></div>
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-                <div className="bg-sky-100 dark:bg-sky-900/50 p-1.5 rounded-full">
-                  <stat.icon className={`h-3.5 w-3.5 text-sky-600 dark:text-sky-400`} />
-                </div>
+                <stat.icon className={`h-4 w-4 text-gray-400`} />
               </div>
             </CardHeader>
             <CardContent>
@@ -245,9 +243,9 @@ const DashboardHome = () => {
             </Button>
           </div>
 
-          <Card className="border shadow-sm rounded-xl overflow-hidden">
+          <Card className="border shadow-sm">
             <TabsContent value="recent" className="mt-0">
-              <CardHeader className="border-b pb-3 pt-4 bg-sky-50 dark:bg-sky-950/20">
+              <CardHeader className="border-b pb-3 pt-4">
                 <CardTitle className="text-base">Recently Created Links</CardTitle>
                 <CardDescription>Your 5 most recently created links</CardDescription>
               </CardHeader>
@@ -257,7 +255,7 @@ const DashboardHome = () => {
             </TabsContent>
 
             <TabsContent value="top" className="mt-0">
-              <CardHeader className="border-b pb-3 pt-4 bg-sky-50 dark:bg-sky-950/20">
+              <CardHeader className="border-b pb-3 pt-4">
                 <CardTitle className="text-base">Top Performing Links</CardTitle>
                 <CardDescription>Your most viewed links</CardDescription>
               </CardHeader>
@@ -275,24 +273,24 @@ const DashboardHome = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3, duration: 0.5 }}
       >
-        <Card className="overflow-hidden border shadow-sm rounded-xl bg-white/90 dark:bg-gray-800/90">
-          <CardHeader className="border-b bg-sky-50 dark:bg-sky-950/20 pb-3">
+        <Card className="overflow-hidden border shadow-sm">
+          <CardHeader className="border-b bg-muted/50 pb-3">
             <CardTitle className="flex items-center text-base">
-              <Activity className="mr-2 h-4 w-4 text-sky-600" />
+              <Activity className="mr-2 h-4 w-4 text-primary" />
               Activity Summary
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
             <div className="grid gap-6 md:grid-cols-3">
-              <div className="flex flex-col items-center justify-center rounded-lg border bg-card p-4 text-center shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-1">
-                <Calendar className="mb-2 h-5 w-5 text-sky-600" />
+              <div className="flex flex-col items-center justify-center rounded-lg border bg-card p-4 text-center shadow-sm">
+                <Calendar className="mb-2 h-5 w-5 text-muted-foreground" />
                 <p className="text-sm font-medium">Last 7 Days</p>
                 <h4 className="text-2xl font-bold">{stats.totalViews}</h4>
                 <p className="text-xs text-muted-foreground">Total views</p>
               </div>
               
-              <div className="flex flex-col items-center justify-center rounded-lg border bg-card p-4 text-center shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-1">
-                <TrendingUp className="mb-2 h-5 w-5 text-sky-600" />
+              <div className="flex flex-col items-center justify-center rounded-lg border bg-card p-4 text-center shadow-sm">
+                <TrendingUp className="mb-2 h-5 w-5 text-muted-foreground" />
                 <p className="text-sm font-medium">Conversion</p>
                 <h4 className="text-2xl font-bold">
                   {stats.totalLinks > 0 
@@ -302,8 +300,8 @@ const DashboardHome = () => {
                 <p className="text-xs text-muted-foreground">Avg views per link</p>
               </div>
               
-              <div className="flex flex-col items-center justify-center rounded-lg border bg-card p-4 text-center shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-1">
-                <Users className="mb-2 h-5 w-5 text-sky-600" />
+              <div className="flex flex-col items-center justify-center rounded-lg border bg-card p-4 text-center shadow-sm">
+                <Users className="mb-2 h-5 w-5 text-muted-foreground" />
                 <p className="text-sm font-medium">User Growth</p>
                 <h4 className="text-2xl font-bold">+1</h4>
                 <p className="text-xs text-muted-foreground">New account</p>
@@ -342,17 +340,13 @@ const LinksTable = ({ links, emptyMessage }: { links: any[], emptyMessage: strin
           </TableHeader>
           <TableBody>
             {links.map((link) => (
-              <TableRow key={link.id} className="hover:bg-sky-50 dark:hover:bg-sky-900/10">
+              <TableRow key={link.id} className="hover:bg-muted/50">
                 <TableCell className="font-medium">
                   <div className="flex items-center gap-2">
                     {link.password ? (
-                      <div className="bg-sky-100 dark:bg-sky-900/50 p-1.5 rounded-full">
-                        <Lock className="h-3.5 w-3.5 text-sky-600 dark:text-sky-400" />
-                      </div>
+                      <Lock className="h-4 w-4 text-muted-foreground" />
                     ) : (
-                      <div className="bg-sky-100 dark:bg-sky-900/50 p-1.5 rounded-full">
-                        <Unlock className="h-3.5 w-3.5 text-sky-600 dark:text-sky-400" />
-                      </div>
+                      <Unlock className="h-4 w-4 text-muted-foreground" />
                     )}
                     <span className="truncate max-w-[150px] md:max-w-[200px]">
                       {link.name}
@@ -361,13 +355,13 @@ const LinksTable = ({ links, emptyMessage }: { links: any[], emptyMessage: strin
                 </TableCell>
                 <TableCell className="hidden md:table-cell">
                   <div className="flex items-center gap-1">
-                    <Eye className="h-4 w-4 text-gray-500" />
+                    <Eye className="h-4 w-4 text-muted-foreground" />
                     {link.views || 0}
                   </div>
                 </TableCell>
                 <TableCell className="hidden md:table-cell">
                   <div className="flex items-center gap-1">
-                    <Clock className="h-4 w-4 text-gray-500" />
+                    <Clock className="h-4 w-4 text-muted-foreground" />
                     {new Date(link.created_at).toLocaleDateString()}
                   </div>
                 </TableCell>
@@ -376,7 +370,7 @@ const LinksTable = ({ links, emptyMessage }: { links: any[], emptyMessage: strin
                     variant="ghost"
                     size="icon"
                     asChild
-                    className="h-8 w-8 hover:bg-sky-100 dark:hover:bg-sky-900/30"
+                    className="h-8 w-8"
                   >
                     <Link
                       to={`/view?token=${link.token}`}
@@ -392,9 +386,7 @@ const LinksTable = ({ links, emptyMessage }: { links: any[], emptyMessage: strin
         </Table>
       ) : (
         <div className="flex flex-col items-center justify-center p-8 text-center text-muted-foreground">
-          <div className="bg-sky-100 dark:bg-sky-900/50 p-4 rounded-full mb-3">
-            <LinkIcon className="h-6 w-6 text-sky-600 dark:text-sky-400" />
-          </div>
+          <LinkIcon className="mb-2 h-8 w-8" />
           <p>{emptyMessage}</p>
           <Link to="/dashboard/create">
             <Button variant="outline" className="mt-4">
