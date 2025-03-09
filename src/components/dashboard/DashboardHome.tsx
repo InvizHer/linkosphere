@@ -4,10 +4,18 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   Link as LinkIcon,
   Eye,
@@ -22,12 +30,6 @@ import {
   Sparkles,
   BarChart2,
   Calendar,
-  Pencil,
-  ExternalLink,
-  Globe,
-  Zap,
-  Bookmark,
-  ChevronRight
 } from "lucide-react";
 
 const DashboardHome = () => {
@@ -221,14 +223,14 @@ const DashboardHome = () => {
         ))}
       </motion.div>
 
-      {/* Links Tabs with New Design */}
+      {/* Links Tabs */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2, duration: 0.5 }}
       >
         <Tabs defaultValue="recent" className="w-full">
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-4">
             <TabsList className="grid w-full max-w-xs grid-cols-2">
               <TabsTrigger value="recent">Recent Links</TabsTrigger>
               <TabsTrigger value="top">Top Links</TabsTrigger>
@@ -241,53 +243,31 @@ const DashboardHome = () => {
             </Button>
           </div>
 
-          <TabsContent value="recent">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {recentLinks.length > 0 ? (
-                recentLinks.map((link) => (
-                  <LinkCard key={link.id} link={link} />
-                ))
-              ) : (
-                <div className="col-span-full flex flex-col items-center justify-center py-12 text-center">
-                  <LinkIcon className="mb-4 h-12 w-12 text-muted-foreground/50" />
-                  <h3 className="text-lg font-medium mb-2">No links created yet</h3>
-                  <p className="text-sm text-muted-foreground mb-4">Create your first link to get started</p>
-                  <Button asChild>
-                    <Link to="/dashboard/create">
-                      <PlusCircle className="mr-1.5 h-4 w-4" />
-                      Create Link
-                    </Link>
-                  </Button>
-                </div>
-              )}
-            </div>
-          </TabsContent>
+          <Card className="border shadow-sm">
+            <TabsContent value="recent" className="mt-0">
+              <CardHeader className="border-b pb-3 pt-4">
+                <CardTitle className="text-base">Recently Created Links</CardTitle>
+                <CardDescription>Your 5 most recently created links</CardDescription>
+              </CardHeader>
+              <CardContent className="p-0">
+                <LinksTable links={recentLinks} emptyMessage="No links created yet" />
+              </CardContent>
+            </TabsContent>
 
-          <TabsContent value="top">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {topLinks.length > 0 ? (
-                topLinks.map((link) => (
-                  <LinkCard key={link.id} link={link} />
-                ))
-              ) : (
-                <div className="col-span-full flex flex-col items-center justify-center py-12 text-center">
-                  <BarChart2 className="mb-4 h-12 w-12 text-muted-foreground/50" />
-                  <h3 className="text-lg font-medium mb-2">No link views yet</h3>
-                  <p className="text-sm text-muted-foreground mb-4">Share your links to start collecting views</p>
-                  <Button asChild>
-                    <Link to="/dashboard/manage">
-                      <LinkIcon className="mr-1.5 h-4 w-4" />
-                      Manage Links
-                    </Link>
-                  </Button>
-                </div>
-              )}
-            </div>
-          </TabsContent>
+            <TabsContent value="top" className="mt-0">
+              <CardHeader className="border-b pb-3 pt-4">
+                <CardTitle className="text-base">Top Performing Links</CardTitle>
+                <CardDescription>Your most viewed links</CardDescription>
+              </CardHeader>
+              <CardContent className="p-0">
+                <LinksTable links={topLinks} emptyMessage="No link views yet" />
+              </CardContent>
+            </TabsContent>
+          </Card>
         </Tabs>
       </motion.div>
 
-      {/* Quick Tips Card */}
+      {/* Activity Card */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -296,28 +276,35 @@ const DashboardHome = () => {
         <Card className="overflow-hidden border shadow-sm">
           <CardHeader className="border-b bg-muted/50 pb-3">
             <CardTitle className="flex items-center text-base">
-              <Zap className="mr-2 h-4 w-4 text-primary" />
-              Quick Tips & Resources
+              <Activity className="mr-2 h-4 w-4 text-primary" />
+              Activity Summary
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
             <div className="grid gap-6 md:grid-cols-3">
-              <div className="flex flex-col items-center justify-center rounded-lg border bg-card p-4 text-center shadow-sm hover:bg-muted/50 transition-colors">
-                <Globe className="mb-2 h-5 w-5 text-primary" />
-                <p className="text-sm font-medium">Link Optimization</p>
-                <p className="text-xs text-muted-foreground mt-2">Add descriptive names to your links for better recognition</p>
+              <div className="flex flex-col items-center justify-center rounded-lg border bg-card p-4 text-center shadow-sm">
+                <Calendar className="mb-2 h-5 w-5 text-muted-foreground" />
+                <p className="text-sm font-medium">Last 7 Days</p>
+                <h4 className="text-2xl font-bold">{stats.totalViews}</h4>
+                <p className="text-xs text-muted-foreground">Total views</p>
               </div>
               
-              <div className="flex flex-col items-center justify-center rounded-lg border bg-card p-4 text-center shadow-sm hover:bg-muted/50 transition-colors">
-                <Bookmark className="mb-2 h-5 w-5 text-primary" />
-                <p className="text-sm font-medium">Protect Sensitive Content</p>
-                <p className="text-xs text-muted-foreground mt-2">Use password protection for links with sensitive information</p>
+              <div className="flex flex-col items-center justify-center rounded-lg border bg-card p-4 text-center shadow-sm">
+                <TrendingUp className="mb-2 h-5 w-5 text-muted-foreground" />
+                <p className="text-sm font-medium">Conversion</p>
+                <h4 className="text-2xl font-bold">
+                  {stats.totalLinks > 0 
+                    ? `${Math.round((stats.totalViews / stats.totalLinks) * 10) / 10}` 
+                    : "0"}
+                </h4>
+                <p className="text-xs text-muted-foreground">Avg views per link</p>
               </div>
               
-              <div className="flex flex-col items-center justify-center rounded-lg border bg-card p-4 text-center shadow-sm hover:bg-muted/50 transition-colors">
-                <TrendingUp className="mb-2 h-5 w-5 text-primary" />
-                <p className="text-sm font-medium">Track Performance</p>
-                <p className="text-xs text-muted-foreground mt-2">Check your statistics page regularly to monitor link engagement</p>
+              <div className="flex flex-col items-center justify-center rounded-lg border bg-card p-4 text-center shadow-sm">
+                <Users className="mb-2 h-5 w-5 text-muted-foreground" />
+                <p className="text-sm font-medium">User Growth</p>
+                <h4 className="text-2xl font-bold">+1</h4>
+                <p className="text-xs text-muted-foreground">New account</p>
               </div>
             </div>
           </CardContent>
@@ -337,71 +324,79 @@ const DashboardHome = () => {
   );
 };
 
-// Link Card Component
-const LinkCard = ({ link }: { link: any }) => {
-  const formattedDate = new Date(link.created_at).toLocaleDateString();
-  
+// Links table component
+const LinksTable = ({ links, emptyMessage }: { links: any[], emptyMessage: string }) => {
   return (
-    <Card className="overflow-hidden hover:shadow-md transition-shadow">
-      <CardHeader className="pb-3 pt-4">
-        <div className="flex justify-between items-start">
-          <div className="space-y-1">
-            <CardTitle className="text-base line-clamp-1">{link.name}</CardTitle>
-            <CardDescription className="line-clamp-1 text-xs">
-              /{link.token}
-            </CardDescription>
-          </div>
-          <Badge variant={link.password ? "destructive" : "secondary"} className="h-5 flex items-center gap-1">
-            {link.password ? (
-              <>
-                <Lock className="h-3 w-3" /> Private
-              </>
-            ) : (
-              <>
-                <Unlock className="h-3 w-3" /> Public
-              </>
-            )}
-          </Badge>
-        </div>
-      </CardHeader>
-      <CardContent className="pb-3 pt-0">
-        <div className="flex items-center gap-2 text-sm">
-          <div className="flex items-center text-muted-foreground">
-            <Eye className="mr-1 h-3.5 w-3.5" />
-            <span>{link.views || 0} views</span>
-          </div>
-          <span className="text-muted-foreground">•</span>
-          <div className="flex items-center text-muted-foreground">
-            <Calendar className="mr-1 h-3.5 w-3.5" />
-            <span>{formattedDate}</span>
-          </div>
-        </div>
-      </CardContent>
-      <CardFooter className="pt-0 pb-4 flex justify-between">
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          asChild 
-          className="h-8 px-2 text-xs"
-        >
-          <Link to={`/view?token=${link.token}`} target="_blank">
-            <ExternalLink className="mr-1.5 h-3.5 w-3.5" />
-            Open
+    <div className="overflow-hidden rounded-b-lg">
+      {links.length > 0 ? (
+        <Table>
+          <TableHeader>
+            <TableRow className="hover:bg-transparent">
+              <TableHead>Name</TableHead>
+              <TableHead className="hidden md:table-cell">Views</TableHead>
+              <TableHead className="hidden md:table-cell">Created</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {links.map((link) => (
+              <TableRow key={link.id} className="hover:bg-muted/50">
+                <TableCell className="font-medium">
+                  <div className="flex items-center gap-2">
+                    {link.password ? (
+                      <Lock className="h-4 w-4 text-muted-foreground" />
+                    ) : (
+                      <Unlock className="h-4 w-4 text-muted-foreground" />
+                    )}
+                    <span className="truncate max-w-[150px] md:max-w-[200px]">
+                      {link.name}
+                    </span>
+                  </div>
+                </TableCell>
+                <TableCell className="hidden md:table-cell">
+                  <div className="flex items-center gap-1">
+                    <Eye className="h-4 w-4 text-muted-foreground" />
+                    {link.views || 0}
+                  </div>
+                </TableCell>
+                <TableCell className="hidden md:table-cell">
+                  <div className="flex items-center gap-1">
+                    <Clock className="h-4 w-4 text-muted-foreground" />
+                    {new Date(link.created_at).toLocaleDateString()}
+                  </div>
+                </TableCell>
+                <TableCell className="text-right space-x-1">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    asChild
+                    className="h-8 w-8"
+                  >
+                    <Link
+                      to={`/view?token=${link.token}`}
+                      target="_blank"
+                    >
+                      <Share2 className="h-4 w-4" />
+                    </Link>
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      ) : (
+        <div className="flex flex-col items-center justify-center p-8 text-center text-muted-foreground">
+          <LinkIcon className="mb-2 h-8 w-8" />
+          <p>{emptyMessage}</p>
+          <Link to="/dashboard/create">
+            <Button variant="outline" className="mt-4">
+              <PlusCircle className="mr-1.5 h-4 w-4" />
+              Create your first link
+            </Button>
           </Link>
-        </Button>
-        <Button 
-          variant="outline" 
-          size="sm" 
-          asChild 
-          className="h-8 px-2 text-xs"
-        >
-          <Link to={`/dashboard/edit/${link.id}`}>
-            <Pencil className="mr-1.5 h-3.5 w-3.5" />
-            Edit
-          </Link>
-        </Button>
-      </CardFooter>
-    </Card>
+        </div>
+      )}
+    </div>
   );
 };
 
