@@ -1,3 +1,4 @@
+
 import { Header } from "@/components/layout/Header";
 import { MobileFooter } from "@/components/layout/MobileFooter";
 import { motion } from "framer-motion";
@@ -9,7 +10,7 @@ interface DashboardLayoutProps {
 
 export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-sky-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <Header />
       
       <main className="container mx-auto px-4 pt-24 pb-24">

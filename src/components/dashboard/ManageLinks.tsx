@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -100,21 +101,21 @@ const ManageLinks = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-sky-600"></div>
       </div>
     );
   }
 
   return (
     <div className="space-y-6 container mx-auto px-2 sm:px-4 py-6 mb-20">
-      <Card className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border border-gray-100 dark:border-gray-700 shadow-lg">
-        <CardHeader className="pb-4">
+      <Card className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border border-gray-100 dark:border-gray-700 shadow-lg rounded-xl overflow-hidden">
+        <CardHeader className="pb-4 bg-gradient-to-r from-sky-600 to-blue-500">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-              <CardTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              <CardTitle className="text-2xl font-bold text-white">
                 Manage Links
               </CardTitle>
-              <CardDescription className="text-gray-500 dark:text-gray-400">
+              <CardDescription className="text-sky-100">
                 View and manage all your shortened links
               </CardDescription>
             </div>
@@ -122,7 +123,7 @@ const ManageLinks = () => {
               <Button 
                 variant="outline" 
                 size="sm"
-                className={`${viewMode === 'list' ? 'bg-primary text-white' : ''}`}
+                className={`bg-white/20 hover:bg-white/30 text-white border-white/30 ${viewMode === 'list' ? 'bg-white/40' : ''}`}
                 onClick={() => setViewMode('list')}
               >
                 <LinkIcon className="h-4 w-4 mr-1" />
@@ -131,7 +132,7 @@ const ManageLinks = () => {
               <Button 
                 variant="outline" 
                 size="sm"
-                className={`${viewMode === 'grid' ? 'bg-primary text-white' : ''}`}
+                className={`bg-white/20 hover:bg-white/30 text-white border-white/30 ${viewMode === 'grid' ? 'bg-white/40' : ''}`}
                 onClick={() => setViewMode('grid')}
               >
                 <div className="grid grid-cols-2 gap-0.5 h-4 w-4 mr-1">
@@ -145,7 +146,7 @@ const ManageLinks = () => {
             </div>
           </div>
         </CardHeader>
-        <CardContent className="space-y-6 px-2 sm:px-6">
+        <CardContent className="space-y-6 px-2 sm:px-6 pt-6">
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
@@ -153,10 +154,10 @@ const ManageLinks = () => {
                 placeholder="Search links..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-9 bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm"
+                className="pl-9 bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm rounded-lg"
               />
             </div>
-            <div className="flex items-center gap-2 bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm rounded-md border border-gray-200 dark:border-gray-700 px-3">
+            <div className="flex items-center gap-2 bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm rounded-lg border border-gray-200 dark:border-gray-700 px-3">
               <SlidersHorizontal className="h-4 w-4 text-gray-500" />
               <select
                 className="bg-transparent border-none outline-none py-2 text-sm"
@@ -171,8 +172,8 @@ const ManageLinks = () => {
 
           {paginatedLinks.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
-              <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-full mb-4">
-                <LinkIcon className="h-8 w-8 text-gray-400" />
+              <div className="bg-sky-100 dark:bg-sky-900/50 p-4 rounded-full mb-4">
+                <LinkIcon className="h-8 w-8 text-sky-600 dark:text-sky-400" />
               </div>
               <h3 className="text-lg font-medium mb-1">No links found</h3>
               <p className="text-gray-500 dark:text-gray-400 max-w-md mb-4">
@@ -183,7 +184,7 @@ const ManageLinks = () => {
               </Button>
             </div>
           ) : viewMode === 'list' ? (
-            <div className="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
+            <div className="overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700">
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
@@ -198,11 +199,13 @@ const ManageLinks = () => {
                     {paginatedLinks.map((link) => (
                       <TableRow
                         key={link.id}
-                        className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                        className="hover:bg-sky-50 dark:hover:bg-sky-900/10 transition-colors"
                       >
                         <TableCell className="font-medium">
                           <div className="flex items-center gap-2">
-                            <LinkIcon className="h-4 w-4 text-primary" />
+                            <div className="bg-sky-100 dark:bg-sky-900/50 p-1.5 rounded-full">
+                              <LinkIcon className="h-3.5 w-3.5 text-sky-600 dark:text-sky-400" />
+                            </div>
                             <span className="truncate max-w-[150px] sm:max-w-[200px]">
                               {link.name}
                             </span>
@@ -226,7 +229,7 @@ const ManageLinks = () => {
                               variant="ghost"
                               size="icon"
                               onClick={() => handleEditLink(link)}
-                              className="hover:bg-primary/10"
+                              className="hover:bg-sky-100 dark:hover:bg-sky-900/30 h-8 w-8"
                               title="Edit"
                             >
                               <Edit2 className="h-4 w-4" />
@@ -235,7 +238,7 @@ const ManageLinks = () => {
                               variant="ghost"
                               size="icon"
                               onClick={() => window.open(`/view?token=${link.token}`, '_blank')}
-                              className="hover:bg-primary/10"
+                              className="hover:bg-sky-100 dark:hover:bg-sky-900/30 h-8 w-8"
                               title="Open"
                             >
                               <ExternalLink className="h-4 w-4" />
@@ -244,7 +247,7 @@ const ManageLinks = () => {
                               variant="ghost"
                               size="icon"
                               onClick={() => copyLinkToClipboard(link)}
-                              className="hover:bg-primary/10"
+                              className="hover:bg-sky-100 dark:hover:bg-sky-900/30 h-8 w-8"
                               title="Copy"
                             >
                               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
@@ -265,13 +268,13 @@ const ManageLinks = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3 }}
-                  className="bg-white dark:bg-gray-800/80 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+                  className="link-card bg-white dark:bg-gray-800/80 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm hover:shadow-md transition-all"
                 >
                   <div className="p-3">
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex items-center gap-2">
-                        <div className="bg-primary/10 p-1.5 rounded-full">
-                          <LinkIcon className="h-3.5 w-3.5 text-primary" />
+                        <div className="bg-sky-100 dark:bg-sky-900/50 p-1.5 rounded-full">
+                          <LinkIcon className="h-3.5 w-3.5 text-sky-600 dark:text-sky-400" />
                         </div>
                         <h3 className="font-medium truncate max-w-[100px] xs:max-w-[120px] sm:max-w-[150px]">{link.name}</h3>
                       </div>
@@ -293,7 +296,7 @@ const ManageLinks = () => {
                           variant="ghost"
                           size="icon"
                           onClick={() => handleEditLink(link)}
-                          className="h-7 w-7 hover:bg-primary/10"
+                          className="h-7 w-7 hover:bg-sky-100 dark:hover:bg-sky-900/30"
                           title="Edit"
                         >
                           <Edit2 className="h-3 w-3" />
@@ -302,7 +305,7 @@ const ManageLinks = () => {
                           variant="ghost"
                           size="icon"
                           onClick={() => window.open(`/view?token=${link.token}`, '_blank')}
-                          className="h-7 w-7 hover:bg-primary/10"
+                          className="h-7 w-7 hover:bg-sky-100 dark:hover:bg-sky-900/30"
                           title="Open"
                         >
                           <ExternalLink className="h-3 w-3" />
@@ -311,7 +314,7 @@ const ManageLinks = () => {
                           variant="ghost"
                           size="icon"
                           onClick={() => copyLinkToClipboard(link)}
-                          className="h-7 w-7 hover:bg-primary/10"
+                          className="h-7 w-7 hover:bg-sky-100 dark:hover:bg-sky-900/30"
                           title="Copy"
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
@@ -340,7 +343,7 @@ const ManageLinks = () => {
                         variant={currentPage === page ? "default" : "outline"}
                         size="sm"
                         onClick={() => setCurrentPage(page)}
-                        className={currentPage === page ? "bg-primary" : ""}
+                        className={currentPage === page ? "bg-sky-600 hover:bg-sky-700" : ""}
                       >
                         {page}
                       </Button>

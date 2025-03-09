@@ -1,3 +1,4 @@
+
 #root {
   margin: 0 auto;
   text-align: center;
@@ -53,7 +54,7 @@
 
 /* Gradient text */
 .gradient-text {
-  background: linear-gradient(to right, var(--primary), var(--accent));
+  background: linear-gradient(to right, #0ea5e9, #38bdf8);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -75,9 +76,44 @@
   }
 }
 
+/* Card hover effects */
+.hover-card {
+  transition: all 0.3s ease;
+}
+
+.hover-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
 /* Mobile optimizations */
 @media (max-width: 768px) {
   .mobile-padding {
     padding-bottom: 80px;
   }
+}
+
+/* Link card styles */
+.link-card {
+  border-radius: 0.75rem;
+  border: 1px solid rgba(226, 232, 240, 1);
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.link-card:hover {
+  box-shadow: 0 4px 14px 0 rgba(0, 0, 0, 0.1);
+}
+
+/* Stats card styles */
+.stats-card {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.3));
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 1rem;
+}
+
+.dark .stats-card {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.7), rgba(30, 41, 59, 0.3));
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
