@@ -1,12 +1,14 @@
 
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { PlusCircle, List, BarChart2, Home } from "lucide-react";
 import { motion } from "framer-motion";
 
-export const MobileFooter = () => {
+interface MobileFooterProps {
+  activeTab: string;
+}
+
+export const MobileFooter = ({ activeTab }: MobileFooterProps) => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const currentPath = location.pathname.split("/")[2] || "home";
 
   const tabs = [
     { id: "home", label: "Home", icon: Home },
@@ -19,12 +21,12 @@ export const MobileFooter = () => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="fixed bottom-0 left-0 right-0 md:hidden bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl border-t border-gray-200 dark:border-gray-800 shadow-lg z-50"
+      className="fixed bottom-0 left-0 right-0 md:hidden bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl border-t border-sky-100 dark:border-gray-800 shadow-lg z-50"
     >
       <nav className="grid grid-cols-4 p-1">
         {tabs.map((tab) => {
           const Icon = tab.icon;
-          const isActive = currentPath === tab.id;
+          const isActive = activeTab === tab.id;
 
           return (
             <button
@@ -33,14 +35,14 @@ export const MobileFooter = () => {
                 navigate(`/dashboard${tab.id === "home" ? "" : `/${tab.id}`}`)
               }
               className={`relative flex flex-col items-center justify-center py-2 transition-all duration-300 ${
-                isActive ? "text-primary" : "text-gray-500 dark:text-gray-400"
+                isActive ? "text-sky-500" : "text-gray-500 dark:text-gray-400"
               }`}
             >
               <div className={`relative ${isActive ? 'z-10' : ''}`}>
                 {isActive && (
                   <motion.div
                     layoutId="tabBackground"
-                    className="absolute inset-0 -m-1 rounded-full bg-primary/10 dark:bg-primary/20 w-10 h-10"
+                    className="absolute inset-0 -m-1 rounded-full bg-sky-100 dark:bg-sky-900/20 w-10 h-10"
                     transition={{
                       type: "spring",
                       stiffness: 400,
@@ -49,7 +51,7 @@ export const MobileFooter = () => {
                   />
                 )}
                 <div className="relative z-10 flex items-center justify-center w-8 h-8">
-                  <Icon className={`h-5 w-5 ${isActive ? "text-primary" : "text-gray-500 dark:text-gray-400"}`} />
+                  <Icon className={`h-5 w-5 ${isActive ? "text-sky-500" : "text-gray-500 dark:text-gray-400"}`} />
                 </div>
               </div>
               <span className="text-[10px] mt-0.5 font-medium">
@@ -58,7 +60,7 @@ export const MobileFooter = () => {
               {isActive && (
                 <motion.div
                   layoutId="activeIndicator"
-                  className="absolute bottom-0.5 w-1 h-1 rounded-full bg-primary"
+                  className="absolute bottom-0.5 w-1 h-1 rounded-full bg-sky-500"
                   transition={{
                     type: "spring",
                     stiffness: 300,

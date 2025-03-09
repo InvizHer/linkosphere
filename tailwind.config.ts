@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -25,7 +26,7 @@ export default {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "#2563eb",
+          DEFAULT: "#0ea5e9", // sky-500
           foreground: "#ffffff",
         },
         secondary: {
@@ -33,7 +34,7 @@ export default {
           foreground: "#ffffff",
         },
         accent: {
-          DEFAULT: "#60a5fa",
+          DEFAULT: "#3b82f6", // blue-500
           foreground: "#ffffff",
         },
         destructive: {
@@ -76,6 +77,9 @@ export default {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         fadeIn: "fadeIn 0.5s ease-out",
+      },
+      screens: {
+        'xs': '480px',
       },
     },
   },
