@@ -1,4 +1,3 @@
-
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -53,7 +52,7 @@ export const Header = () => {
     <motion.header
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border-b border-sky-100 dark:border-slate-700"
+      className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-700"
     >
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
@@ -63,7 +62,7 @@ export const Header = () => {
             onClick={() => navigate("/dashboard")}
             className="cursor-pointer"
           >
-            <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
+            <span className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
               Lincly
             </span>
           </motion.div>
@@ -81,8 +80,8 @@ export const Header = () => {
                     onClick={() => navigate(`/dashboard${tab.id === "home" ? "" : `/${tab.id}`}`)}
                     className={`relative flex items-center space-x-2 ${
                       isActive
-                        ? "bg-blue-600 text-white hover:bg-blue-700"
-                        : "hover:bg-sky-50 dark:hover:bg-slate-800"
+                        ? "bg-primary text-white before:absolute before:bottom-0 before:left-0 before:w-full before:h-1 before:bg-primary/20 before:rounded-t-full"
+                        : "hover:bg-gray-100 dark:hover:bg-gray-800"
                     }`}
                   >
                     <Icon className="h-4 w-4" />
@@ -96,8 +95,8 @@ export const Header = () => {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="relative">
-                <Avatar className="h-8 w-8 bg-gradient-to-br from-blue-500 to-cyan-500">
-                  <AvatarFallback className="text-white">
+                <Avatar className="h-8 w-8">
+                  <AvatarFallback className="bg-primary text-primary-foreground">
                     {userInitial}
                   </AvatarFallback>
                 </Avatar>

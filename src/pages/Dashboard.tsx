@@ -26,18 +26,12 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-sky-50 via-white to-blue-50 dark:from-slate-900 dark:via-slate-900 dark:to-blue-950 pt-20">
-        <div className="container mx-auto p-6 max-w-6xl">
-          <div className="space-y-6">
-            <Skeleton className="h-14 w-52 rounded-xl" />
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <Skeleton className="h-44 rounded-xl" />
-              <Skeleton className="h-44 rounded-xl md:col-span-2" />
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <Skeleton className="h-64 rounded-xl" />
-              <Skeleton className="h-64 rounded-xl" />
-            </div>
+      <div className="container mx-auto p-4 sm:p-8">
+        <div className="space-y-4">
+          <Skeleton className="h-12 w-48" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+            <Skeleton className="h-40 sm:h-48" />
+            <Skeleton className="h-40 sm:h-48 md:col-span-2" />
           </div>
         </div>
       </div>
