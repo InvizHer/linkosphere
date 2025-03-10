@@ -26,12 +26,15 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className="container mx-auto p-4 sm:p-8">
-        <div className="space-y-4">
-          <Skeleton className="h-12 w-48" />
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
-            <Skeleton className="h-40 sm:h-48" />
-            <Skeleton className="h-40 sm:h-48 md:col-span-2" />
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-indigo-50 dark:from-indigo-950 dark:via-purple-950 dark:to-indigo-950 flex items-center justify-center">
+        <div className="w-full max-w-md p-6">
+          <div className="space-y-4">
+            <Skeleton className="h-8 w-3/4 bg-indigo-200/50 dark:bg-indigo-700/20" />
+            <Skeleton className="h-32 w-full bg-indigo-200/50 dark:bg-indigo-700/20" />
+            <div className="grid grid-cols-2 gap-4">
+              <Skeleton className="h-24 bg-indigo-200/50 dark:bg-indigo-700/20" />
+              <Skeleton className="h-24 bg-indigo-200/50 dark:bg-indigo-700/20" />
+            </div>
           </div>
         </div>
       </div>

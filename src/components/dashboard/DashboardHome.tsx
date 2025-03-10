@@ -30,6 +30,8 @@ import {
   Sparkles,
   BarChart2,
   Calendar,
+  Lightbulb,
+  Zap,
 } from "lucide-react";
 
 const DashboardHome = () => {
@@ -121,18 +123,18 @@ const DashboardHome = () => {
   };
 
   const statCards = [
-    { title: "Total Links", icon: LinkIcon, value: stats.totalLinks, color: "bg-blue-500" },
-    { title: "Total Views", icon: Eye, value: stats.totalViews, color: "bg-green-500" },
-    { title: "Private Links", icon: Lock, value: stats.privateLinks, color: "bg-purple-500" },
-    { title: "Public Links", icon: Unlock, value: stats.publicLinks, color: "bg-amber-500" },
+    { title: "Total Links", icon: LinkIcon, value: stats.totalLinks, color: "from-indigo-500 to-indigo-600" },
+    { title: "Total Views", icon: Eye, value: stats.totalViews, color: "from-purple-500 to-purple-600" },
+    { title: "Private Links", icon: Lock, value: stats.privateLinks, color: "from-violet-500 to-violet-600" },
+    { title: "Public Links", icon: Unlock, value: stats.publicLinks, color: "from-fuchsia-500 to-fuchsia-600" },
   ];
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="flex flex-col items-center gap-4">
-          <div className="h-12 w-12 rounded-full border-4 border-primary border-t-transparent animate-spin"></div>
-          <p className="text-muted-foreground">Loading dashboard...</p>
+          <div className="h-12 w-12 rounded-full border-4 border-indigo-500 border-t-transparent animate-spin"></div>
+          <p className="text-indigo-600 dark:text-indigo-300">Loading dashboard...</p>
         </div>
       </div>
     );
@@ -145,9 +147,9 @@ const DashboardHome = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/80 via-primary/70 to-primary/80 text-white shadow-xl"
+        className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 text-white shadow-xl"
       >
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-white/10 to-transparent"></div>
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxwYXR0ZXJuIGlkPSJwYXR0ZXJuIiB4PSIwIiB5PSIwIiB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiIHBhdHRlcm5UcmFuc2Zvcm09InJvdGF0ZSgzMCkiPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIyIiBoZWlnaHQ9IjIiIGZpbGw9IiNmZmZmZmYxMCIgLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjcGF0dGVybikiIC8+PC9zdmc+')]"></div>
         <div className="absolute -right-10 -top-10 h-56 w-56 rounded-full bg-white/10 blur-3xl"></div>
         <div className="absolute -bottom-5 -left-5 h-32 w-32 rounded-full bg-white/10 blur-xl"></div>
         
@@ -170,8 +172,7 @@ const DashboardHome = () => {
               <Button 
                 asChild 
                 size="sm" 
-                variant="secondary" 
-                className="bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm"
+                className="bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm border border-white/10"
               >
                 <Link to="/dashboard/create">
                   <PlusCircle className="mr-1.5 h-4 w-4" />
@@ -181,8 +182,7 @@ const DashboardHome = () => {
               <Button 
                 asChild 
                 size="sm" 
-                variant="secondary" 
-                className="bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm"
+                className="bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm border border-white/10"
               >
                 <Link to="/dashboard/stats">
                   <BarChart2 className="mr-1.5 h-4 w-4" />
@@ -202,17 +202,19 @@ const DashboardHome = () => {
         className="grid grid-cols-2 gap-4 md:grid-cols-4"
       >
         {statCards.map((stat, index) => (
-          <Card key={stat.title} className="overflow-hidden border-none shadow-md">
-            <div className={`h-1 ${stat.color}`}></div>
-            <CardHeader className="pb-2">
+          <Card key={stat.title} className="overflow-hidden border-none shadow-lg bg-white/80 dark:bg-indigo-950/30 backdrop-blur-md">
+            <div className={`h-1.5 bg-gradient-to-r ${stat.color}`}></div>
+            <CardHeader className="pb-2 pt-4">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-                <stat.icon className={`h-4 w-4 text-gray-400`} />
+                <CardTitle className="text-sm font-medium text-indigo-950 dark:text-indigo-100">{stat.title}</CardTitle>
+                <div className={`p-2 rounded-lg bg-gradient-to-br ${stat.color}`}>
+                  <stat.icon className="h-4 w-4 text-white" />
+                </div>
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stat.value}</div>
-              <p className="text-xs text-muted-foreground">
+              <div className="text-2xl font-bold text-indigo-700 dark:text-indigo-300">{stat.value}</div>
+              <p className="text-xs text-indigo-500/70 dark:text-indigo-400/70">
                 {stat.title === "Total Links" && "Links created"}
                 {stat.title === "Total Views" && "Combined views"}
                 {stat.title === "Private Links" && "Password protected"}
@@ -231,11 +233,11 @@ const DashboardHome = () => {
       >
         <Tabs defaultValue="recent" className="w-full">
           <div className="flex items-center justify-between mb-4">
-            <TabsList className="grid w-full max-w-xs grid-cols-2">
-              <TabsTrigger value="recent">Recent Links</TabsTrigger>
-              <TabsTrigger value="top">Top Links</TabsTrigger>
+            <TabsList className="grid w-full max-w-xs grid-cols-2 bg-indigo-100/50 dark:bg-indigo-800/20">
+              <TabsTrigger value="recent" className="data-[state=active]:bg-indigo-500 data-[state=active]:text-white">Recent Links</TabsTrigger>
+              <TabsTrigger value="top" className="data-[state=active]:bg-indigo-500 data-[state=active]:text-white">Top Links</TabsTrigger>
             </TabsList>
-            <Button asChild variant="outline" size="sm" className="hidden sm:flex">
+            <Button asChild variant="outline" size="sm" className="hidden sm:flex bg-white/80 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-900/40">
               <Link to="/dashboard/manage">
                 <Eye className="mr-1.5 h-4 w-4" />
                 View All Links
@@ -243,11 +245,16 @@ const DashboardHome = () => {
             </Button>
           </div>
 
-          <Card className="border shadow-sm">
+          <Card className="border-none shadow-lg overflow-hidden bg-white/80 dark:bg-indigo-950/30 backdrop-blur-md">
             <TabsContent value="recent" className="mt-0">
               <CardHeader className="border-b pb-3 pt-4">
-                <CardTitle className="text-base">Recently Created Links</CardTitle>
-                <CardDescription>Your 5 most recently created links</CardDescription>
+                <CardTitle className="text-base text-indigo-700 dark:text-indigo-300 flex items-center">
+                  <Clock className="mr-2 h-4 w-4 text-indigo-500" />
+                  Recently Created Links
+                </CardTitle>
+                <CardDescription className="text-indigo-500/70 dark:text-indigo-400/70">
+                  Your 5 most recently created links
+                </CardDescription>
               </CardHeader>
               <CardContent className="p-0">
                 <LinksTable links={recentLinks} emptyMessage="No links created yet" />
@@ -256,8 +263,13 @@ const DashboardHome = () => {
 
             <TabsContent value="top" className="mt-0">
               <CardHeader className="border-b pb-3 pt-4">
-                <CardTitle className="text-base">Top Performing Links</CardTitle>
-                <CardDescription>Your most viewed links</CardDescription>
+                <CardTitle className="text-base text-indigo-700 dark:text-indigo-300 flex items-center">
+                  <TrendingUp className="mr-2 h-4 w-4 text-indigo-500" />
+                  Top Performing Links
+                </CardTitle>
+                <CardDescription className="text-indigo-500/70 dark:text-indigo-400/70">
+                  Your most viewed links
+                </CardDescription>
               </CardHeader>
               <CardContent className="p-0">
                 <LinksTable links={topLinks} emptyMessage="No link views yet" />
@@ -273,47 +285,63 @@ const DashboardHome = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3, duration: 0.5 }}
       >
-        <Card className="overflow-hidden border shadow-sm">
-          <CardHeader className="border-b bg-muted/50 pb-3">
-            <CardTitle className="flex items-center text-base">
-              <Activity className="mr-2 h-4 w-4 text-primary" />
+        <Card className="overflow-hidden border-none shadow-lg bg-white/80 dark:bg-indigo-950/30 backdrop-blur-md">
+          <CardHeader className="border-b pb-3 bg-indigo-50/50 dark:bg-indigo-900/10">
+            <CardTitle className="flex items-center text-base text-indigo-700 dark:text-indigo-300">
+              <Activity className="mr-2 h-4 w-4 text-indigo-500" />
               Activity Summary
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
             <div className="grid gap-6 md:grid-cols-3">
-              <div className="flex flex-col items-center justify-center rounded-lg border bg-card p-4 text-center shadow-sm">
-                <Calendar className="mb-2 h-5 w-5 text-muted-foreground" />
-                <p className="text-sm font-medium">Last 7 Days</p>
-                <h4 className="text-2xl font-bold">{stats.totalViews}</h4>
-                <p className="text-xs text-muted-foreground">Total views</p>
+              <div className="flex flex-col items-center justify-center rounded-xl border border-indigo-100 dark:border-indigo-800/30 bg-gradient-to-b from-white to-indigo-50/50 dark:from-indigo-900/20 dark:to-indigo-800/10 p-4 text-center shadow-sm">
+                <Calendar className="mb-2 h-5 w-5 text-indigo-500" />
+                <p className="text-sm font-medium text-indigo-700 dark:text-indigo-300">Last 7 Days</p>
+                <h4 className="text-2xl font-bold text-indigo-800 dark:text-indigo-200">{stats.totalViews}</h4>
+                <p className="text-xs text-indigo-500/70 dark:text-indigo-400/70">Total views</p>
               </div>
               
-              <div className="flex flex-col items-center justify-center rounded-lg border bg-card p-4 text-center shadow-sm">
-                <TrendingUp className="mb-2 h-5 w-5 text-muted-foreground" />
-                <p className="text-sm font-medium">Conversion</p>
-                <h4 className="text-2xl font-bold">
+              <div className="flex flex-col items-center justify-center rounded-xl border border-indigo-100 dark:border-indigo-800/30 bg-gradient-to-b from-white to-indigo-50/50 dark:from-indigo-900/20 dark:to-indigo-800/10 p-4 text-center shadow-sm">
+                <TrendingUp className="mb-2 h-5 w-5 text-indigo-500" />
+                <p className="text-sm font-medium text-indigo-700 dark:text-indigo-300">Conversion</p>
+                <h4 className="text-2xl font-bold text-indigo-800 dark:text-indigo-200">
                   {stats.totalLinks > 0 
                     ? `${Math.round((stats.totalViews / stats.totalLinks) * 10) / 10}` 
                     : "0"}
                 </h4>
-                <p className="text-xs text-muted-foreground">Avg views per link</p>
+                <p className="text-xs text-indigo-500/70 dark:text-indigo-400/70">Avg views per link</p>
               </div>
               
-              <div className="flex flex-col items-center justify-center rounded-lg border bg-card p-4 text-center shadow-sm">
-                <Users className="mb-2 h-5 w-5 text-muted-foreground" />
-                <p className="text-sm font-medium">User Growth</p>
-                <h4 className="text-2xl font-bold">+1</h4>
-                <p className="text-xs text-muted-foreground">New account</p>
+              <div className="flex flex-col items-center justify-center rounded-xl border border-indigo-100 dark:border-indigo-800/30 bg-gradient-to-b from-white to-indigo-50/50 dark:from-indigo-900/20 dark:to-indigo-800/10 p-4 text-center shadow-sm">
+                <Zap className="mb-2 h-5 w-5 text-indigo-500" />
+                <p className="text-sm font-medium text-indigo-700 dark:text-indigo-300">Insights</p>
+                <h4 className="text-2xl font-bold text-indigo-800 dark:text-indigo-200">
+                  {stats.publicLinks > stats.privateLinks ? "Public" : "Private"}
+                </h4>
+                <p className="text-xs text-indigo-500/70 dark:text-indigo-400/70">Preferred link type</p>
               </div>
             </div>
+            
+            {stats.totalLinks > 0 && (
+              <div className="mt-6 flex items-center justify-center p-4 rounded-xl border border-indigo-100 dark:border-indigo-800/30 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20">
+                <Lightbulb className="h-5 w-5 mr-3 text-amber-500" />
+                <p className="text-sm text-indigo-700 dark:text-indigo-300">
+                  <span className="font-medium">Pro tip:</span> {" "}
+                  {stats.totalViews < 10 
+                    ? "Share your links on social media to increase visibility." 
+                    : stats.privateLinks === 0 
+                      ? "Try creating password-protected links for sensitive content." 
+                      : "Your link portfolio is growing nicely. Keep up the good work!"}
+                </p>
+              </div>
+            )}
           </CardContent>
         </Card>
       </motion.div>
 
       {/* Mobile View All Button */}
       <div className="mt-4 text-center sm:hidden">
-        <Button asChild variant="outline" className="w-full">
+        <Button asChild variant="outline" className="w-full bg-white/80 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-900/40">
           <Link to="/dashboard/manage">
             <Eye className="mr-1.5 h-4 w-4" />
             View All Links
@@ -331,46 +359,50 @@ const LinksTable = ({ links, emptyMessage }: { links: any[], emptyMessage: strin
       {links.length > 0 ? (
         <Table>
           <TableHeader>
-            <TableRow className="hover:bg-transparent">
-              <TableHead>Name</TableHead>
-              <TableHead className="hidden md:table-cell">Views</TableHead>
-              <TableHead className="hidden md:table-cell">Created</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+            <TableRow className="hover:bg-transparent border-b border-indigo-100 dark:border-indigo-800/30">
+              <TableHead className="text-indigo-600 dark:text-indigo-300">Name</TableHead>
+              <TableHead className="hidden md:table-cell text-indigo-600 dark:text-indigo-300">Views</TableHead>
+              <TableHead className="hidden md:table-cell text-indigo-600 dark:text-indigo-300">Created</TableHead>
+              <TableHead className="text-right text-indigo-600 dark:text-indigo-300">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {links.map((link) => (
-              <TableRow key={link.id} className="hover:bg-muted/50">
-                <TableCell className="font-medium">
+              <TableRow key={link.id} className="hover:bg-indigo-50/50 dark:hover:bg-indigo-900/10 border-b border-indigo-100 dark:border-indigo-800/30">
+                <TableCell className="font-medium text-indigo-700 dark:text-indigo-300">
                   <div className="flex items-center gap-2">
                     {link.password ? (
-                      <Lock className="h-4 w-4 text-muted-foreground" />
+                      <div className="p-1 rounded-full bg-indigo-100 dark:bg-indigo-800/30">
+                        <Lock className="h-3 w-3 text-indigo-500" />
+                      </div>
                     ) : (
-                      <Unlock className="h-4 w-4 text-muted-foreground" />
+                      <div className="p-1 rounded-full bg-indigo-100 dark:bg-indigo-800/30">
+                        <Unlock className="h-3 w-3 text-indigo-500" />
+                      </div>
                     )}
                     <span className="truncate max-w-[150px] md:max-w-[200px]">
                       {link.name}
                     </span>
                   </div>
                 </TableCell>
-                <TableCell className="hidden md:table-cell">
+                <TableCell className="hidden md:table-cell text-indigo-600/80 dark:text-indigo-400/80">
                   <div className="flex items-center gap-1">
-                    <Eye className="h-4 w-4 text-muted-foreground" />
+                    <Eye className="h-3 w-3" />
                     {link.views || 0}
                   </div>
                 </TableCell>
-                <TableCell className="hidden md:table-cell">
+                <TableCell className="hidden md:table-cell text-indigo-600/80 dark:text-indigo-400/80">
                   <div className="flex items-center gap-1">
-                    <Clock className="h-4 w-4 text-muted-foreground" />
+                    <Clock className="h-3 w-3" />
                     {new Date(link.created_at).toLocaleDateString()}
                   </div>
                 </TableCell>
-                <TableCell className="text-right space-x-1">
+                <TableCell className="text-right">
                   <Button
                     variant="ghost"
                     size="icon"
                     asChild
-                    className="h-8 w-8"
+                    className="h-8 w-8 text-indigo-600 hover:text-indigo-700 hover:bg-indigo-100 dark:text-indigo-400 dark:hover:text-indigo-300 dark:hover:bg-indigo-800/30"
                   >
                     <Link
                       to={`/view?token=${link.token}`}
@@ -385,11 +417,13 @@ const LinksTable = ({ links, emptyMessage }: { links: any[], emptyMessage: strin
           </TableBody>
         </Table>
       ) : (
-        <div className="flex flex-col items-center justify-center p-8 text-center text-muted-foreground">
-          <LinkIcon className="mb-2 h-8 w-8" />
-          <p>{emptyMessage}</p>
+        <div className="flex flex-col items-center justify-center p-8 text-center">
+          <div className="w-16 h-16 rounded-full bg-indigo-100 dark:bg-indigo-800/30 flex items-center justify-center mb-4">
+            <LinkIcon className="h-8 w-8 text-indigo-500" />
+          </div>
+          <p className="text-indigo-600 dark:text-indigo-400 mb-2">{emptyMessage}</p>
           <Link to="/dashboard/create">
-            <Button variant="outline" className="mt-4">
+            <Button variant="outline" className="mt-4 bg-white/80 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 border border-indigo-200 dark:border-indigo-800/30">
               <PlusCircle className="mr-1.5 h-4 w-4" />
               Create your first link
             </Button>
