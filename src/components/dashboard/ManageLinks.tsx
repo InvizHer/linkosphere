@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -32,7 +31,7 @@ import {
 } from "@/components/ui/pagination";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-  Edit2, 
+  Pencil, 
   ExternalLink, 
   Link as LinkIcon, 
   Search, 
@@ -138,7 +137,7 @@ const ManageLinks = () => {
     toast({
       title: "Link Copied",
       description: "The shortened link has been copied to your clipboard.",
-      variant: "success",
+      variant: "default",
     });
   };
 
@@ -173,6 +172,8 @@ const ManageLinks = () => {
       </div>
     );
   }
+
+  
 
   return (
     <div className="container mx-auto px-2 sm:px-4 py-6 mb-20 max-w-6xl">
@@ -407,7 +408,7 @@ const ManageLinks = () => {
                               className="hover:bg-indigo-100 dark:hover:bg-indigo-800/30 text-indigo-600 dark:text-indigo-400"
                               title="Edit"
                             >
-                              <Edit2 className="h-4 w-4" />
+                              <Pencil className="h-4 w-4" />
                             </Button>
                             <Button
                               variant="ghost"
@@ -548,7 +549,7 @@ const ManageLinks = () => {
                           className="w-full gap-1 text-xs border-indigo-200 dark:border-indigo-800/30"
                           onClick={() => handleEditLink(link)}
                         >
-                          <Edit2 className="h-3 w-3" />
+                          <Pencil className="h-3 w-3" />
                           Edit
                         </Button>
                         

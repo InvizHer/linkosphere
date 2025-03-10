@@ -39,7 +39,9 @@ import {
   Clipboard,
   Code,
   ArrowUpRight,
-  LinkIcon
+  LinkIcon,
+  Pencil,
+  User as UserIcon
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -95,6 +97,23 @@ const linkFormSchema = z.object({
   color: z.string().optional(),
 });
 
+// Extended link type to include the color property
+interface Link {
+  created_at: string;
+  description: string;
+  id: string;
+  name: string;
+  original_url: string;
+  password: string;
+  show_password: boolean;
+  thumbnail_url: string;
+  token: string;
+  updated_at: string;
+  user_id: string;
+  views: number;
+  color?: string;
+}
+
 type LinkFormValues = z.infer<typeof linkFormSchema>;
 
 const colorOptions = [
@@ -115,7 +134,7 @@ const LinkEditor = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
 
-  const [link, setLink] = useState<any>(null);
+  const [link, setLink] = useState<Link | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -402,7 +421,7 @@ const LinkEditor = () => {
                 <CardHeader className="p-6 border-b border-indigo-100/50 dark:border-indigo-800/30">
                   <div className="flex items-center gap-3">
                     <div className="p-2 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg text-white">
-                      <Edit2 className="h-5 w-5" />
+                      <Pencil className="h-5 w-5" />
                     </div>
                     <div>
                       <CardTitle className="text-xl text-indigo-700 dark:text-indigo-300">
@@ -766,7 +785,7 @@ const LinkEditor = () => {
                         <CardContent className="p-4 text-center">
                           <div className="flex flex-col items-center">
                             <div className="p-2 rounded-full bg-purple-100 dark:bg-purple-800/30 mb-2">
-                              <User className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                              <UserIcon className="h-5 w-5 text-purple-600 dark:text-purple-400" />
                             </div>
                             <p className="text-xs uppercase text-indigo-500 dark:text-indigo-400 mb-1">Unique Visits</p>
                             <p className="text-2xl sm:text-3xl font-bold text-indigo-700 dark:text-indigo-300">{stats.length}</p>
