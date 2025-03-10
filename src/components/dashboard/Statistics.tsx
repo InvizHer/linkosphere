@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -35,7 +34,8 @@ import {
   Clock,
   Activity,
   Zap,
-  Search
+  Search,
+  PlusCircle
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
@@ -45,16 +45,42 @@ import { useIsMobile } from "@/hooks/use-mobile";
 // Color palette for charts
 const COLORS = ["#6366f1", "#8b5cf6", "#d946ef", "#ec4899", "#f43f5e"];
 
+// Define the structure of our link view data to fix the excessive type instantiation
+interface LinkView {
+  id: string;
+  user_id: string;
+  viewed_at: string;
+  user_agent?: string;
+  links?: {
+    id: string;
+    name: string;
+    token: string;
+    views: number;
+    created_at: string;
+  };
+}
+
+// Define the structure of our link data
+interface LinkData {
+  id: string;
+  user_id: string;
+  name: string;
+  token: string;
+  views: number;
+  created_at: string;
+  password?: string;
+}
+
 const Statistics = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const [loading, setLoading] = useState(true);
-  const [linkStats, setLinkStats] = useState<any[]>([]);
+  const [linkStats, setLinkStats] = useState<LinkData[]>([]);
   const [viewsData, setViewsData] = useState<any[]>([]);
   const [linkTypeData, setLinkTypeData] = useState<any[]>([]);
-  const [topLinks, setTopLinks] = useState<any[]>([]);
-  const [recentViews, setRecentViews] = useState<any[]>([]);
+  const [topLinks, setTopLinks] = useState<LinkData[]>([]);
+  const [recentViews, setRecentViews] = useState<LinkView[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [totalViews, setTotalViews] = useState(0);
   const [todayViews, setTodayViews] = useState(0);
