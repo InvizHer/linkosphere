@@ -48,9 +48,10 @@ const COLORS = ["#6366f1", "#8b5cf6", "#d946ef", "#ec4899", "#f43f5e"];
 // Define the structure of our link view data to fix the excessive type instantiation
 interface LinkView {
   id: string;
-  user_id: string;
+  link_id: string;
   viewed_at: string;
   user_agent?: string;
+  ip_address?: string;
   links?: {
     id: string;
     name: string;
@@ -107,7 +108,7 @@ const Statistics = () => {
       const { data: views, error: viewsError } = await supabase
         .from("link_views")
         .select("*, links(*)")
-        .eq("user_id", user.id)
+        .in("link_id", links?.map(link => link.id) || [])
         .order("viewed_at", { ascending: false });
 
       if (viewsError) throw viewsError;
