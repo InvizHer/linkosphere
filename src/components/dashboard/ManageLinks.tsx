@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -28,9 +29,25 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { motion } from "framer-motion";
-import { Edit2, ExternalLink, Link as LinkIcon, Search, SlidersHorizontal, Eye, Calendar, Trash2 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+  Edit2, 
+  ExternalLink, 
+  Link as LinkIcon, 
+  Search, 
+  SlidersHorizontal, 
+  Eye, 
+  Calendar, 
+  Lock,
+  Unlock,
+  Copy,
+  Trash2,
+  Sparkles,
+  Filter,
+  PlusCircle
+} from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -107,32 +124,38 @@ const ManageLinks = () => {
 
   return (
     <div className="space-y-6 container mx-auto px-2 sm:px-4 py-6 mb-20">
-      <Card className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border border-gray-100 dark:border-gray-700 shadow-lg">
-        <CardHeader className="pb-4">
+      <Card className="bg-white/90 dark:bg-indigo-950/20 backdrop-blur-sm border border-indigo-100/50 dark:border-indigo-800/30 shadow-lg rounded-xl overflow-hidden">
+        <CardHeader className="pb-4 border-b border-indigo-100/50 dark:border-indigo-800/30">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-              <CardTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                Manage Links
-              </CardTitle>
-              <CardDescription className="text-gray-500 dark:text-gray-400">
-                View and manage all your shortened links
+              <div className="flex items-center gap-2">
+                <div className="p-2 bg-indigo-100 dark:bg-indigo-800/30 rounded-lg text-indigo-600 dark:text-indigo-300">
+                  <LinkIcon className="h-5 w-5" />
+                </div>
+                <CardTitle className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                  Manage Links
+                </CardTitle>
+              </div>
+              <CardDescription className="text-indigo-500 dark:text-indigo-400 mt-1">
+                Organize and manage all your shortened links
               </CardDescription>
             </div>
-            <div className="flex gap-3">
-              <Button 
+            
+            <div className="flex items-center gap-3">
+              <Button
                 variant="outline" 
                 size="sm"
-                className={`${viewMode === 'list' ? 'bg-primary text-white' : ''}`}
                 onClick={() => setViewMode('list')}
+                className={`border border-indigo-200 dark:border-indigo-800/30 ${viewMode === 'list' ? 'bg-indigo-500 text-white dark:bg-indigo-600' : 'bg-white/80 dark:bg-indigo-950/30'}`}
               >
-                <LinkIcon className="h-4 w-4 mr-1" />
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1"><line x1="8" x2="21" y1="6" y2="6"></line><line x1="8" x2="21" y1="12" y2="12"></line><line x1="8" x2="21" y1="18" y2="18"></line><line x1="3" x2="3.01" y1="6" y2="6"></line><line x1="3" x2="3.01" y1="12" y2="12"></line><line x1="3" x2="3.01" y1="18" y2="18"></line></svg>
                 List
               </Button>
               <Button 
                 variant="outline" 
                 size="sm"
-                className={`${viewMode === 'grid' ? 'bg-primary text-white' : ''}`}
                 onClick={() => setViewMode('grid')}
+                className={`border border-indigo-200 dark:border-indigo-800/30 ${viewMode === 'grid' ? 'bg-indigo-500 text-white dark:bg-indigo-600' : 'bg-white/80 dark:bg-indigo-950/30'}`}
               >
                 <div className="grid grid-cols-2 gap-0.5 h-4 w-4 mr-1">
                   <div className="bg-current rounded-sm"></div>
@@ -142,22 +165,36 @@ const ManageLinks = () => {
                 </div>
                 Grid
               </Button>
+              
+              <Button 
+                variant="default"
+                size="sm"
+                className="hidden sm:flex"
+                onClick={() => navigate('/dashboard/create')}
+              >
+                <PlusCircle className="h-4 w-4 mr-1" /> 
+                New Link
+              </Button>
             </div>
           </div>
         </CardHeader>
-        <CardContent className="space-y-6 px-2 sm:px-6">
+        
+        <CardContent className="space-y-6 px-2 sm:px-6 py-6">
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-400">
+                <Search className="h-4 w-4" />
+              </div>
               <Input
-                placeholder="Search links..."
+                placeholder="Search your links..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-9 bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm"
+                className="pl-9 bg-white/50 dark:bg-indigo-900/20 border-indigo-200 dark:border-indigo-800/30 placeholder:text-indigo-300 dark:placeholder:text-indigo-600"
               />
             </div>
-            <div className="flex items-center gap-2 bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm rounded-md border border-gray-200 dark:border-gray-700 px-3">
-              <SlidersHorizontal className="h-4 w-4 text-gray-500" />
+            
+            <div className="flex items-center gap-2 bg-white/50 dark:bg-indigo-900/20 backdrop-blur-sm rounded-md border border-indigo-200 dark:border-indigo-800/30 px-3 text-indigo-500 dark:text-indigo-400">
+              <Filter className="h-4 w-4" />
               <select
                 className="bg-transparent border-none outline-none py-2 text-sm"
                 value={sortBy}
@@ -171,62 +208,69 @@ const ManageLinks = () => {
 
           {paginatedLinks.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
-              <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-full mb-4">
-                <LinkIcon className="h-8 w-8 text-gray-400" />
+              <div className="bg-indigo-100 dark:bg-indigo-800/30 p-6 rounded-full mb-4 text-indigo-500 dark:text-indigo-300">
+                <LinkIcon className="h-10 w-10" />
               </div>
-              <h3 className="text-lg font-medium mb-1">No links found</h3>
-              <p className="text-gray-500 dark:text-gray-400 max-w-md mb-4">
+              <h3 className="text-xl font-medium mb-2 text-indigo-700 dark:text-indigo-300">No links found</h3>
+              <p className="text-indigo-500 dark:text-indigo-400 max-w-md mb-6">
                 {searchTerm ? "No links match your search criteria." : "You haven't created any links yet."}
               </p>
               <Button onClick={() => navigate('/dashboard/create')}>
+                <PlusCircle className="h-4 w-4 mr-2" />
                 Create your first link
               </Button>
             </div>
           ) : viewMode === 'list' ? (
-            <div className="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
+            <div className="overflow-hidden rounded-xl border border-indigo-100 dark:border-indigo-800/30">
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
-                    <TableRow>
-                      <TableHead>Name</TableHead>
-                      <TableHead className="hidden sm:table-cell">Views</TableHead>
-                      <TableHead className="hidden sm:table-cell">Created</TableHead>
-                      <TableHead>Actions</TableHead>
+                    <TableRow className="bg-indigo-50/80 dark:bg-indigo-900/30">
+                      <TableHead className="text-indigo-700 dark:text-indigo-300">Name</TableHead>
+                      <TableHead className="hidden sm:table-cell text-indigo-700 dark:text-indigo-300">Views</TableHead>
+                      <TableHead className="hidden sm:table-cell text-indigo-700 dark:text-indigo-300">Created</TableHead>
+                      <TableHead className="text-right text-indigo-700 dark:text-indigo-300">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {paginatedLinks.map((link) => (
                       <TableRow
                         key={link.id}
-                        className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                        className="hover:bg-indigo-50/50 dark:hover:bg-indigo-900/10 border-b border-indigo-100 dark:border-indigo-800/20"
                       >
                         <TableCell className="font-medium">
                           <div className="flex items-center gap-2">
-                            <LinkIcon className="h-4 w-4 text-primary" />
-                            <span className="truncate max-w-[150px] sm:max-w-[200px]">
+                            <div className="p-1.5 rounded-full bg-indigo-100 dark:bg-indigo-800/30 text-indigo-600 dark:text-indigo-300">
+                              {link.password ? (
+                                <Lock className="h-3.5 w-3.5" />
+                              ) : (
+                                <LinkIcon className="h-3.5 w-3.5" />
+                              )}
+                            </div>
+                            <span className="truncate max-w-[150px] sm:max-w-[200px] text-indigo-700 dark:text-indigo-300">
                               {link.name}
                             </span>
                           </div>
                         </TableCell>
-                        <TableCell className="hidden sm:table-cell">
+                        <TableCell className="hidden sm:table-cell text-indigo-600/80 dark:text-indigo-400/80">
                           <div className="flex items-center gap-1">
-                            <Eye className="h-4 w-4 text-gray-500" />
-                            {link.views}
+                            <Eye className="h-3.5 w-3.5" />
+                            {link.views || 0}
                           </div>
                         </TableCell>
-                        <TableCell className="hidden sm:table-cell">
+                        <TableCell className="hidden sm:table-cell text-indigo-600/80 dark:text-indigo-400/80">
                           <div className="flex items-center gap-1">
-                            <Calendar className="h-4 w-4 text-gray-500" />
+                            <Calendar className="h-3.5 w-3.5" />
                             {new Date(link.created_at).toLocaleDateString()}
                           </div>
                         </TableCell>
                         <TableCell>
-                          <div className="flex items-center gap-1">
+                          <div className="flex items-center justify-end gap-1">
                             <Button
                               variant="ghost"
                               size="icon"
                               onClick={() => handleEditLink(link)}
-                              className="hover:bg-primary/10"
+                              className="hover:bg-indigo-100 dark:hover:bg-indigo-800/30 text-indigo-600 dark:text-indigo-400"
                               title="Edit"
                             >
                               <Edit2 className="h-4 w-4" />
@@ -235,7 +279,7 @@ const ManageLinks = () => {
                               variant="ghost"
                               size="icon"
                               onClick={() => window.open(`/view?token=${link.token}`, '_blank')}
-                              className="hover:bg-primary/10"
+                              className="hover:bg-indigo-100 dark:hover:bg-indigo-800/30 text-indigo-600 dark:text-indigo-400"
                               title="Open"
                             >
                               <ExternalLink className="h-4 w-4" />
@@ -244,10 +288,10 @@ const ManageLinks = () => {
                               variant="ghost"
                               size="icon"
                               onClick={() => copyLinkToClipboard(link)}
-                              className="hover:bg-primary/10"
+                              className="hover:bg-indigo-100 dark:hover:bg-indigo-800/30 text-indigo-600 dark:text-indigo-400"
                               title="Copy"
                             >
-                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                              <Copy className="h-4 w-4" />
                             </Button>
                           </div>
                         </TableCell>
@@ -258,69 +302,98 @@ const ManageLinks = () => {
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 gap-3">
-              {paginatedLinks.map((link) => (
-                <motion.div
-                  key={link.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="bg-white dark:bg-gray-800/80 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm hover:shadow-md transition-shadow"
-                >
-                  <div className="p-3">
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <div className="bg-primary/10 p-1.5 rounded-full">
-                          <LinkIcon className="h-3.5 w-3.5 text-primary" />
+            <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 gap-4">
+              <AnimatePresence>
+                {paginatedLinks.map((link, index) => (
+                  <motion.div
+                    key={link.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.3, delay: index * 0.05 }}
+                    className="group relative rounded-xl overflow-hidden"
+                  >
+                    {/* Card background with gradient hover effect */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/0 to-purple-500/0 opacity-0 group-hover:opacity-100 group-hover:from-indigo-500/10 group-hover:to-purple-500/10 transition-all duration-300 rounded-xl"></div>
+                    
+                    {/* Card content */}
+                    <div className="relative bg-white dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800/30 shadow-sm hover:shadow-md transition-all duration-300 rounded-xl overflow-hidden">
+                      {/* Top colored bar based on password protection */}
+                      <div className={`h-1.5 ${link.password ? 'bg-amber-400' : 'bg-indigo-500'}`}></div>
+                      
+                      {/* Card header with name and type */}
+                      <div className="p-4 pb-2">
+                        <div className="flex items-start justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <div className={`p-2 rounded-lg ${
+                              link.password 
+                                ? 'bg-amber-100 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400' 
+                                : 'bg-indigo-100 dark:bg-indigo-800/30 text-indigo-600 dark:text-indigo-400'
+                            }`}>
+                              {link.password ? <Lock className="h-4 w-4" /> : <LinkIcon className="h-4 w-4" />}
+                            </div>
+                            <div>
+                              <h3 className="font-semibold truncate max-w-[150px] text-indigo-800 dark:text-indigo-200">
+                                {link.name}
+                              </h3>
+                              <div className="flex items-center gap-1 text-xs text-indigo-500 dark:text-indigo-400">
+                                <Calendar className="h-3 w-3" />
+                                <span>{new Date(link.created_at).toLocaleDateString()}</span>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <Badge 
+                            variant="outline" 
+                            className="flex items-center gap-1 text-xs bg-indigo-50 dark:bg-indigo-900/30 border-indigo-200 dark:border-indigo-700/30"
+                          >
+                            <Eye className="h-3 w-3 text-indigo-500" />
+                            {link.views || 0}
+                          </Badge>
                         </div>
-                        <h3 className="font-medium truncate max-w-[100px] xs:max-w-[120px] sm:max-w-[150px]">{link.name}</h3>
+                        
+                        {/* Link token display */}
+                        <div className="py-2 px-3 bg-indigo-50/80 dark:bg-indigo-900/30 rounded-md text-xs font-mono text-indigo-600 dark:text-indigo-400 truncate mt-2">
+                          /{link.token}
+                        </div>
                       </div>
-                      <div className="flex items-center gap-1">
-                        <Eye className="h-3.5 w-3.5 text-gray-500" />
-                        <span className="text-xs text-gray-500">{link.views}</span>
-                      </div>
-                    </div>
-                    <div className="text-xs text-gray-500 mb-3 flex items-center gap-1">
-                      <Calendar className="h-3 w-3" />
-                      {new Date(link.created_at).toLocaleDateString()}
-                    </div>
-                    <div className="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-700">
-                      <div className="text-xs text-gray-500">
-                        /{link.token}
-                      </div>
-                      <div className="flex gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleEditLink(link)}
-                          className="h-7 w-7 hover:bg-primary/10"
-                          title="Edit"
-                        >
-                          <Edit2 className="h-3 w-3" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => window.open(`/view?token=${link.token}`, '_blank')}
-                          className="h-7 w-7 hover:bg-primary/10"
-                          title="Open"
-                        >
-                          <ExternalLink className="h-3 w-3" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
+                      
+                      {/* Actions footer */}
+                      <div className="flex items-center justify-between p-3 border-t border-indigo-100 dark:border-indigo-800/30 bg-indigo-50/50 dark:bg-indigo-900/10">
+                        <Button 
+                          size="sm" 
+                          variant="ghost" 
+                          className="text-xs bg-white/80 dark:bg-indigo-900/40 hover:bg-indigo-100 dark:hover:bg-indigo-800/30 border border-indigo-100 dark:border-indigo-800/30 rounded-full"
                           onClick={() => copyLinkToClipboard(link)}
-                          className="h-7 w-7 hover:bg-primary/10"
-                          title="Copy"
                         >
-                          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                          <Copy className="h-3 w-3 mr-1" /> Copy
                         </Button>
+                        
+                        <div className="flex items-center gap-1">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleEditLink(link)}
+                            className="h-8 w-8 rounded-full bg-white/80 dark:bg-indigo-900/30 hover:bg-indigo-100 dark:hover:bg-indigo-800/50 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-800/30"
+                            title="Edit"
+                          >
+                            <Edit2 className="h-3.5 w-3.5" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => window.open(`/view?token=${link.token}`, '_blank')}
+                            className="h-8 w-8 rounded-full bg-white/80 dark:bg-indigo-900/30 hover:bg-indigo-100 dark:hover:bg-indigo-800/50 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-800/30"
+                            title="Open"
+                          >
+                            <ExternalLink className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </motion.div>
-              ))}
+                  </motion.div>
+                ))}
+              </AnimatePresence>
             </div>
           )}
 
@@ -331,7 +404,7 @@ const ManageLinks = () => {
                   <PaginationItem>
                     <PaginationPrevious
                       onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                      className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
+                      className={`${currentPage === 1 ? "pointer-events-none opacity-50" : ""} bg-white dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800/30`}
                     />
                   </PaginationItem>
                   {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
@@ -340,27 +413,38 @@ const ManageLinks = () => {
                         variant={currentPage === page ? "default" : "outline"}
                         size="sm"
                         onClick={() => setCurrentPage(page)}
-                        className={currentPage === page ? "bg-primary" : ""}
+                        className={currentPage === page ? "bg-indigo-500" : "bg-white dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800/30"}
                       >
                         {page}
                       </Button>
                     </PaginationItem>
                   ))}
                   <PaginationItem className="sm:hidden">
-                    <span className="text-sm">{currentPage} / {totalPages}</span>
+                    <span className="text-sm text-indigo-700 dark:text-indigo-300">{currentPage} / {totalPages}</span>
                   </PaginationItem>
                   <PaginationItem>
                     <PaginationNext
                       onClick={() =>
                         setCurrentPage((prev) => Math.min(prev + 1, totalPages))
                       }
-                      className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""}
+                      className={`${currentPage === totalPages ? "pointer-events-none opacity-50" : ""} bg-white dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800/30`}
                     />
                   </PaginationItem>
                 </PaginationContent>
               </Pagination>
             </div>
           )}
+          
+          {/* Mobile "Create New" button */}
+          <div className="sm:hidden flex justify-center">
+            <Button 
+              className="w-full"
+              onClick={() => navigate('/dashboard/create')}
+            >
+              <PlusCircle className="h-4 w-4 mr-2" /> 
+              Create New Link
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>
