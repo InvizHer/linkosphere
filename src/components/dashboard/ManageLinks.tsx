@@ -21,6 +21,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter,
 } from "@/components/ui/card";
 import {
   Pagination,
@@ -35,19 +36,33 @@ import {
   ExternalLink, 
   Link as LinkIcon, 
   Search, 
-  SlidersHorizontal, 
-  Eye, 
-  Calendar, 
+  PlusCircle,
+  Copy,
+  Eye,
+  Calendar,
+  Clock,
   Lock,
   Unlock,
-  Copy,
-  Trash2,
-  Sparkles,
   Filter,
-  PlusCircle
+  Check,
+  SlidersHorizontal,
+  ArrowUpRight,
+  BarChart2,
+  Clipboard,
+  Globe,
+  Download
 } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { format } from "date-fns";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -59,24 +74,38 @@ const ManageLinks = () => {
   const [links, setLinks] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState<"views" | "created_at">("created_at");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const [viewMode, setViewMode] = useState<"grid" | "list">("list");
+  const [viewMode, setViewMode] = useState<"grid" | "list">(isMobile ? "grid" : "list");
+  const [filterBy, setFilterBy] = useState<"all" | "password" | "no-password">("all");
 
   useEffect(() => {
     fetchLinks();
+  }, [sortBy, sortOrder, filterBy]);
+
+  useEffect(() => {
     if (isMobile) {
       setViewMode("grid");
     }
-  }, [sortBy, isMobile]);
+  }, [isMobile]);
 
   const fetchLinks = async () => {
     try {
-      const { data, error } = await supabase
+      setLoading(true);
+      let query = supabase
         .from("links")
         .select("*")
         .eq("user_id", user?.id)
-        .order(sortBy, { ascending: false });
+        .order(sortBy, { ascending: sortOrder === "asc" });
+
+      if (filterBy === "password") {
+        query = query.not("password", "is", null);
+      } else if (filterBy === "no-password") {
+        query = query.is("password", null);
+      }
+
+      const { data, error } = await query;
 
       if (error) throw error;
 
@@ -88,11 +117,13 @@ const ManageLinks = () => {
         description: error.message,
         variant: "destructive",
       });
+      setLoading(false);
     }
   };
 
   const filteredLinks = links.filter((link) =>
-    link.name.toLowerCase().includes(searchTerm.toLowerCase())
+    link.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    link.original_url.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const totalPages = Math.ceil(filteredLinks.length / ITEMS_PER_PAGE);
@@ -107,6 +138,7 @@ const ManageLinks = () => {
     toast({
       title: "Link Copied",
       description: "The shortened link has been copied to your clipboard.",
+      variant: "success",
     });
   };
 
@@ -114,22 +146,42 @@ const ManageLinks = () => {
     navigate(`/dashboard/edit/${link.id}`);
   };
 
+  const getTimeAgo = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 0) {
+      return "Today";
+    } else if (diffDays === 1) {
+      return "Yesterday";
+    } else if (diffDays < 7) {
+      return `${diffDays} days ago`;
+    } else if (diffDays < 30) {
+      const weeks = Math.floor(diffDays / 7);
+      return `${weeks} week${weeks > 1 ? 's' : ''} ago`;
+    } else {
+      return format(date, 'MMM d, yyyy');
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600"></div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 container mx-auto px-2 sm:px-4 py-6 mb-20">
+    <div className="container mx-auto px-2 sm:px-4 py-6 mb-20 max-w-6xl">
       <Card className="bg-white/90 dark:bg-indigo-950/20 backdrop-blur-sm border border-indigo-100/50 dark:border-indigo-800/30 shadow-lg rounded-xl overflow-hidden">
-        <CardHeader className="pb-4 border-b border-indigo-100/50 dark:border-indigo-800/30">
+        <CardHeader className="bg-gradient-to-r from-indigo-50/90 to-purple-50/90 dark:from-indigo-950/50 dark:to-purple-950/50 border-b border-indigo-100/50 dark:border-indigo-800/30 pb-4">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
               <div className="flex items-center gap-2">
-                <div className="p-2 bg-indigo-100 dark:bg-indigo-800/30 rounded-lg text-indigo-600 dark:text-indigo-300">
+                <div className="p-2 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg text-white">
                   <LinkIcon className="h-5 w-5" />
                 </div>
                 <CardTitle className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
@@ -137,7 +189,7 @@ const ManageLinks = () => {
                 </CardTitle>
               </div>
               <CardDescription className="text-indigo-500 dark:text-indigo-400 mt-1">
-                Organize and manage all your shortened links
+                Organize and manage your shortened links
               </CardDescription>
             </div>
             
@@ -146,7 +198,7 @@ const ManageLinks = () => {
                 variant="outline" 
                 size="sm"
                 onClick={() => setViewMode('list')}
-                className={`border border-indigo-200 dark:border-indigo-800/30 ${viewMode === 'list' ? 'bg-indigo-500 text-white dark:bg-indigo-600' : 'bg-white/80 dark:bg-indigo-950/30'}`}
+                className={`${viewMode === 'list' ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white' : ''}`}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1"><line x1="8" x2="21" y1="6" y2="6"></line><line x1="8" x2="21" y1="12" y2="12"></line><line x1="8" x2="21" y1="18" y2="18"></line><line x1="3" x2="3.01" y1="6" y2="6"></line><line x1="3" x2="3.01" y1="12" y2="12"></line><line x1="3" x2="3.01" y1="18" y2="18"></line></svg>
                 List
@@ -155,7 +207,7 @@ const ManageLinks = () => {
                 variant="outline" 
                 size="sm"
                 onClick={() => setViewMode('grid')}
-                className={`border border-indigo-200 dark:border-indigo-800/30 ${viewMode === 'grid' ? 'bg-indigo-500 text-white dark:bg-indigo-600' : 'bg-white/80 dark:bg-indigo-950/30'}`}
+                className={`${viewMode === 'grid' ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white' : ''}`}
               >
                 <div className="grid grid-cols-2 gap-0.5 h-4 w-4 mr-1">
                   <div className="bg-current rounded-sm"></div>
@@ -167,7 +219,7 @@ const ManageLinks = () => {
               </Button>
               
               <Button 
-                variant="default"
+                variant="gradient"
                 size="sm"
                 className="hidden sm:flex"
                 onClick={() => navigate('/dashboard/create')}
@@ -186,36 +238,113 @@ const ManageLinks = () => {
                 <Search className="h-4 w-4" />
               </div>
               <Input
-                placeholder="Search your links..."
+                placeholder="Search by name or URL..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-9 bg-white/50 dark:bg-indigo-900/20 border-indigo-200 dark:border-indigo-800/30 placeholder:text-indigo-300 dark:placeholder:text-indigo-600"
+                className="pl-9 bg-white dark:bg-indigo-900/10 border-indigo-200 dark:border-indigo-800/30 placeholder:text-indigo-300 dark:placeholder:text-indigo-600"
               />
             </div>
             
-            <div className="flex items-center gap-2 bg-white/50 dark:bg-indigo-900/20 backdrop-blur-sm rounded-md border border-indigo-200 dark:border-indigo-800/30 px-3 text-indigo-500 dark:text-indigo-400">
-              <Filter className="h-4 w-4" />
-              <select
-                className="bg-transparent border-none outline-none py-2 text-sm"
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as "views" | "created_at")}
-              >
-                <option value="created_at">Sort by Date</option>
-                <option value="views">Sort by Views</option>
-              </select>
+            <div className="flex gap-2">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="default" className="gap-2">
+                    <Filter className="h-4 w-4" />
+                    <span className="hidden sm:inline">Filter</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuLabel>Filter Links</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem 
+                    onClick={() => setFilterBy("all")} 
+                    className="flex items-center justify-between"
+                  >
+                    All Links
+                    {filterBy === "all" && <Check className="h-4 w-4" />}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={() => setFilterBy("password")} 
+                    className="flex items-center justify-between"
+                  >
+                    Password Protected
+                    {filterBy === "password" && <Check className="h-4 w-4" />}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={() => setFilterBy("no-password")} 
+                    className="flex items-center justify-between"
+                  >
+                    Not Protected
+                    {filterBy === "no-password" && <Check className="h-4 w-4" />}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="default" className="gap-2">
+                    <SlidersHorizontal className="h-4 w-4" />
+                    <span className="hidden sm:inline">Sort</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuLabel>Sort By</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem 
+                    onClick={() => {
+                      setSortBy("created_at");
+                      setSortOrder("desc");
+                    }} 
+                    className="flex items-center justify-between"
+                  >
+                    Newest First
+                    {sortBy === "created_at" && sortOrder === "desc" && <Check className="h-4 w-4" />}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={() => {
+                      setSortBy("created_at");
+                      setSortOrder("asc");
+                    }} 
+                    className="flex items-center justify-between"
+                  >
+                    Oldest First
+                    {sortBy === "created_at" && sortOrder === "asc" && <Check className="h-4 w-4" />}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={() => {
+                      setSortBy("views");
+                      setSortOrder("desc");
+                    }} 
+                    className="flex items-center justify-between"
+                  >
+                    Most Views
+                    {sortBy === "views" && sortOrder === "desc" && <Check className="h-4 w-4" />}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={() => {
+                      setSortBy("views");
+                      setSortOrder("asc");
+                    }} 
+                    className="flex items-center justify-between"
+                  >
+                    Least Views
+                    {sortBy === "views" && sortOrder === "asc" && <Check className="h-4 w-4" />}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
 
           {paginatedLinks.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
-              <div className="bg-indigo-100 dark:bg-indigo-800/30 p-6 rounded-full mb-4 text-indigo-500 dark:text-indigo-300">
+              <div className="bg-gradient-to-br from-indigo-500/20 to-purple-500/20 p-6 rounded-full mb-4 text-indigo-500 dark:text-indigo-300">
                 <LinkIcon className="h-10 w-10" />
               </div>
               <h3 className="text-xl font-medium mb-2 text-indigo-700 dark:text-indigo-300">No links found</h3>
               <p className="text-indigo-500 dark:text-indigo-400 max-w-md mb-6">
                 {searchTerm ? "No links match your search criteria." : "You haven't created any links yet."}
               </p>
-              <Button onClick={() => navigate('/dashboard/create')}>
+              <Button onClick={() => navigate('/dashboard/create')} variant="gradient">
                 <PlusCircle className="h-4 w-4 mr-2" />
                 Create your first link
               </Button>
@@ -228,7 +357,7 @@ const ManageLinks = () => {
                     <TableRow className="bg-indigo-50/80 dark:bg-indigo-900/30">
                       <TableHead className="text-indigo-700 dark:text-indigo-300">Name</TableHead>
                       <TableHead className="hidden sm:table-cell text-indigo-700 dark:text-indigo-300">Views</TableHead>
-                      <TableHead className="hidden sm:table-cell text-indigo-700 dark:text-indigo-300">Created</TableHead>
+                      <TableHead className="hidden md:table-cell text-indigo-700 dark:text-indigo-300">Created</TableHead>
                       <TableHead className="text-right text-indigo-700 dark:text-indigo-300">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -240,16 +369,21 @@ const ManageLinks = () => {
                       >
                         <TableCell className="font-medium">
                           <div className="flex items-center gap-2">
-                            <div className="p-1.5 rounded-full bg-indigo-100 dark:bg-indigo-800/30 text-indigo-600 dark:text-indigo-300">
+                            <div className={`p-1.5 rounded-full ${link.password ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-600' : 'bg-indigo-100 dark:bg-indigo-800/30 text-indigo-600'} dark:text-indigo-300`}>
                               {link.password ? (
                                 <Lock className="h-3.5 w-3.5" />
                               ) : (
                                 <LinkIcon className="h-3.5 w-3.5" />
                               )}
                             </div>
-                            <span className="truncate max-w-[150px] sm:max-w-[200px] text-indigo-700 dark:text-indigo-300">
-                              {link.name}
-                            </span>
+                            <div>
+                              <span className="truncate max-w-[150px] sm:max-w-[200px] text-indigo-700 dark:text-indigo-300 block">
+                                {link.name}
+                              </span>
+                              <span className="text-xs text-indigo-400 dark:text-indigo-500 truncate max-w-[150px] sm:max-w-[200px] block">
+                                /{link.token}
+                              </span>
+                            </div>
                           </div>
                         </TableCell>
                         <TableCell className="hidden sm:table-cell text-indigo-600/80 dark:text-indigo-400/80">
@@ -258,10 +392,10 @@ const ManageLinks = () => {
                             {link.views || 0}
                           </div>
                         </TableCell>
-                        <TableCell className="hidden sm:table-cell text-indigo-600/80 dark:text-indigo-400/80">
+                        <TableCell className="hidden md:table-cell text-indigo-600/80 dark:text-indigo-400/80">
                           <div className="flex items-center gap-1">
                             <Calendar className="h-3.5 w-3.5" />
-                            {new Date(link.created_at).toLocaleDateString()}
+                            {getTimeAgo(link.created_at)}
                           </div>
                         </TableCell>
                         <TableCell>
@@ -284,15 +418,33 @@ const ManageLinks = () => {
                             >
                               <ExternalLink className="h-4 w-4" />
                             </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => copyLinkToClipboard(link)}
-                              className="hover:bg-indigo-100 dark:hover:bg-indigo-800/30 text-indigo-600 dark:text-indigo-400"
-                              title="Copy"
-                            >
-                              <Copy className="h-4 w-4" />
-                            </Button>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="hover:bg-indigo-100 dark:hover:bg-indigo-800/30 text-indigo-600 dark:text-indigo-400"
+                                >
+                                  <SlidersHorizontal className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuLabel>Link Actions</DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem onClick={() => copyLinkToClipboard(link)}>
+                                  <Copy className="h-4 w-4 mr-2" />
+                                  Copy Link
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => navigate(`/dashboard/stats?id=${link.id}`)}>
+                                  <BarChart2 className="h-4 w-4 mr-2" />
+                                  View Stats
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => window.open(link.original_url, '_blank')}>
+                                  <ArrowUpRight className="h-4 w-4 mr-2" />
+                                  Visit Original
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           </div>
                         </TableCell>
                       </TableRow>
@@ -302,7 +454,7 @@ const ManageLinks = () => {
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 gap-4">
               <AnimatePresence>
                 {paginatedLinks.map((link, index) => (
                   <motion.div
@@ -311,34 +463,28 @@ const ManageLinks = () => {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95 }}
                     transition={{ duration: 0.3, delay: index * 0.05 }}
-                    className="group relative rounded-xl overflow-hidden"
+                    className="group"
                   >
-                    {/* Card background with gradient hover effect */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/0 to-purple-500/0 opacity-0 group-hover:opacity-100 group-hover:from-indigo-500/10 group-hover:to-purple-500/10 transition-all duration-300 rounded-xl"></div>
-                    
-                    {/* Card content */}
-                    <div className="relative bg-white dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800/30 shadow-sm hover:shadow-md transition-all duration-300 rounded-xl overflow-hidden">
-                      {/* Top colored bar based on password protection */}
-                      <div className={`h-1.5 ${link.password ? 'bg-amber-400' : 'bg-indigo-500'}`}></div>
+                    <Card className="overflow-hidden h-full border border-indigo-100/80 dark:border-indigo-800/30 bg-white/80 dark:bg-indigo-900/20 backdrop-blur-sm hover:shadow-lg transition-all duration-300">
+                      <div className={`h-1.5 ${link.password ? 'bg-gradient-to-r from-amber-400 to-orange-400' : 'bg-gradient-to-r from-indigo-500 to-purple-500'}`}></div>
                       
-                      {/* Card header with name and type */}
-                      <div className="p-4 pb-2">
-                        <div className="flex items-start justify-between mb-2">
-                          <div className="flex items-center gap-2">
-                            <div className={`p-2 rounded-lg ${
+                      <CardHeader className="p-4 pb-2">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex items-center gap-3">
+                            <div className={`p-2.5 rounded-lg ${
                               link.password 
-                                ? 'bg-amber-100 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400' 
-                                : 'bg-indigo-100 dark:bg-indigo-800/30 text-indigo-600 dark:text-indigo-400'
+                                ? 'bg-gradient-to-br from-amber-100 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/20 text-amber-600 dark:text-amber-400' 
+                                : 'bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/20 text-indigo-600 dark:text-indigo-400'
                             }`}>
-                              {link.password ? <Lock className="h-4 w-4" /> : <LinkIcon className="h-4 w-4" />}
+                              {link.password ? <Lock className="h-5 w-5" /> : <Globe className="h-5 w-5" />}
                             </div>
                             <div>
                               <h3 className="font-semibold truncate max-w-[150px] text-indigo-800 dark:text-indigo-200">
                                 {link.name}
                               </h3>
-                              <div className="flex items-center gap-1 text-xs text-indigo-500 dark:text-indigo-400">
-                                <Calendar className="h-3 w-3" />
-                                <span>{new Date(link.created_at).toLocaleDateString()}</span>
+                              <div className="flex items-center gap-2 mt-1 text-xs text-indigo-500 dark:text-indigo-400">
+                                <Clock className="h-3 w-3" />
+                                <span>{getTimeAgo(link.created_at)}</span>
                               </div>
                             </div>
                           </div>
@@ -351,46 +497,98 @@ const ManageLinks = () => {
                             {link.views || 0}
                           </Badge>
                         </div>
-                        
-                        {/* Link token display */}
-                        <div className="py-2 px-3 bg-indigo-50/80 dark:bg-indigo-900/30 rounded-md text-xs font-mono text-indigo-600 dark:text-indigo-400 truncate mt-2">
-                          /{link.token}
-                        </div>
-                      </div>
+                      </CardHeader>
                       
-                      {/* Actions footer */}
-                      <div className="flex items-center justify-between p-3 border-t border-indigo-100 dark:border-indigo-800/30 bg-indigo-50/50 dark:bg-indigo-900/10">
+                      <CardContent className="p-4 pt-2">
+                        <div className="space-y-3">
+                          <div>
+                            <div className="text-xs text-indigo-400 dark:text-indigo-500 mb-1">Original URL:</div>
+                            <div className="text-xs bg-indigo-50/80 dark:bg-indigo-900/20 p-2 rounded truncate text-indigo-600 dark:text-indigo-400">
+                              {link.original_url}
+                            </div>
+                          </div>
+                          
+                          <div>
+                            <div className="text-xs text-indigo-400 dark:text-indigo-500 mb-1">Short Link:</div>
+                            <div className="relative group/copy">
+                              <div 
+                                className="text-xs bg-indigo-50/80 dark:bg-indigo-900/20 p-2 rounded truncate font-mono text-indigo-600 dark:text-indigo-400 pr-8"
+                                onClick={() => copyLinkToClipboard(link)}
+                              >
+                                {window.location.origin}/view?token={link.token}
+                              </div>
+                              <button 
+                                className="absolute right-2 top-1/2 -translate-y-1/2 opacity-50 hover:opacity-100 transition-opacity" 
+                                onClick={() => copyLinkToClipboard(link)}
+                              >
+                                <Copy className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
+                              </button>
+                              <div className="absolute right-0 top-0 opacity-0 group-hover/copy:opacity-100 transition-opacity bg-black text-white text-[10px] py-1 px-2 rounded -mt-8 pointer-events-none">
+                                Copy
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                      
+                      <CardFooter className="flex items-center justify-between p-4 pt-0 mt-2 gap-2">
                         <Button 
+                          variant="outline" 
                           size="sm" 
-                          variant="ghost" 
-                          className="text-xs bg-white/80 dark:bg-indigo-900/40 hover:bg-indigo-100 dark:hover:bg-indigo-800/30 border border-indigo-100 dark:border-indigo-800/30 rounded-full"
-                          onClick={() => copyLinkToClipboard(link)}
+                          className="w-full gap-1 text-xs border-indigo-200 dark:border-indigo-800/30"
+                          onClick={() => window.open(`/view?token=${link.token}`, '_blank')}
                         >
-                          <Copy className="h-3 w-3 mr-1" /> Copy
+                          <ExternalLink className="h-3 w-3" />
+                          Open
                         </Button>
                         
-                        <div className="flex items-center gap-1">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleEditLink(link)}
-                            className="h-8 w-8 rounded-full bg-white/80 dark:bg-indigo-900/30 hover:bg-indigo-100 dark:hover:bg-indigo-800/50 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-800/30"
-                            title="Edit"
-                          >
-                            <Edit2 className="h-3.5 w-3.5" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => window.open(`/view?token=${link.token}`, '_blank')}
-                            className="h-8 w-8 rounded-full bg-white/80 dark:bg-indigo-900/30 hover:bg-indigo-100 dark:hover:bg-indigo-800/50 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-800/30"
-                            title="Open"
-                          >
-                            <ExternalLink className="h-3.5 w-3.5" />
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="w-full gap-1 text-xs border-indigo-200 dark:border-indigo-800/30"
+                          onClick={() => handleEditLink(link)}
+                        >
+                          <Edit2 className="h-3 w-3" />
+                          Edit
+                        </Button>
+                        
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="border-indigo-200 dark:border-indigo-800/30"
+                            >
+                              <SlidersHorizontal className="h-3.5 w-3.5" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-48">
+                            <DropdownMenuLabel>Link Actions</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={() => copyLinkToClipboard(link)}>
+                              <Copy className="h-4 w-4 mr-2" />
+                              Copy Link
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => navigate(`/dashboard/stats?id=${link.id}`)}>
+                              <BarChart2 className="h-4 w-4 mr-2" />
+                              View Stats
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => window.open(link.original_url, '_blank')}>
+                              <ArrowUpRight className="h-4 w-4 mr-2" />
+                              Visit Original
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem 
+                              onClick={() => window.open(`data:text/plain;charset=utf-8,${encodeURIComponent(JSON.stringify(link, null, 2))}`, '_blank')}
+                              className="text-blue-600 dark:text-blue-400"
+                            >
+                              <Download className="h-4 w-4 mr-2" />
+                              Export Data
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </CardFooter>
+                    </Card>
                   </motion.div>
                 ))}
               </AnimatePresence>
@@ -413,7 +611,7 @@ const ManageLinks = () => {
                         variant={currentPage === page ? "default" : "outline"}
                         size="sm"
                         onClick={() => setCurrentPage(page)}
-                        className={currentPage === page ? "bg-indigo-500" : "bg-white dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800/30"}
+                        className={currentPage === page ? "bg-gradient-to-r from-indigo-600 to-purple-600" : "bg-white dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800/30"}
                       >
                         {page}
                       </Button>
@@ -439,6 +637,7 @@ const ManageLinks = () => {
           <div className="sm:hidden flex justify-center">
             <Button 
               className="w-full"
+              variant="gradient"
               onClick={() => navigate('/dashboard/create')}
             >
               <PlusCircle className="h-4 w-4 mr-2" /> 
