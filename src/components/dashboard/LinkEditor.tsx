@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -33,8 +32,6 @@ import {
   AlertCircle,
   Info,
   Key,
-  Palette,
-  Layout,
   Shield,
   Clipboard,
   Code,
@@ -78,15 +75,8 @@ import { Badge } from "@/components/ui/badge";
 import { format, formatDistanceToNow } from "date-fns";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Separator } from "@/components/ui/separator";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
-// Define form schema
+// Define form schema - remove color field
 const linkFormSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters" }),
   description: z.string().optional(),
@@ -94,10 +84,9 @@ const linkFormSchema = z.object({
   password: z.string().optional(),
   show_password: z.boolean().default(false),
   thumbnail_url: z.string().url({ message: "Please enter a valid URL" }).optional().or(z.literal("")),
-  color: z.string().optional(),
 });
 
-// Extended link type to include the color property
+// Link interface without color property
 interface Link {
   created_at: string;
   description: string;
@@ -111,21 +100,9 @@ interface Link {
   updated_at: string;
   user_id: string;
   views: number;
-  color?: string;
 }
 
 type LinkFormValues = z.infer<typeof linkFormSchema>;
-
-const colorOptions = [
-  { value: "indigo", label: "Indigo", class: "bg-indigo-500" },
-  { value: "purple", label: "Purple", class: "bg-purple-500" },
-  { value: "blue", label: "Blue", class: "bg-blue-500" },
-  { value: "green", label: "Green", class: "bg-green-500" },
-  { value: "amber", label: "Amber", class: "bg-amber-500" },
-  { value: "red", label: "Red", class: "bg-red-500" },
-  { value: "pink", label: "Pink", class: "bg-pink-500" },
-  { value: "teal", label: "Teal", class: "bg-teal-500" },
-];
 
 const LinkEditor = () => {
   const { linkId } = useParams();
@@ -153,7 +130,6 @@ const LinkEditor = () => {
       password: "",
       show_password: false,
       thumbnail_url: "",
-      color: "indigo"
     },
   });
 
@@ -210,7 +186,7 @@ const LinkEditor = () => {
 
       setLink(data);
       
-      // Set form values
+      // Set form values - removed color field
       form.reset({
         name: data.name || "",
         description: data.description || "",
@@ -218,7 +194,6 @@ const LinkEditor = () => {
         password: data.password || "",
         show_password: data.show_password || false,
         thumbnail_url: data.thumbnail_url || "",
-        color: data.color || "indigo"
       });
       
       setIsFormDirty(false);
@@ -257,6 +232,7 @@ const LinkEditor = () => {
     try {
       setSaving(true);
       
+      // Update link - removed color field
       const { error } = await supabase
         .from("links")
         .update({
@@ -266,7 +242,6 @@ const LinkEditor = () => {
           password: values.password,
           show_password: values.show_password,
           thumbnail_url: values.thumbnail_url,
-          color: values.color,
           updated_at: new Date().toISOString(),
         })
         .eq("id", linkId)
@@ -545,86 +520,41 @@ const LinkEditor = () => {
                           )}
                         />
                         
-                        <div className="grid md:grid-cols-2 gap-4">
-                          <FormField
-                            control={form.control}
-                            name="thumbnail_url"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel className="text-indigo-700 dark:text-indigo-300">Thumbnail URL (Optional)</FormLabel>
-                                <div className="flex items-center gap-2">
-                                  <div className="relative flex-grow">
-                                    <Image className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-indigo-400" />
-                                    <FormControl>
-                                      <Input
-                                        placeholder="https://example.com/image.jpg"
-                                        className="pl-10 border-indigo-200 dark:border-indigo-700/30"
-                                        {...field}
-                                      />
-                                    </FormControl>
-                                  </div>
-                                  {field.value && (
-                                    <div className="h-9 w-9 rounded overflow-hidden flex-shrink-0 border border-indigo-200 dark:border-indigo-700/30">
-                                      <img
-                                        src={field.value}
-                                        alt="Thumbnail"
-                                        className="h-full w-full object-cover"
-                                        onError={(e) => (e.currentTarget.src = "/placeholder.svg")}
-                                      />
-                                    </div>
-                                  )}
+                        <FormField
+                          control={form.control}
+                          name="thumbnail_url"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-indigo-700 dark:text-indigo-300">Thumbnail URL (Optional)</FormLabel>
+                              <div className="flex items-center gap-2">
+                                <div className="relative flex-grow">
+                                  <Image className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-indigo-400" />
+                                  <FormControl>
+                                    <Input
+                                      placeholder="https://example.com/image.jpg"
+                                      className="pl-10 border-indigo-200 dark:border-indigo-700/30"
+                                      {...field}
+                                    />
+                                  </FormControl>
                                 </div>
-                                <FormDescription className="text-indigo-400 dark:text-indigo-500 text-xs">
-                                  Add an image that will be displayed with your link
-                                </FormDescription>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          
-                          <FormField
-                            control={form.control}
-                            name="color"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel className="text-indigo-700 dark:text-indigo-300">Link Color</FormLabel>
-                                <div className="flex items-center gap-2">
-                                  <div className="relative flex-grow">
-                                    <Palette className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-indigo-400" />
-                                    <FormControl>
-                                      <Select 
-                                        onValueChange={field.onChange} 
-                                        defaultValue={field.value}
-                                        value={field.value}
-                                      >
-                                        <SelectTrigger className="pl-10 border-indigo-200 dark:border-indigo-700/30">
-                                          <SelectValue placeholder="Select a color" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                          {colorOptions.map((color) => (
-                                            <SelectItem key={color.value} value={color.value} className="flex items-center gap-2">
-                                              <div className="flex items-center gap-2">
-                                                <div className={`h-4 w-4 rounded-full ${color.class}`}></div>
-                                                <span>{color.label}</span>
-                                              </div>
-                                            </SelectItem>
-                                          ))}
-                                        </SelectContent>
-                                      </Select>
-                                    </FormControl>
+                                {field.value && (
+                                  <div className="h-9 w-9 rounded overflow-hidden flex-shrink-0 border border-indigo-200 dark:border-indigo-700/30">
+                                    <img
+                                      src={field.value}
+                                      alt="Thumbnail"
+                                      className="h-full w-full object-cover"
+                                      onError={(e) => (e.currentTarget.src = "/placeholder.svg")}
+                                    />
                                   </div>
-                                  {field.value && (
-                                    <div className={`h-9 w-9 rounded-full flex-shrink-0 bg-${field.value}-500`}></div>
-                                  )}
-                                </div>
-                                <FormDescription className="text-indigo-400 dark:text-indigo-500 text-xs">
-                                  Choose a color theme for your link
-                                </FormDescription>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
+                                )}
+                              </div>
+                              <FormDescription className="text-indigo-400 dark:text-indigo-500 text-xs">
+                                Add an image that will be displayed with your link
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
                         
                         <div className="space-y-4 pt-4 border-t border-indigo-100 dark:border-indigo-800/30">
                           <h3 className="font-medium flex items-center gap-2 text-indigo-700 dark:text-indigo-300">
@@ -840,216 +770,4 @@ const LinkEditor = () => {
                         </p>
                         <Button 
                           variant="outline" 
-                          className="mt-4 border-indigo-200 dark:border-indigo-800/30" 
-                          size="sm"
-                          onClick={copyLinkToClipboard}
-                        >
-                          <Copy className="h-4 w-4 mr-2" />
-                          Copy Link
-                        </Button>
-                      </div>
-                    ) : (
-                      <div className="space-y-2 max-h-96 overflow-y-auto pr-2 rounded-lg">
-                        <AnimatePresence>
-                          {stats.slice(0, 20).map((view, index) => (
-                            <motion.div
-                              key={view.id || index}
-                              initial={{ opacity: 0, y: 10 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              transition={{ delay: index * 0.03 }}
-                            >
-                              <Card className="bg-indigo-50/50 dark:bg-indigo-900/10 border-indigo-100/50 dark:border-indigo-800/20">
-                                <CardContent className="p-3">
-                                  <div className="flex justify-between items-center flex-wrap sm:flex-nowrap gap-2">
-                                    <div className="flex items-center gap-3">
-                                      <div className="h-10 w-10 bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-800/30 dark:to-purple-800/20 rounded-full flex items-center justify-center">
-                                        <Eye className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
-                                      </div>
-                                      <div>
-                                        <div className="font-medium text-xs text-indigo-700 dark:text-indigo-300">View</div>
-                                        <div className="text-[10px] text-indigo-500 dark:text-indigo-400">
-                                          {view.user_agent?.split(' ')[0] || "Unknown browser"}
-                                          {view.ip_address ? ` • ${view.ip_address.split('.').slice(0,2).join('.')}.**` : ''}
-                                        </div>
-                                      </div>
-                                    </div>
-                                    <div className="text-[10px] text-indigo-500 dark:text-indigo-400 w-full sm:w-auto text-right">
-                                      {view.viewed_at 
-                                        ? format(new Date(view.viewed_at), 'MMM dd, yyyy HH:mm') 
-                                        : 'Unknown date'}
-                                    </div>
-                                  </div>
-                                </CardContent>
-                              </Card>
-                            </motion.div>
-                          ))}
-                        </AnimatePresence>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
-        </div>
-        
-        <div>
-          <Card className="shadow-md border border-indigo-100 dark:border-indigo-800 lg:sticky lg:top-4 bg-white/90 dark:bg-indigo-950/20 backdrop-blur-sm">
-            <CardHeader className="p-6 border-b border-indigo-100/50 dark:border-indigo-800/30">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-gradient-to-r from-green-500 to-emerald-600 rounded-lg text-white">
-                  <Tag className="h-5 w-5" />
-                </div>
-                <CardTitle className="text-xl text-indigo-700 dark:text-indigo-300">
-                  Link Preview
-                </CardTitle>
-              </div>
-            </CardHeader>
-            
-            <CardContent className="space-y-5 p-6">
-              <div>
-                <h3 className="text-sm font-medium mb-3 text-indigo-700 dark:text-indigo-300">Link Preview</h3>
-                <div className="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/10 rounded-xl p-5">
-                  <div className="flex items-center gap-4 mb-3">
-                    {form.watch("thumbnail_url") ? (
-                      <div className="h-12 w-12 rounded-lg overflow-hidden bg-white ring-2 ring-white dark:ring-indigo-800">
-                        <img 
-                          src={form.watch("thumbnail_url")} 
-                          alt={form.watch("name")}
-                          className="h-full w-full object-cover"
-                          onError={(e) => (e.currentTarget.src = "/placeholder.svg")}
-                        />
-                      </div>
-                    ) : (
-                      <div className={`h-12 w-12 rounded-lg bg-${form.watch("color") || "indigo"}-500 flex items-center justify-center`}>
-                        <LinkIcon className="h-6 w-6 text-white" />
-                      </div>
-                    )}
-                    <div className="overflow-hidden">
-                      <div className="font-medium line-clamp-1 text-indigo-700 dark:text-indigo-300">
-                        {form.watch("name") || "Untitled Link"}
-                      </div>
-                      <div className="text-xs text-indigo-500 dark:text-indigo-400 truncate">
-                        {window.location.origin}/view?token={link?.token}
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {form.watch("description") && (
-                    <div className="text-xs text-indigo-600 dark:text-indigo-400 line-clamp-3 mt-3 pl-3 border-l-2 border-indigo-300 dark:border-indigo-600">
-                      {form.watch("description")}
-                    </div>
-                  )}
-                  
-                  <div className="mt-4 pt-3 border-t border-indigo-200/50 dark:border-indigo-700/20">
-                    <div className="bg-white/70 dark:bg-indigo-800/10 rounded-lg p-3 flex items-center justify-between">
-                      <span className="text-xs text-indigo-600 dark:text-indigo-400">
-                        {form.watch("original_url") ? (
-                          <span className="truncate block max-w-[120px]">{form.watch("original_url")}</span>
-                        ) : (
-                          "Original URL"
-                        )}
-                      </span>
-                      <Button 
-                        variant="secondary" 
-                        size="sm" 
-                        className="h-7 text-xs"
-                        disabled={!form.watch("original_url")}
-                        onClick={openOriginalUrl}
-                      >
-                        <ArrowUpRight className="h-3 w-3 mr-1" />
-                        Visit
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <Separator className="bg-indigo-100 dark:bg-indigo-800/30" />
-              
-              <div className="space-y-3">
-                <h3 className="text-sm font-medium text-indigo-700 dark:text-indigo-300">Quick Actions</h3>
-                <div className="grid grid-cols-2 gap-2">
-                  <Button 
-                    className="text-xs"
-                    variant="outline"
-                    onClick={copyLinkToClipboard}
-                  >
-                    <Copy className="h-3.5 w-3.5 mr-1.5" />
-                    Copy Link
-                  </Button>
-                  
-                  <Button
-                    className="text-xs"
-                    variant="outline"
-                    onClick={() => window.open(`/view?token=${link?.token}`, '_blank')}
-                  >
-                    <ExternalLink className="h-3.5 w-3.5 mr-1.5" />
-                    Open Link
-                  </Button>
-                </div>
-                
-                <Button
-                  className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-xs"
-                  onClick={openOriginalUrl}
-                >
-                  <ArrowUpRight className="h-3.5 w-3.5 mr-1.5" />
-                  Visit Original URL
-                </Button>
-              </div>
-              
-              {form.watch("password") && (
-                <div className="pt-3 border-t border-indigo-100 dark:border-indigo-800/30">
-                  <div className="flex items-center gap-2 mb-2 text-indigo-700 dark:text-indigo-300">
-                    <Lock className="h-4 w-4 text-amber-500" />
-                    <h3 className="text-sm font-medium">Password Protected</h3>
-                  </div>
-                  <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/10 text-amber-800 dark:text-amber-300 p-3 rounded-lg text-xs">
-                    <p>This link is protected with a password:</p>
-                    <code className="font-mono bg-white/70 dark:bg-gray-800/50 px-2 py-1 rounded mt-2 inline-block">
-                      {form.watch("password")}
-                    </code>
-                    {form.watch("show_password") && (
-                      <div className="flex items-center gap-1.5 mt-2 text-[10px] text-amber-600 dark:text-amber-400">
-                        <Info className="h-3 w-3" />
-                        <span>Password will be visible to visitors</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-              
-              <div className="space-y-2 pt-3 border-t border-indigo-100 dark:border-indigo-800/30">
-                <div className="flex items-center gap-2 text-xs text-indigo-500 dark:text-indigo-400">
-                  <Code className="h-3.5 w-3.5" />
-                  <span>Embed this link</span>
-                </div>
-                <div className="bg-indigo-50/80 dark:bg-indigo-900/20 p-2 rounded-md text-[10px] font-mono text-indigo-600 dark:text-indigo-400 overflow-x-auto">
-                  &lt;a href="{window.location.origin}/view?token={link?.token}"&gt;{form.watch("name") || "Untitled Link"}&lt;/a&gt;
-                </div>
-              </div>
-            </CardContent>
-            
-            <CardFooter className="p-6 pt-0 flex justify-center">
-              <Badge className="bg-gradient-to-r from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/20 text-indigo-700 dark:text-indigo-300 hover:from-indigo-200 hover:to-purple-200 dark:hover:from-indigo-900/40 dark:hover:to-purple-900/30">
-                {isFormDirty ? (
-                  <div className="flex items-center gap-1.5">
-                    <AlertCircle className="h-3.5 w-3.5 text-amber-500" />
-                    <span className="text-amber-600 dark:text-amber-400">Unsaved changes</span>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-1.5">
-                    <CheckCircle className="h-3.5 w-3.5 text-emerald-500" />
-                    <span className="text-emerald-600 dark:text-emerald-400">All changes saved</span>
-                  </div>
-                )}
-              </Badge>
-            </CardFooter>
-          </Card>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default LinkEditor;
+                          className="mt-4 border-indigo-200 dark:border-
