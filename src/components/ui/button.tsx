@@ -10,7 +10,7 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700 shadow-sm hover:shadow-md",
+        default: "bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm hover:shadow-md",
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90",
         outline:
@@ -20,16 +20,12 @@ const buttonVariants = cva(
         ghost: "hover:bg-indigo-100 dark:hover:bg-indigo-800/20 text-indigo-700 dark:text-indigo-300",
         link: "text-indigo-600 dark:text-indigo-400 underline-offset-4 hover:underline",
         gradient: "bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-sm hover:shadow-md",
-        success: "bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm hover:shadow-md",
-        warning: "bg-amber-500 text-white hover:bg-amber-600 shadow-sm hover:shadow-md",
-        info: "bg-blue-600 text-white hover:bg-blue-700 shadow-sm hover:shadow-md",
       },
       size: {
         default: "h-10 px-4 py-2",
         sm: "h-9 rounded-md px-3 text-xs",
         lg: "h-11 rounded-md px-8",
         icon: "h-10 w-10",
-        circle: "h-10 w-10 rounded-full",
       },
     },
     defaultVariants: {
